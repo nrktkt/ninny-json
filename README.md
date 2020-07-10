@@ -18,6 +18,8 @@ configuration of the JSON serializer (whether to include nulls or not) rather
 than the AST. When the AST doesn't match the JSON output, testability issues 
 can open up.
 
+## [Jump to proposal](#what-are-we-proposing)
+
 ## What do libraries do today? 
 
 Let's look at three popular libraries and see how they deal with converting some
