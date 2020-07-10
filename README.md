@@ -12,7 +12,8 @@ Why not use json4s, the project created to provide one unifying AST? Read on.
 
 In principle, we want our libraries to be as expressive as possible.  
 In practice, the limitations of libraries today make it hard or impossible to 
-implement things like [JSON merge patch](https://tools.ietf.org/html/rfc7396).  
+implement things like [JSON merge patch](https://tools.ietf.org/html/rfc7396) or 
+[JSON-RPC](https://www.jsonrpc.org/specification#response_object).
 Whether a field will be included in the final JSON is also left up to the 
 configuration of the JSON serializer (whether to include nulls or not) rather 
 than the AST. When the AST doesn't match the JSON output, testability issues 
