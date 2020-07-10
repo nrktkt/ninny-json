@@ -150,11 +150,11 @@ new Decoder[FieldPresence[A]] {
       if (c.value.isNull) Right(Null)
       else
         d(c) match {
-          case Right(a) => Right(Some(Defined(a)))
+          case Right(a) => Right(Defined(a))
           case Left(df) => Left(df)
         }
     case c: FailedCursor =>
-      if (!c.incorrectFocus) Some(Absent) 
+      if (!c.incorrectFocus) Right(Absent) 
       else Left(DecodingFailure("[A]Option[A]", c.history))
   }
 }
