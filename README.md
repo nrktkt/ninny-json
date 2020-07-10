@@ -217,11 +217,11 @@ If we want to distinguish between a null and absent field
 
 ```scala
 new FromJson[FieldPresence[A]] {
-  def from(maybeJson: Option[JsonValue]) = maybeJson match {
-    case Some(JsonNull) => Success(Null)
+  def from(maybeJson: Option[JsonValue]) = Success(maybeJson match {
+    case Some(JsonNull) => Null
     case Some(json)     => Defined(json)
     case None           => Absent
-  }
+  })
 }
 ```
 
