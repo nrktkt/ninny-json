@@ -6,7 +6,7 @@ import scala.util.Success
 
 sealed trait Patch[+A]
 case object Clear          extends Patch[Nothing]
-case object Absent         extends Patch[Nothing]
+case object Nop            extends Patch[Nothing]
 case class Update[A](a: A) extends Patch[A]
 
 case class Profile(name: String, email: Option[String], bio: Option[String]) {
@@ -14,12 +14,12 @@ case class Profile(name: String, email: Option[String], bio: Option[String]) {
     Profile(
       update.name.getOrElse(name),
       update.email match {
-        case Absent    => email
+        case Nop       => email
         case Update(v) => Some(v)
         case Clear     => None
       },
       update.bio match {
-        case Absent    => bio
+        case Nop       => bio
         case Update(v) => Some(v)
         case Clear     => None
       }
@@ -42,7 +42,7 @@ object Example extends App {
     )
 
   implicit def patchFromJson[A: FromJson]: FromJson[Patch[A]] = {
-    case None           => Success(Absent)
+    case None           => Success(Nop)
     case Some(JsonNull) => Success(Clear)
     case Some(value)    => FromJson[A].from(value).map(Update(_))
   }
