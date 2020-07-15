@@ -6,14 +6,6 @@ import scala.util.Try
 
 package object ninny extends ToJsonInstances with FromJsonInstances {
 
-  def fromJson[A: FromJson](json: JsonValue): Try[A] = FromJson[A].from(json)
-
-  def fromJson[A: FromJson](json: Option[JsonValue]): Try[A] =
-    FromJson[A].from(json)
-
-  def toJson[A: ToJson](a: A)         = ToJson[A].to(a)
-  def toSomeJson[A: ToSomeJson](a: A) = ToSomeJson[A].toSome(a)
-
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
     JsonObject(
       nameValues.toMap.collect {
@@ -30,7 +22,7 @@ package object ninny extends ToJsonInstances with FromJsonInstances {
   object JsonMagnet {
     def unapply(arg: JsonMagnet): Option[Option[JsonValue]] = Some(arg.json)
 
-    implicit def from[A: ToJson](a: A) =
+    implicit def fromA[A: ToJson](a: A) =
       new JsonMagnet {
         val json = ToJson[A].to(a)
       }
@@ -39,5 +31,20 @@ package object ninny extends ToJsonInstances with FromJsonInstances {
       new JsonMagnet {
         val json = Some(js)
       }
+  }
+
+  implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
+      extends AnyVal {
+    def to[A: FromJson] = FromJson[A].from(maybeJson)
+  }
+
+  implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
+      extends AnyVal {
+    def to[A: FromJson] = hopefullyJson.flatMap(FromJson[A].from(_))
+  }
+
+  implicit class AnySyntax[A](val a: A) extends AnyVal {
+    def toJson(implicit toJson: ToJson[A])         = toJson.to(a)
+    def toSomeJson(implicit toJson: ToSomeJson[A]) = toJson.toSome(a)
   }
 }

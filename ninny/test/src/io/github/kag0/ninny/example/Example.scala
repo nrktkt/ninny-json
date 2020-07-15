@@ -1,6 +1,7 @@
-package io.github.kag0.ninny
+package io.github.kag0.ninny.example
 
 import io.github.kag0.ninny.ast._
+import io.github.kag0.ninny._
 
 import scala.util.Success
 
@@ -44,33 +45,33 @@ object Example extends App {
   implicit def patchFromJson[A: FromJson]: FromJson[Patch[A]] = {
     case None           => Success(Nop)
     case Some(JsonNull) => Success(Clear)
-    case Some(value)    => FromJson[A].from(value).map(Update(_))
+    case Some(value)    => value.to[A].map(Update(_))
   }
 
   implicit val updateProfileFromJson = FromJson.fromSome[UpdateProfile](json =>
     for {
-      email <- fromJson[Patch[String]](json.email)
-      bio   <- fromJson[Patch[String]](json.bio)
-      name  <- fromJson[Option[String]](json.name)
+      email <- json.email.to[Patch[String]]
+      bio   <- json.bio.to[Patch[String]]
+      name  <- json.name.to[Option[String]]
     } yield UpdateProfile(name, email, bio)
   )
 
   val userProfile = Profile("John Doe", Some("john.doe@example.com"), None)
 
-  val userProfileJson = toSomeJson(userProfile)
+  val userProfileJson = userProfile.toSomeJson
 
   println("User profile to JSON AST")
   println(userProfileJson)
   println()
 
   println("User profile parsed from JSON AST")
-  println(fromJson[UpdateProfile](userProfileJson))
+  println(userProfileJson.to[UpdateProfile])
   println()
 
   val profileUpdateJson =
     obj("email" -> JsonNull, "bio" -> "Just a zombie looking for his Jane")
 
-  val profileUpdate = fromJson[UpdateProfile](profileUpdateJson).get
+  val profileUpdate = profileUpdateJson.to[UpdateProfile].get
   println("Parsed profile update")
   println(profileUpdate)
   println()
@@ -78,6 +79,5 @@ object Example extends App {
   val updatedProfile = userProfile.update(profileUpdate)
 
   println("User profile after update")
-  println(toSomeJson(updatedProfile))
-  println()
+  println(updatedProfile.toSomeJson)
 }
