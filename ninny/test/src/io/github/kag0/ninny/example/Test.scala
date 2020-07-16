@@ -1,7 +1,11 @@
 package io.github.kag0.ninny.example
 
+import java.util.NoSuchElementException
+
 import io.github.kag0.ninny._
 import io.github.kag0.ninny.ast._
+
+import scala.util.{Failure, Try}
 
 object Test extends App {
   val sampleValues = obj(

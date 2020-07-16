@@ -9,6 +9,7 @@ trait ToJsonInstances {
   implicit val booleanToJson: ToSomeJson[Boolean] = JsonBoolean(_)
   implicit val nullToJson: ToSomeJson[Null]       = _ => JsonNull
   implicit val doubleToJson: ToSomeJson[Double]   = JsonNumber(_)
+  implicit val intToJson: ToSomeJson[Int]         = JsonNumber(_)
   implicit val unitToJson: ToSomeJson[Unit]       = _ => JsonArray(Nil)
   implicit val jsonToJson: ToSomeJson[JsonValue]  = identity
 
@@ -23,6 +24,9 @@ trait ToJsonInstances {
 
   implicit def optionToJson[A: ToJson]: ToJson[Option[A]] =
     a => a.flatMap(ToJson[A].to(_))
+
+  implicit val noneToJson: ToJson[None.type]          = _ => None
+  implicit def someToJson[A: ToJson]: ToJson[Some[A]] = optionToJson[A].to(_)
 
   implicit val instantToJson: ToSomeJson[Instant] =
     i => JsonNumber(i.getEpochSecond)

@@ -6,19 +6,25 @@ import scala.language.dynamics
 
 package object ast {
   sealed trait JsonValue extends Dynamic {
-    def selectDynamic(name: String): Option[JsonValue] =
+    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
+    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
+    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+
+    def /(name: String): Option[JsonValue] =
       this match {
         case JsonObject(values) => values.get(name)
         case _                  => None
       }
 
-    def applyDynamic(i: Int): Option[JsonValue] =
+    def /(i: Int): Option[JsonValue] =
       this match {
-        case JsonArray(values) if values.length < i && i >= 0 => Some(values(i))
+        case JsonArray(values) if values.length > i && i >= 0 => Some(values(i))
         case _                                                => None
       }
 
     def to[A: FromJson] = FromJson[A].from(this)
+
+    def * = MaybeJsonSyntax(Some(this))
 
     override def toString =
       this match {

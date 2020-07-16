@@ -9,33 +9,67 @@ import scala.util.{Failure, Success, Try}
 trait FromJsonInstances {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
     case JsonString(value) => Success(value)
-    case json              => Failure(new Exception(s"Expected string, got $json"))
+    case json              => Failure(new JsonException(s"Expected string, got $json"))
   }
 
   implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
     case JsonBoolean(value) => Success(value)
-    case json               => Failure(new Exception(s"Expected boolean, got $json"))
+    case json               => Failure(new JsonException(s"Expected boolean, got $json"))
   }
 
   implicit val nullFromJson: FromJson[Null] = FromJson.fromSome {
     case JsonNull => Success(null)
-    case json     => Failure(new Exception(s"Expected null, got $json"))
+    case json     => Failure(new JsonException(s"Expected null, got $json"))
   }
 
   implicit val doubleFromJson: FromJson[Double] = FromJson.fromSome {
     case JsonNumber(value) => Success(value)
-    case json              => Failure(new Exception(s"Expected number, got $json"))
+    case json              => Failure(new JsonException(s"Expected number, got $json"))
   }
 
   implicit val longFromJson =
     FromJson.fromSome(_.to[Double].flatMap {
       case d if d % 1 != 0 =>
-        Failure(new ArithmeticException(s"Expected long, got $d (decimal)"))
+        Failure(
+          new JsonException(
+            s"Expected long, got $d (decimal)",
+            new ArithmeticException("Rounding necessary")
+          )
+        )
       case d if d > Long.MaxValue =>
-        Failure(new ArithmeticException(s"Expected long, got $d (too large)"))
+        Failure(
+          new JsonException(
+            s"Expected long, got $d (too large)",
+            new ArithmeticException("Overflow")
+          )
+        )
       case d if d < Long.MinValue =>
-        Failure(new ArithmeticException(s"Expected long, got $d (too small)"))
+        Failure(
+          new JsonException(
+            s"Expected long, got $d (too small)",
+            new ArithmeticException("Underflow")
+          )
+        )
       case d => Try(d.toLong)
+    })
+
+  implicit val intFromJson: FromJson[Int] =
+    FromJson.fromSome(_.to[Long].flatMap {
+      case l if l > Int.MaxValue =>
+        Failure(
+          new JsonException(
+            s"Expected int, got $l (too large)",
+            new ArithmeticException("Overflow")
+          )
+        )
+      case l if l < Int.MinValue =>
+        Failure(
+          new JsonException(
+            s"Expected int, got $l (too small)",
+            new ArithmeticException("Underflow")
+          )
+        )
+      case l => Try(l.toInt)
     })
 
   implicit val unitFromJson: FromJson[Unit] = maybeJson =>
@@ -52,7 +86,7 @@ trait FromJsonInstances {
             soFar.flatMap(arr => js.to[A].map(_ :: arr))
           )
           .map(_.reverse)
-      case json => Failure(new Exception(s"Expected array, got $json"))
+      case json => Failure(new JsonException(s"Expected array, got $json"))
     }
 
   implicit def optionFromJson[A: FromJson]: FromJson[Option[A]] = {

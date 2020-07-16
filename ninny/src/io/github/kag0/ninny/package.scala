@@ -1,7 +1,7 @@
 package io.github.kag0
 
 import io.github.kag0.ninny.ast.{JsonArray, JsonObject, JsonValue}
-
+import scala.language.dynamics
 import scala.util.Try
 
 package object ninny extends ToJsonInstances with FromJsonInstances {
@@ -34,13 +34,50 @@ package object ninny extends ToJsonInstances with FromJsonInstances {
   }
 
   implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
-      extends AnyVal {
+      extends AnyVal
+      with Dynamic {
+
     def to[A: FromJson] = FromJson[A].from(maybeJson)
+
+    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
+    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
+    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+
+    def /(name: String) = maybeJson.flatMap(_ / name)
+    def /(i: Int)       = maybeJson.flatMap(_ / i)
+
+    def * = this
   }
 
   implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
-      extends AnyVal {
-    def to[A: FromJson] = hopefullyJson.flatMap(FromJson[A].from(_))
+      extends AnyVal
+      with Dynamic {
+    def to[A: FromJson] = hopefullyJson.flatMap(_.to[A])
+
+    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+
+    def /(name: String) = hopefullyJson.map(_ / name)
+    def /(i: Int)       = hopefullyJson.map(_ / i)
+
+    def * = this
+  }
+
+  implicit class HopefullyMaybeJsonSyntax(
+      val maybeHopefullyJson: Try[Option[JsonValue]]
+  ) extends AnyVal
+      with Dynamic {
+    def to[A: FromJson] = maybeHopefullyJson.flatMap(_.to[A])
+
+    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+
+    def /(name: String) = maybeHopefullyJson.map(_ / name)
+    def /(i: Int)       = maybeHopefullyJson.map(_ / i)
+
+    def * = this
   }
 
   implicit class AnySyntax[A](val a: A) extends AnyVal {
