@@ -16,29 +16,36 @@ class JsonSpec
     with should.Matchers
     with TryValues
     with OptionValues {
-  /*
-  val sampleValues = obj(
-    "string" -> """¯\_(ツ)_/¯""",
-    "number" -> 1.79e308,
-    "bool"   -> true,
-    "false"  -> false,
-    "null"   -> null,
-    "unit"   -> (),
-    "some"   -> "str"
-  )
 
-  val sampleArray =
-    arr(sampleValues, "yup", 123d, false, Seq(sampleValues: JsonValue))
+  it should "work" in {
+    val sampleValues = obj(
+      "string" -> """¯\_(ツ)_/¯""",
+      "number" -> 1.79e308,
+      "bool"   -> true,
+      "false"  -> false,
+      "null"   -> null,
+      "unit"   -> (),
+      "some"   -> "str"
+    )
 
-  val sampleObject =
-    sampleValues ++ obj("object" -> sampleValues, "array" -> sampleArray)
+    val sampleArray =
+      arr(sampleValues, "yup", 123d, false, Seq(sampleValues: JsonValue))
 
-  val jsonString = sampleObject.toString
-  println(jsonString)
+    val sampleObject =
+      JsonObject(
+        sampleValues.values ++ obj(
+          "object" -> sampleValues,
+          "array"  -> sampleArray
+        ).values
+      )
 
-  val parsed = Json.parse(jsonString).get
-  println(parsed == sampleObject)
-  println(parsed.array.to[Seq[JsonValue]].get == sampleArray.values)
+    val jsonString = sampleObject.toString
+    println(jsonString)
+
+    val parsed = Json.parse(jsonString).get
+    println(parsed == sampleObject)
+    println(parsed.array.to[Seq[JsonValue]].get == sampleArray.values)
+  }
 
   case class SampleValues(
       string: String,
@@ -103,16 +110,16 @@ class JsonSpec
 
   val sampleValuesString =
     """
-      |{
-      |  "string": "\u00AF\\_(\u30C4)_\/\u00AF",
-      |  "number": 1.79e308,
-      |  "bool": true,
-      |  "false": false,
-      |  "null": null,
-      |  "unit": [],
-      |  "some": "str"
-      |}
-      |""".stripMargin
+        |{
+        |  "string": "\u00AF\\_(\u30C4)_\/\u00AF",
+        |  "number": 1.79e308,
+        |  "bool": true,
+        |  "false": false,
+        |  "null": null,
+        |  "unit": [],
+        |  "some": "str"
+        |}
+        |""".stripMargin
 
   "Primitives" should "parse in and out of JSON strings" in {
     val sampleValuesAstParsed = Json.parse(sampleValuesString)
@@ -125,8 +132,6 @@ class JsonSpec
     val sampleValuesObjGenerated = sampleValuesAstParsed.to[SampleValues]
     sampleValuesObjGenerated.success.value shouldEqual sampleValuesObj
   }
-
-   */
 
   val exampleObjectString =
     """
@@ -449,13 +454,13 @@ class JsonSpec
   "JsonArrays" should "return none on indexes out of bounds" in {
     val array = Some(arr("one", "two", 3))
 
-    array(1).maybeJson shouldBe 'defined
-    array(-1).maybeJson should not be 'defined
-    array(3).maybeJson should not be 'defined
+    array(1).maybeJson shouldBe defined
+    array(-1).maybeJson should not be defined
+    array(3).maybeJson should not be defined
 
     val tryArray = Success(arr("one", "two", 3))
 
-    tryArray(1).maybeHopefullyJson.success.value shouldBe 'defined
+    tryArray(1).maybeHopefullyJson.success.value shouldBe defined
     tryArray(-1).maybeHopefullyJson.success.value shouldBe None
     tryArray(3).maybeHopefullyJson.success.value shouldBe None
   }
