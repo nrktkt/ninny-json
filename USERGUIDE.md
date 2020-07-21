@@ -12,7 +12,8 @@ val hopefullyJson: Try[JsonValue] = Json.parse("""
 "address": {
   "street": "710 Ashbury St",
   "zip": "94117"
-}
+},
+"kids": ["Jr", "Jane"]
 }
 """)
 
@@ -88,7 +89,7 @@ val json = obj(
 json.toString // {"lastName":"Doe","firstName":"John","address":{"street":"710 Ashbury St","zip":"94117"},"kids":["Jr","Jane"]}
 ```
 
-# Converting JSON to domain objects
+# Converting domain objects to JSON
 
 ```scala
 import io.github.kag0.ninny.ast._
@@ -135,7 +136,7 @@ Person(
 ).toSomeJson: JsonValue
 ```
 
-# Converting domain objects to JSON 
+# Converting JSON to domain objects
 
 ```scala
 case class Person(

@@ -4,7 +4,7 @@ import io.github.kag0.ninny.ast.JsonValue
 
 import scala.util.{Failure, Try}
 
-object Userguide {
+object Userguide extends App {
   import io.github.kag0.ninny._
 
   val hopefullyJson: Try[JsonValue] = Json.parse("""
@@ -14,7 +14,8 @@ object Userguide {
 "address": {
   "street": "710 Ashbury St",
   "zip": "94117"
-}
+},
+"kids": ["Jr", "Jane"]
 }
 """)
 
