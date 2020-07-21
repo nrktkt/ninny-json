@@ -27,6 +27,8 @@ trait ToJsonInstances {
 
   implicit val noneToJson: ToJson[None.type]          = _ => None
   implicit def someToJson[A: ToJson]: ToJson[Some[A]] = optionToJson[A].to(_)
+  implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] =
+    _.value.toSomeJson
 
   implicit val instantToJson: ToSomeJson[Instant] =
     i => JsonNumber(i.getEpochSecond)

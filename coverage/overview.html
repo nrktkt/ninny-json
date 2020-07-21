@@ -1,0 +1,909 @@
+<html>
+      <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+      <title id="title">Scoverage Code Coverage</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+      <style>
+        .meter {
+        height: 14px;
+        position: relative;
+        background: #BB2020;
+}
+
+.meter span {
+	display: block;
+	height: 100%;
+	background-color: rgb(43,194,83);
+	background-image: -webkit-gradient(
+	  linear,
+	  left bottom,
+	  left top,
+	  color-stop(0, rgb(43,194,83)),
+	  color-stop(1, rgb(84,240,84))
+	 );
+	background-image: -webkit-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -moz-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -ms-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	background-image: -o-linear-gradient(
+	  center bottom,
+	  rgb(43,194,83) 37%,
+	  rgb(84,240,84) 69%
+	 );
+	-webkit-box-shadow:
+	  inset 0 2px 9px  rgba(255,255,255,0.3),
+	  inset 0 -2px 6px rgba(0,0,0,0.4);
+	-moz-box-shadow:
+	  inset 0 2px 9px  rgba(255,255,255,0.3),
+	  inset 0 -2px 6px rgba(0,0,0,0.4);
+	position: relative;
+	overflow: hidden;
+}
+      </style>
+    </head><body style="font-family: monospace;">
+      <div class="alert alert-info">
+        <b>
+          SCoverage
+        </b>
+        generated at
+        Tue Jul 21 01:48:52 GMT 2020
+      </div>
+      <div class="overview">
+        <div class="stats">
+          <table class="table">
+      <tr>
+        <td>
+          Lines of code:
+        </td>
+        <td>
+          340
+        </td>
+        <td>
+          Files:
+        </td>
+        <td>
+          8
+        </td>
+        <td>
+          Classes:
+        </td>
+        <td>
+          15
+        </td>
+        <td>
+          Methods:
+        </td>
+        <td>
+          50
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Lines per file:
+        </td>
+        <td>
+          42.50
+        </td>
+        <td>
+          Packages:
+        </td>
+        <td>
+          3
+        </td>
+        <td>
+          Classes per package:
+        </td>
+        <td>
+          5.00
+        </td>
+        <td>
+          Methods per class:
+        </td>
+        <td>
+          3.33
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Total statements:
+        </td>
+        <td>
+          210
+        </td>
+        <td>
+          Invoked statements:
+        </td>
+        <td>
+          202
+        </td>
+        <td>
+          Total branches:
+        </td>
+        <td>
+          0
+        </td>
+        <td>
+          Invoked branches:
+        </td>
+        <td>
+          0
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Ignored statements:
+        </td>
+        <td>
+          0
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          Statement coverage:
+        </td>
+        <td>
+          96.19
+          %
+        </td>
+        <td colspan="2">
+          <div class="meter">
+            <span style="width: 96%"></span>
+          </div>
+        </td>
+        <td>
+          Branch coverage:
+        </td>
+        <td>
+          100.00
+          %
+        </td>
+        <td colspan="2">
+          <div class="meter">
+            <span style="width: 100%"></span>
+          </div>
+        </td>
+      </tr>
+    </table>
+        </div>
+        <div>
+          <table class="tablesorter table table-striped" style="font-size:13px">
+      <thead>
+        <tr>
+          <th>
+            Class
+          </th>
+          <th>
+            Source file
+          </th>
+          <th>
+            Lines
+          </th>
+          <th>
+            Methods
+          </th>
+          <th>
+            Statements
+          </th>
+          <th>
+            Invoked
+          </th>
+          <th>
+            Coverage
+          </th>
+          <th>
+          </th>
+          <th>
+            Branches
+          </th>
+          <th>
+            Invoked
+          </th>
+          <th>
+            Coverage
+          </th>
+          <th>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          AnySyntax
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        85
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/FromJson.scala.html">
+          FromJson
+        </a>
+      </td>
+      <td>
+        FromJson.scala
+      </td>
+      <td>
+        18
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/FromJsonInstances.scala.html">
+          FromJsonInstances
+        </a>
+      </td>
+      <td>
+        FromJsonInstances.scala
+      </td>
+      <td>
+        109
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        88
+      </td>
+      <td>
+        86
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 98%"></span>
+        </div>
+      </td>
+      <td>
+        97.73
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          HopefullyJsonSyntax
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        62
+      </td>
+      <td>
+        5
+      </td>
+      <td>
+        11
+      </td>
+      <td>
+        10
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 91%"></span>
+        </div>
+      </td>
+      <td>
+        90.91
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          HopefullyMaybeJsonSyntax
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        78
+      </td>
+      <td>
+        5
+      </td>
+      <td>
+        11
+      </td>
+      <td>
+        11
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/Json.scala.html">
+          Json
+        </a>
+      </td>
+      <td>
+        Json.scala
+      </td>
+      <td>
+        9
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          JsonMagnet
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        32
+      </td>
+      <td>
+        3
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          MaybeJsonSyntax
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        47
+      </td>
+      <td>
+        5
+      </td>
+      <td>
+        11
+      </td>
+      <td>
+        10
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 91%"></span>
+        </div>
+      </td>
+      <td>
+        90.91
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/ToJson.scala.html">
+          ToJson
+        </a>
+      </td>
+      <td>
+        ToJson.scala
+      </td>
+      <td>
+        10
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/ToJsonInstances.scala.html">
+          ToJsonInstances
+        </a>
+      </td>
+      <td>
+        ToJsonInstances.scala
+      </td>
+      <td>
+        40
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        28
+      </td>
+      <td>
+        26
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 93%"></span>
+        </div>
+      </td>
+      <td>
+        92.86
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/ToJson.scala.html">
+          ToSomeJson
+        </a>
+      </td>
+      <td>
+        ToJson.scala
+      </td>
+      <td>
+        15
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/ast/package.scala.html">
+          JsonString
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        48
+      </td>
+      <td>
+        1
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/ast/package.scala.html">
+          JsonValue
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        37
+      </td>
+      <td>
+        6
+      </td>
+      <td>
+        19
+      </td>
+      <td>
+        17
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 89%"></span>
+        </div>
+      </td>
+      <td>
+        89.47
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/jawn/package.scala.html">
+          Facade
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        16
+      </td>
+      <td>
+        5
+      </td>
+      <td>
+        10
+      </td>
+      <td>
+        10
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr><tr>
+      <td>
+        <a href="io/github/kag0/ninny/package.scala.html">
+          package
+        </a>
+      </td>
+      <td>
+        package.scala
+      </td>
+      <td>
+        16
+      </td>
+      <td>
+        2
+      </td>
+      <td>
+        8
+      </td>
+      <td>
+        8
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        <div class="meter">
+          <span style="width: 100%"></span>
+        </div>
+      </td>
+      <td>
+        100.00
+        %
+      </td>
+    </tr>
+      </tbody>
+    </table>
+        </div>
+      </div>
+    </body>
+    </html>

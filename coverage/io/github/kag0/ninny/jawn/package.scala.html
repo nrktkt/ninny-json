@@ -1,0 +1,269 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          io/github/kag0/ninny/jawn/package.scala.html
+        </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier, monospace;'>1 <span style=''>package io.github.kag0.ninny
+</span>2 <span style=''>
+</span>3 <span style=''>import io.github.kag0.ninny.ast._
+</span>4 <span style=''>import org.typelevel.jawn.Facade.SimpleFacade
+</span>5 <span style=''>
+</span>6 <span style=''>package object jawn {
+</span>7 <span style=''>  implicit object Facade extends SimpleFacade[JsonValue] {
+</span>8 <span style=''>    def jarray(vs: List[JsonValue])         = JsonArray(vs)
+</span>9 <span style=''>    def jobject(vs: Map[String, JsonValue]) = JsonObject(vs)
+</span>10 <span style=''>    val jnull                               = JsonNull
+</span>11 <span style=''>    val jfalse                              = JsonBoolean(false)
+</span>12 <span style=''>    val jtrue                               = JsonBoolean(true)
+</span>13 <span style=''>    def jstring(s: CharSequence)            = JsonString(s.toString)
+</span>14 <span style=''>
+</span>15 <span style=''>    def jnum(s: CharSequence, decIndex: Int, expIndex: Int) =
+</span>16 <span style=''>      JsonNumber(s.toString.toDouble)
+</span>17 <span style=''>  }
+</span>18 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          8
+        </td>
+        <td>
+          150
+        </td>
+        <td>
+          247
+          -
+          247
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonArray.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonArray.apply(vs)
+        </td>
+      </tr><tr>
+        <td>
+          9
+        </td>
+        <td>
+          151
+        </td>
+        <td>
+          308
+          -
+          308
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonObject.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonObject.apply(vs)
+        </td>
+      </tr><tr>
+        <td>
+          10
+        </td>
+        <td>
+          152
+        </td>
+        <td>
+          359
+          -
+          359
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonNull
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonNull
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          153
+        </td>
+        <td>
+          425
+          -
+          425
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonBoolean.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonBoolean.apply(false)
+        </td>
+      </tr><tr>
+        <td>
+          12
+        </td>
+        <td>
+          154
+        </td>
+        <td>
+          490
+          -
+          490
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonBoolean.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonBoolean.apply(true)
+        </td>
+      </tr><tr>
+        <td>
+          13
+        </td>
+        <td>
+          155
+        </td>
+        <td>
+          556
+          -
+          556
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.Object.toString
+        </td>
+        <td style="background: #AEF1AE">
+          s.toString()
+        </td>
+      </tr><tr>
+        <td>
+          13
+        </td>
+        <td>
+          156
+        </td>
+        <td>
+          553
+          -
+          553
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonString.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonString.apply(s.toString())
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          157
+        </td>
+        <td>
+          648
+          -
+          648
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.Object.toString
+        </td>
+        <td style="background: #AEF1AE">
+          s.toString()
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          158
+        </td>
+        <td>
+          657
+          -
+          657
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.collection.StringOps.toDouble
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.augmentString(s.toString()).toDouble
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          159
+        </td>
+        <td>
+          645
+          -
+          645
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonNumber.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonNumber.apply(scala.Predef.augmentString(s.toString()).toDouble)
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

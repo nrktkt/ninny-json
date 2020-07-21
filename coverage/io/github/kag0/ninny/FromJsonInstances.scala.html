@@ -1,0 +1,2048 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          io/github/kag0/ninny/FromJsonInstances.scala.html
+        </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier, monospace;'>1 <span style=''>package io.github.kag0.ninny
+</span>2 <span style=''>
+</span>3 <span style=''>import java.time.{Instant, OffsetDateTime, ZonedDateTime}
+</span>4 <span style=''>
+</span>5 <span style=''>import io.github.kag0.ninny.ast._
+</span>6 <span style=''>
+</span>7 <span style=''>import scala.util.{Failure, Success, Try}
+</span>8 <span style=''>
+</span>9 <span style=''>trait FromJsonInstances {
+</span>10 <span style=''>  implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
+</span>11 <span style=''>    case JsonString(value) =&gt; Success(value)
+</span>12 <span style=''>    case json              =&gt; Failure(new JsonException(s&quot;Expected string, got $json&quot;))
+</span>13 <span style=''>  }
+</span>14 <span style=''>
+</span>15 <span style=''>  implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
+</span>16 <span style=''>    case JsonBoolean(value) =&gt; Success(value)
+</span>17 <span style=''>    case json               =&gt; Failure(new JsonException(s&quot;Expected boolean, got $json&quot;))
+</span>18 <span style=''>  }
+</span>19 <span style=''>
+</span>20 <span style=''>  implicit val nullFromJson: FromJson[Null] = FromJson.fromSome {
+</span>21 <span style=''>    case JsonNull =&gt; Success(null)
+</span>22 <span style=''>    case json     =&gt; Failure(new JsonException(s&quot;Expected null, got $json&quot;))
+</span>23 <span style=''>  }
+</span>24 <span style=''>
+</span>25 <span style=''>  implicit val doubleFromJson: FromJson[Double] = FromJson.fromSome {
+</span>26 <span style=''>    case JsonNumber(value) =&gt; Success(value)
+</span>27 <span style=''>    case json              =&gt; Failure(new JsonException(s&quot;Expected number, got $json&quot;))
+</span>28 <span style=''>  }
+</span>29 <span style=''>
+</span>30 <span style=''>  implicit val longFromJson =
+</span>31 <span style=''>    FromJson.fromSome(_.to[Double].flatMap {
+</span>32 <span style=''>      case d if d </span><span style='background: #AEF1AE'>% 1 !=</span><span style=''> 0 =&gt;
+</span>33 <span style=''>        Failure(
+</span>34 <span style=''>          new JsonException(
+</span>35 <span style=''>            s&quot;Expected long, got $d (decimal)&quot;,
+</span>36 <span style=''>            new ArithmeticException(&quot;Rounding necessary&quot;)
+</span>37 <span style=''>          )
+</span>38 <span style=''>        )
+</span>39 <span style=''>      case d if d </span><span style='background: #AEF1AE'>&gt;</span><span style=''> Long.MaxValue =&gt;
+</span>40 <span style=''>        Failure(
+</span>41 <span style=''>          new JsonException(
+</span>42 <span style=''>            s&quot;Expected long, got $d (too large)&quot;,
+</span>43 <span style=''>            new ArithmeticException(&quot;Overflow&quot;)
+</span>44 <span style=''>          )
+</span>45 <span style=''>        )
+</span>46 <span style=''>      case d if d </span><span style='background: #AEF1AE'>&lt;</span><span style=''> Long.MinValue =&gt;
+</span>47 <span style=''>        Failure(
+</span>48 <span style=''>          new JsonException(
+</span>49 <span style=''>            s&quot;Expected long, got $d (too small)&quot;,
+</span>50 <span style=''>            new ArithmeticException(&quot;Underflow&quot;)
+</span>51 <span style=''>          )
+</span>52 <span style=''>        )
+</span>53 <span style=''>      case d =&gt; Try(d.toLong)
+</span>54 <span style=''>    })
+</span>55 <span style=''>
+</span>56 <span style=''>  implicit val intFromJson: FromJson[Int] =
+</span>57 <span style=''>    FromJson.fromSome(_.to[Long].flatMap {
+</span>58 <span style=''>      case l if l </span><span style='background: #AEF1AE'>&gt;</span><span style=''> Int.MaxValue =&gt;
+</span>59 <span style=''>        Failure(
+</span>60 <span style=''>          new JsonException(
+</span>61 <span style=''>            s&quot;Expected int, got $l (too large)&quot;,
+</span>62 <span style=''>            new ArithmeticException(&quot;Overflow&quot;)
+</span>63 <span style=''>          )
+</span>64 <span style=''>        )
+</span>65 <span style=''>      case l if l </span><span style='background: #AEF1AE'>&lt;</span><span style=''> Int.MinValue =&gt;
+</span>66 <span style=''>        Failure(
+</span>67 <span style=''>          new JsonException(
+</span>68 <span style=''>            s&quot;Expected int, got $l (too small)&quot;,
+</span>69 <span style=''>            new ArithmeticException(&quot;Underflow&quot;)
+</span>70 <span style=''>          )
+</span>71 <span style=''>        )
+</span>72 <span style=''>      case l =&gt; Try(l.toInt)
+</span>73 <span style=''>    })
+</span>74 <span style=''>
+</span>75 <span style=''>  implicit val unitFromJson: FromJson[Unit] = maybeJson =&gt;
+</span>76 <span style=''>    Success(maybeJson.map(_ =&gt; ()))
+</span>77 <span style=''>
+</span>78 <span style=''>  implicit val jsonFromJson: FromJson[JsonValue] =
+</span>79 <span style=''>    FromJson.fromSome[JsonValue](Success(_))
+</span>80 <span style=''>
+</span>81 <span style=''>  implicit def seqFromJson[A: FromJson]: FromJson[Seq[A]] =
+</span>82 <span style=''>    FromJson.fromSome {
+</span>83 <span style=''>      case JsonArray(values) =&gt;
+</span>84 <span style=''>        values
+</span>85 <span style=''>          .foldLeft[Try[List[A]]](Success(Nil))((soFar, js) =&gt;
+</span>86 <span style=''>            soFar.flatMap(arr =&gt; js.to[A].map(_ </span><span style='background: #AEF1AE'>::</span><span style=''> arr))
+</span>87 <span style=''>          )
+</span>88 <span style=''>          .map(_.reverse)
+</span>89 <span style=''>      case json =&gt; Failure(new JsonException(s&quot;Expected array, got $json&quot;))
+</span>90 <span style=''>    }
+</span>91 <span style=''>
+</span>92 <span style=''>  implicit def optionFromJson[A: FromJson]: FromJson[Option[A]] = {
+</span>93 <span style=''>    case Some(JsonNull) =&gt; Success(None)
+</span>94 <span style=''>    case Some(json)     =&gt; FromJson[A].from(json).map(Some(_))
+</span>95 <span style=''>    case None           =&gt; Success(None)
+</span>96 <span style=''>  }
+</span>97 <span style=''>
+</span>98 <span style=''>  implicit val instantFromJson: FromJson[Instant] = FromJson.fromSome(
+</span>99 <span style=''>    _.to[Long].flatMap(l =&gt; Try(Instant.ofEpochSecond(l)))
+</span>100 <span style=''>  )
+</span>101 <span style=''>
+</span>102 <span style=''>  implicit val offsetDateTimeFromJson: FromJson[OffsetDateTime] =
+</span>103 <span style=''>    FromJson.fromSome(
+</span>104 <span style=''>      _.to[String].flatMap(s =&gt; Try(OffsetDateTime.parse(s)))
+</span>105 <span style=''>    )
+</span>106 <span style=''>
+</span>107 <span style=''>  implicit val zonedDateTimeFromJson: FromJson[ZonedDateTime] =
+</span>108 <span style=''>    FromJson.fromSome(
+</span>109 <span style=''>      _.to[String].flatMap(s =&gt; Try(ZonedDateTime.parse(s)))
+</span>110 <span style=''>    )
+</span>111 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          10
+        </td>
+        <td>
+          11
+        </td>
+        <td>
+          261
+          -
+          261
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[String](((x0$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x0$1 match {
+  case (value: String): io.github.kag0.ninny.ast.JsonString((value @ _)) =&gt; scala.util.Success.apply[String](value)
+  case (json @ _) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected string, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+}))
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          7
+        </td>
+        <td>
+          300
+          -
+          300
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[String](value)
+        </td>
+      </tr><tr>
+        <td>
+          12
+        </td>
+        <td>
+          8
+        </td>
+        <td>
+          346
+          -
+          346
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;$default$2
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.JsonException.&lt;init&gt;$default$2
+        </td>
+      </tr><tr>
+        <td>
+          12
+        </td>
+        <td>
+          9
+        </td>
+        <td>
+          346
+          -
+          346
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected string, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2)
+        </td>
+      </tr><tr>
+        <td>
+          12
+        </td>
+        <td>
+          10
+        </td>
+        <td>
+          345
+          -
+          345
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected string, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+        </td>
+      </tr><tr>
+        <td>
+          15
+        </td>
+        <td>
+          16
+        </td>
+        <td>
+          471
+          -
+          471
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Boolean](((x0$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x0$1 match {
+  case (value: Boolean): io.github.kag0.ninny.ast.JsonBoolean((value @ _)) =&gt; scala.util.Success.apply[Boolean](value)
+  case (json @ _) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected boolean, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+}))
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          12
+        </td>
+        <td>
+          511
+          -
+          511
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[Boolean](value)
+        </td>
+      </tr><tr>
+        <td>
+          17
+        </td>
+        <td>
+          13
+        </td>
+        <td>
+          558
+          -
+          558
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;$default$2
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.JsonException.&lt;init&gt;$default$2
+        </td>
+      </tr><tr>
+        <td>
+          17
+        </td>
+        <td>
+          14
+        </td>
+        <td>
+          558
+          -
+          558
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected boolean, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2)
+        </td>
+      </tr><tr>
+        <td>
+          17
+        </td>
+        <td>
+          15
+        </td>
+        <td>
+          557
+          -
+          557
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected boolean, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+        </td>
+      </tr><tr>
+        <td>
+          20
+        </td>
+        <td>
+          21
+        </td>
+        <td>
+          678
+          -
+          678
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Null](((x0$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x0$1 match {
+  case io.github.kag0.ninny.ast.`package`.JsonNull =&gt; scala.util.Success.apply[Null](null)
+  case (json @ _) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected null, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+}))
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          17
+        </td>
+        <td>
+          708
+          -
+          708
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #F0ADAD">
+          scala.util.Success.apply[Null](null)
+        </td>
+      </tr><tr>
+        <td>
+          22
+        </td>
+        <td>
+          18
+        </td>
+        <td>
+          744
+          -
+          744
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;$default$2
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.JsonException.&lt;init&gt;$default$2
+        </td>
+      </tr><tr>
+        <td>
+          22
+        </td>
+        <td>
+          19
+        </td>
+        <td>
+          744
+          -
+          744
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected null, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2)
+        </td>
+      </tr><tr>
+        <td>
+          22
+        </td>
+        <td>
+          20
+        </td>
+        <td>
+          743
+          -
+          743
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected null, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+        </td>
+      </tr><tr>
+        <td>
+          25
+        </td>
+        <td>
+          26
+        </td>
+        <td>
+          865
+          -
+          865
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Double](((x0$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x0$1 match {
+  case (value: Double): io.github.kag0.ninny.ast.JsonNumber((value @ _)) =&gt; scala.util.Success.apply[Double](value)
+  case (json @ _) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected number, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+}))
+        </td>
+      </tr><tr>
+        <td>
+          26
+        </td>
+        <td>
+          22
+        </td>
+        <td>
+          904
+          -
+          904
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[Double](value)
+        </td>
+      </tr><tr>
+        <td>
+          27
+        </td>
+        <td>
+          23
+        </td>
+        <td>
+          950
+          -
+          950
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;$default$2
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.JsonException.&lt;init&gt;$default$2
+        </td>
+      </tr><tr>
+        <td>
+          27
+        </td>
+        <td>
+          24
+        </td>
+        <td>
+          950
+          -
+          950
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected number, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2)
+        </td>
+      </tr><tr>
+        <td>
+          27
+        </td>
+        <td>
+          25
+        </td>
+        <td>
+          949
+          -
+          949
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected number, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          27
+        </td>
+        <td>
+          1061
+          -
+          1061
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonInstances.doubleFromJson
+        </td>
+        <td style="background: #AEF1AE">
+          FromJsonInstances.this.doubleFromJson
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          42
+        </td>
+        <td>
+          1078
+          -
+          1078
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          x$1.to[Double](FromJsonInstances.this.doubleFromJson).flatMap[Long](((x0$1: Double) =&gt; x0$1 match {
+  case (d @ _) if d.%(1).!=(0) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (decimal)&quot;): String), new java.lang.ArithmeticException(&quot;Rounding necessary&quot;)))
+  case (d @ _) if d.&gt;(9223372036854775807L) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+  case (d @ _) if d.&lt;(-9223372036854775808L) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+  case (d @ _) =&gt; scala.util.Try.apply[Long](d.toLong)
+}))
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          43
+        </td>
+        <td>
+          1056
+          -
+          1056
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Long](((x$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x$1.to[Double](FromJsonInstances.this.doubleFromJson).flatMap[Long](((x0$1: Double) =&gt; x0$1 match {
+  case (d @ _) if d.%(1).!=(0) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (decimal)&quot;): String), new java.lang.ArithmeticException(&quot;Rounding necessary&quot;)))
+  case (d @ _) if d.&gt;(9223372036854775807L) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+  case (d @ _) if d.&lt;(-9223372036854775808L) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+  case (d @ _) =&gt; scala.util.Try.apply[Long](d.toLong)
+}))))
+        </td>
+      </tr><tr>
+        <td>
+          32
+        </td>
+        <td>
+          28
+        </td>
+        <td>
+          1098
+          -
+          1104
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Double.!=
+        </td>
+        <td style="background: #AEF1AE">
+          d.%(1).!=(0)
+        </td>
+      </tr><tr>
+        <td>
+          33
+        </td>
+        <td>
+          31
+        </td>
+        <td>
+          1125
+          -
+          1125
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (decimal)&quot;): String), new java.lang.ArithmeticException(&quot;Rounding necessary&quot;)))
+        </td>
+      </tr><tr>
+        <td>
+          34
+        </td>
+        <td>
+          30
+        </td>
+        <td>
+          1137
+          -
+          1137
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (decimal)&quot;): String), new java.lang.ArithmeticException(&quot;Rounding necessary&quot;))
+        </td>
+      </tr><tr>
+        <td>
+          36
+        </td>
+        <td>
+          29
+        </td>
+        <td>
+          1216
+          -
+          1216
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.ArithmeticException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.lang.ArithmeticException(&quot;Rounding necessary&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          39
+        </td>
+        <td>
+          32
+        </td>
+        <td>
+          1302
+          -
+          1303
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Double.&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          d.&gt;(9223372036854775807L)
+        </td>
+      </tr><tr>
+        <td>
+          40
+        </td>
+        <td>
+          35
+        </td>
+        <td>
+          1336
+          -
+          1336
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+        </td>
+      </tr><tr>
+        <td>
+          41
+        </td>
+        <td>
+          34
+        </td>
+        <td>
+          1348
+          -
+          1348
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;))
+        </td>
+      </tr><tr>
+        <td>
+          43
+        </td>
+        <td>
+          33
+        </td>
+        <td>
+          1429
+          -
+          1429
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.ArithmeticException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.lang.ArithmeticException(&quot;Overflow&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          46
+        </td>
+        <td>
+          36
+        </td>
+        <td>
+          1505
+          -
+          1506
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Double.&lt;
+        </td>
+        <td style="background: #AEF1AE">
+          d.&lt;(-9223372036854775808L)
+        </td>
+      </tr><tr>
+        <td>
+          47
+        </td>
+        <td>
+          39
+        </td>
+        <td>
+          1539
+          -
+          1539
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+        </td>
+      </tr><tr>
+        <td>
+          48
+        </td>
+        <td>
+          38
+        </td>
+        <td>
+          1551
+          -
+          1551
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected long, got &quot;.+(d).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;))
+        </td>
+      </tr><tr>
+        <td>
+          50
+        </td>
+        <td>
+          37
+        </td>
+        <td>
+          1632
+          -
+          1632
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.ArithmeticException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.lang.ArithmeticException(&quot;Underflow&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          53
+        </td>
+        <td>
+          40
+        </td>
+        <td>
+          1713
+          -
+          1713
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.Double.toLong
+        </td>
+        <td style="background: #AEF1AE">
+          d.toLong
+        </td>
+      </tr><tr>
+        <td>
+          53
+        </td>
+        <td>
+          41
+        </td>
+        <td>
+          1710
+          -
+          1710
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Try.apply[Long](d.toLong)
+        </td>
+      </tr><tr>
+        <td>
+          57
+        </td>
+        <td>
+          44
+        </td>
+        <td>
+          1799
+          -
+          1799
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonInstances.longFromJson
+        </td>
+        <td style="background: #AEF1AE">
+          FromJsonInstances.this.longFromJson
+        </td>
+      </tr><tr>
+        <td>
+          57
+        </td>
+        <td>
+          55
+        </td>
+        <td>
+          1814
+          -
+          1814
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          x$2.to[Long](FromJsonInstances.this.longFromJson).flatMap[Int](((x0$1: Long) =&gt; x0$1 match {
+  case (l @ _) if l.&gt;(2147483647) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+  case (l @ _) if l.&lt;(-2147483648) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+  case (l @ _) =&gt; scala.util.Try.apply[Int](l.toInt)
+}))
+        </td>
+      </tr><tr>
+        <td>
+          57
+        </td>
+        <td>
+          56
+        </td>
+        <td>
+          1794
+          -
+          1794
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Int](((x$2: io.github.kag0.ninny.ast.JsonValue) =&gt; x$2.to[Long](FromJsonInstances.this.longFromJson).flatMap[Int](((x0$1: Long) =&gt; x0$1 match {
+  case (l @ _) if l.&gt;(2147483647) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+  case (l @ _) if l.&lt;(-2147483648) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+  case (l @ _) =&gt; scala.util.Try.apply[Int](l.toInt)
+}))))
+        </td>
+      </tr><tr>
+        <td>
+          58
+        </td>
+        <td>
+          45
+        </td>
+        <td>
+          1834
+          -
+          1835
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Long.&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          l.&gt;(2147483647)
+        </td>
+      </tr><tr>
+        <td>
+          59
+        </td>
+        <td>
+          48
+        </td>
+        <td>
+          1867
+          -
+          1867
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;)))
+        </td>
+      </tr><tr>
+        <td>
+          60
+        </td>
+        <td>
+          47
+        </td>
+        <td>
+          1879
+          -
+          1879
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too large)&quot;): String), new java.lang.ArithmeticException(&quot;Overflow&quot;))
+        </td>
+      </tr><tr>
+        <td>
+          62
+        </td>
+        <td>
+          46
+        </td>
+        <td>
+          1959
+          -
+          1959
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.ArithmeticException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.lang.ArithmeticException(&quot;Overflow&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          65
+        </td>
+        <td>
+          49
+        </td>
+        <td>
+          2035
+          -
+          2036
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Long.&lt;
+        </td>
+        <td style="background: #AEF1AE">
+          l.&lt;(-2147483648)
+        </td>
+      </tr><tr>
+        <td>
+          66
+        </td>
+        <td>
+          52
+        </td>
+        <td>
+          2068
+          -
+          2068
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;)))
+        </td>
+      </tr><tr>
+        <td>
+          67
+        </td>
+        <td>
+          51
+        </td>
+        <td>
+          2080
+          -
+          2080
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected int, got &quot;.+(l).+(&quot; (too small)&quot;): String), new java.lang.ArithmeticException(&quot;Underflow&quot;))
+        </td>
+      </tr><tr>
+        <td>
+          69
+        </td>
+        <td>
+          50
+        </td>
+        <td>
+          2160
+          -
+          2160
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.lang.ArithmeticException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.lang.ArithmeticException(&quot;Underflow&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          72
+        </td>
+        <td>
+          53
+        </td>
+        <td>
+          2241
+          -
+          2241
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.Long.toInt
+        </td>
+        <td style="background: #AEF1AE">
+          l.toInt
+        </td>
+      </tr><tr>
+        <td>
+          72
+        </td>
+        <td>
+          54
+        </td>
+        <td>
+          2238
+          -
+          2238
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Try.apply[Int](l.toInt)
+        </td>
+      </tr><tr>
+        <td>
+          76
+        </td>
+        <td>
+          57
+        </td>
+        <td>
+          2346
+          -
+          2346
+        </td>
+        <td>
+          Literal
+        </td>
+        <td>
+          &lt;nosymbol&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          ()
+        </td>
+      </tr><tr>
+        <td>
+          76
+        </td>
+        <td>
+          58
+        </td>
+        <td>
+          2340
+          -
+          2340
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Option.map
+        </td>
+        <td style="background: #AEF1AE">
+          maybeJson.map[Unit](((x$3: io.github.kag0.ninny.ast.JsonValue) =&gt; ()))
+        </td>
+      </tr><tr>
+        <td>
+          76
+        </td>
+        <td>
+          59
+        </td>
+        <td>
+          2340
+          -
+          2340
+        </td>
+        <td>
+          Literal
+        </td>
+        <td>
+          &lt;nosymbol&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          ()
+        </td>
+      </tr><tr>
+        <td>
+          76
+        </td>
+        <td>
+          60
+        </td>
+        <td>
+          2326
+          -
+          2326
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[Unit]({
+  maybeJson.map[Unit](((x$3: io.github.kag0.ninny.ast.JsonValue) =&gt; ()));
+  ()
+})
+        </td>
+      </tr><tr>
+        <td>
+          79
+        </td>
+        <td>
+          61
+        </td>
+        <td>
+          2443
+          -
+          2443
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #F0ADAD">
+          scala.util.Success.apply[io.github.kag0.ninny.ast.JsonValue](x$4)
+        </td>
+      </tr><tr>
+        <td>
+          79
+        </td>
+        <td>
+          62
+        </td>
+        <td>
+          2435
+          -
+          2435
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[io.github.kag0.ninny.ast.JsonValue](((x$4: io.github.kag0.ninny.ast.JsonValue) =&gt; scala.util.Success.apply[io.github.kag0.ninny.ast.JsonValue](x$4)))
+        </td>
+      </tr><tr>
+        <td>
+          82
+        </td>
+        <td>
+          73
+        </td>
+        <td>
+          2531
+          -
+          2531
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[Seq[A]](((x0$1: io.github.kag0.ninny.ast.JsonValue) =&gt; x0$1 match {
+  case (values: Seq[io.github.kag0.ninny.ast.JsonValue]): io.github.kag0.ninny.ast.JsonArray((values @ _)) =&gt; values.foldLeft[scala.util.Try[List[A]]](scala.util.Success.apply[scala.collection.immutable.Nil.type](scala.collection.immutable.Nil))(((soFar: scala.util.Try[List[A]], js: io.github.kag0.ninny.ast.JsonValue) =&gt; soFar.flatMap[List[A]](((arr: List[A]) =&gt; js.to[A](evidence$1).map[List[A]](((x$5: A) =&gt; {
+  final &lt;synthetic&gt; &lt;artifact&gt; val rassoc$1: A = x$5;
+  arr.::[A](rassoc$1)
+})))))).map[List[A]](((x$6: List[A]) =&gt; x$6.reverse))
+  case (json @ _) =&gt; scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected array, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+}))
+        </td>
+      </tr><tr>
+        <td>
+          85
+        </td>
+        <td>
+          63
+        </td>
+        <td>
+          2622
+          -
+          2622
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.collection.immutable.Nil
+        </td>
+        <td style="background: #AEF1AE">
+          scala.collection.immutable.Nil
+        </td>
+      </tr><tr>
+        <td>
+          85
+        </td>
+        <td>
+          64
+        </td>
+        <td>
+          2621
+          -
+          2621
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[scala.collection.immutable.Nil.type](scala.collection.immutable.Nil)
+        </td>
+      </tr><tr>
+        <td>
+          86
+        </td>
+        <td>
+          65
+        </td>
+        <td>
+          2691
+          -
+          2693
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.immutable.List.::
+        </td>
+        <td style="background: #AEF1AE">
+          arr.::[A](rassoc$1)
+        </td>
+      </tr><tr>
+        <td>
+          86
+        </td>
+        <td>
+          66
+        </td>
+        <td>
+          2688
+          -
+          2688
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          js.to[A](evidence$1).map[List[A]](((x$5: A) =&gt; {
+  final &lt;synthetic&gt; &lt;artifact&gt; val rassoc$1: A = x$5;
+  arr.::[A](rassoc$1)
+}))
+        </td>
+      </tr><tr>
+        <td>
+          86
+        </td>
+        <td>
+          67
+        </td>
+        <td>
+          2668
+          -
+          2668
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          soFar.flatMap[List[A]](((arr: List[A]) =&gt; js.to[A](evidence$1).map[List[A]](((x$5: A) =&gt; {
+  final &lt;synthetic&gt; &lt;artifact&gt; val rassoc$1: A = x$5;
+  arr.::[A](rassoc$1)
+}))))
+        </td>
+      </tr><tr>
+        <td>
+          88
+        </td>
+        <td>
+          68
+        </td>
+        <td>
+          2729
+          -
+          2729
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.collection.immutable.List.reverse
+        </td>
+        <td style="background: #AEF1AE">
+          x$6.reverse
+        </td>
+      </tr><tr>
+        <td>
+          88
+        </td>
+        <td>
+          69
+        </td>
+        <td>
+          2726
+          -
+          2726
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          values.foldLeft[scala.util.Try[List[A]]](scala.util.Success.apply[scala.collection.immutable.Nil.type](scala.collection.immutable.Nil))(((soFar: scala.util.Try[List[A]], js: io.github.kag0.ninny.ast.JsonValue) =&gt; soFar.flatMap[List[A]](((arr: List[A]) =&gt; js.to[A](evidence$1).map[List[A]](((x$5: A) =&gt; {
+  final &lt;synthetic&gt; &lt;artifact&gt; val rassoc$1: A = x$5;
+  arr.::[A](rassoc$1)
+})))))).map[List[A]](((x$6: List[A]) =&gt; x$6.reverse))
+        </td>
+      </tr><tr>
+        <td>
+          89
+        </td>
+        <td>
+          70
+        </td>
+        <td>
+          2765
+          -
+          2765
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;$default$2
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.JsonException.&lt;init&gt;$default$2
+        </td>
+      </tr><tr>
+        <td>
+          89
+        </td>
+        <td>
+          71
+        </td>
+        <td>
+          2765
+          -
+          2765
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new JsonException((&quot;Expected array, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2)
+        </td>
+      </tr><tr>
+        <td>
+          89
+        </td>
+        <td>
+          72
+        </td>
+        <td>
+          2764
+          -
+          2764
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new JsonException((&quot;Expected array, got &quot;.+(json): String), ninny.this.JsonException.&lt;init&gt;$default$2))
+        </td>
+      </tr><tr>
+        <td>
+          93
+        </td>
+        <td>
+          74
+        </td>
+        <td>
+          2924
+          -
+          2924
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.None
+        </td>
+        <td style="background: #AEF1AE">
+          scala.None
+        </td>
+      </tr><tr>
+        <td>
+          93
+        </td>
+        <td>
+          75
+        </td>
+        <td>
+          2923
+          -
+          2923
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[None.type](scala.None)
+        </td>
+      </tr><tr>
+        <td>
+          94
+        </td>
+        <td>
+          76
+        </td>
+        <td>
+          2988
+          -
+          2988
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Some.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Some.apply[A](x$7)
+        </td>
+      </tr><tr>
+        <td>
+          94
+        </td>
+        <td>
+          77
+        </td>
+        <td>
+          2983
+          -
+          2983
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.apply[A](evidence$2).from(json).map[Some[A]](((x$7: A) =&gt; scala.Some.apply[A](x$7)))
+        </td>
+      </tr><tr>
+        <td>
+          95
+        </td>
+        <td>
+          78
+        </td>
+        <td>
+          3028
+          -
+          3028
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.None
+        </td>
+        <td style="background: #AEF1AE">
+          scala.None
+        </td>
+      </tr><tr>
+        <td>
+          95
+        </td>
+        <td>
+          79
+        </td>
+        <td>
+          3027
+          -
+          3027
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Success.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Success.apply[None.type](scala.None)
+        </td>
+      </tr><tr>
+        <td>
+          98
+        </td>
+        <td>
+          84
+        </td>
+        <td>
+          3108
+          -
+          3108
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[java.time.Instant](((x$8: io.github.kag0.ninny.ast.JsonValue) =&gt; x$8.to[Long](FromJsonInstances.this.longFromJson).flatMap[java.time.Instant](((l: Long) =&gt; scala.util.Try.apply[java.time.Instant](java.time.Instant.ofEpochSecond(l))))))
+        </td>
+      </tr><tr>
+        <td>
+          99
+        </td>
+        <td>
+          80
+        </td>
+        <td>
+          3118
+          -
+          3118
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonInstances.longFromJson
+        </td>
+        <td style="background: #AEF1AE">
+          FromJsonInstances.this.longFromJson
+        </td>
+      </tr><tr>
+        <td>
+          99
+        </td>
+        <td>
+          81
+        </td>
+        <td>
+          3163
+          -
+          3163
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.time.Instant.ofEpochSecond
+        </td>
+        <td style="background: #AEF1AE">
+          java.time.Instant.ofEpochSecond(l)
+        </td>
+      </tr><tr>
+        <td>
+          99
+        </td>
+        <td>
+          82
+        </td>
+        <td>
+          3141
+          -
+          3141
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Try.apply[java.time.Instant](java.time.Instant.ofEpochSecond(l))
+        </td>
+      </tr><tr>
+        <td>
+          99
+        </td>
+        <td>
+          83
+        </td>
+        <td>
+          3132
+          -
+          3132
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          x$8.to[Long](FromJsonInstances.this.longFromJson).flatMap[java.time.Instant](((l: Long) =&gt; scala.util.Try.apply[java.time.Instant](java.time.Instant.ofEpochSecond(l))))
+        </td>
+      </tr><tr>
+        <td>
+          103
+        </td>
+        <td>
+          89
+        </td>
+        <td>
+          3261
+          -
+          3261
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[java.time.OffsetDateTime](((x$9: io.github.kag0.ninny.ast.JsonValue) =&gt; x$9.to[String](FromJsonInstances.this.stringFromJson).flatMap[java.time.OffsetDateTime](((s: String) =&gt; scala.util.Try.apply[java.time.OffsetDateTime](java.time.OffsetDateTime.parse(s))))))
+        </td>
+      </tr><tr>
+        <td>
+          104
+        </td>
+        <td>
+          85
+        </td>
+        <td>
+          3273
+          -
+          3273
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonInstances.stringFromJson
+        </td>
+        <td style="background: #AEF1AE">
+          FromJsonInstances.this.stringFromJson
+        </td>
+      </tr><tr>
+        <td>
+          104
+        </td>
+        <td>
+          86
+        </td>
+        <td>
+          3319
+          -
+          3319
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.time.OffsetDateTime.parse
+        </td>
+        <td style="background: #AEF1AE">
+          java.time.OffsetDateTime.parse(s)
+        </td>
+      </tr><tr>
+        <td>
+          104
+        </td>
+        <td>
+          87
+        </td>
+        <td>
+          3298
+          -
+          3298
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Try.apply[java.time.OffsetDateTime](java.time.OffsetDateTime.parse(s))
+        </td>
+      </tr><tr>
+        <td>
+          104
+        </td>
+        <td>
+          88
+        </td>
+        <td>
+          3289
+          -
+          3289
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          x$9.to[String](FromJsonInstances.this.stringFromJson).flatMap[java.time.OffsetDateTime](((s: String) =&gt; scala.util.Try.apply[java.time.OffsetDateTime](java.time.OffsetDateTime.parse(s))))
+        </td>
+      </tr><tr>
+        <td>
+          108
+        </td>
+        <td>
+          94
+        </td>
+        <td>
+          3417
+          -
+          3417
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.fromSome
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.fromSome[java.time.ZonedDateTime](((x$10: io.github.kag0.ninny.ast.JsonValue) =&gt; x$10.to[String](FromJsonInstances.this.stringFromJson).flatMap[java.time.ZonedDateTime](((s: String) =&gt; scala.util.Try.apply[java.time.ZonedDateTime](java.time.ZonedDateTime.parse(s))))))
+        </td>
+      </tr><tr>
+        <td>
+          109
+        </td>
+        <td>
+          90
+        </td>
+        <td>
+          3429
+          -
+          3429
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonInstances.stringFromJson
+        </td>
+        <td style="background: #AEF1AE">
+          FromJsonInstances.this.stringFromJson
+        </td>
+      </tr><tr>
+        <td>
+          109
+        </td>
+        <td>
+          91
+        </td>
+        <td>
+          3474
+          -
+          3474
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.time.ZonedDateTime.parse
+        </td>
+        <td style="background: #AEF1AE">
+          java.time.ZonedDateTime.parse(s)
+        </td>
+      </tr><tr>
+        <td>
+          109
+        </td>
+        <td>
+          92
+        </td>
+        <td>
+          3454
+          -
+          3454
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Try.apply[java.time.ZonedDateTime](java.time.ZonedDateTime.parse(s))
+        </td>
+      </tr><tr>
+        <td>
+          109
+        </td>
+        <td>
+          93
+        </td>
+        <td>
+          3445
+          -
+          3445
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          x$10.to[String](FromJsonInstances.this.stringFromJson).flatMap[java.time.ZonedDateTime](((s: String) =&gt; scala.util.Try.apply[java.time.ZonedDateTime](java.time.ZonedDateTime.parse(s))))
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

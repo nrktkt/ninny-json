@@ -1,0 +1,1231 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          io/github/kag0/ninny/package.scala.html
+        </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier, monospace;'>1 <span style=''>package io.github.kag0
+</span>2 <span style=''>
+</span>3 <span style=''>import io.github.kag0.ninny.ast.{JsonArray, JsonObject, JsonValue}
+</span>4 <span style=''>import scala.language.dynamics
+</span>5 <span style=''>import scala.util.Try
+</span>6 <span style=''>
+</span>7 <span style=''>package object ninny extends ToJsonInstances with FromJsonInstances {
+</span>8 <span style=''>
+</span>9 <span style=''>  def obj(nameValues: (String, JsonMagnet)*): JsonObject =
+</span>10 <span style=''>    JsonObject(
+</span>11 <span style=''>      nameValues.toMap.collect {
+</span>12 <span style=''>        case (name, JsonMagnet(Some(json))) =&gt; name </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> json
+</span>13 <span style=''>      }
+</span>14 <span style=''>    )
+</span>15 <span style=''>
+</span>16 <span style=''>  def arr(values: JsonMagnet*) = JsonArray(values.flatMap(_.json))
+</span>17 <span style=''>
+</span>18 <span style=''>  trait JsonMagnet {
+</span>19 <span style=''>    val json: Option[JsonValue]
+</span>20 <span style=''>  }
+</span>21 <span style=''>
+</span>22 <span style=''>  object JsonMagnet {
+</span>23 <span style=''>    def unapply(arg: JsonMagnet): Option[Option[JsonValue]] = Some(arg.json)
+</span>24 <span style=''>
+</span>25 <span style=''>    implicit def fromA[A: ToJson](a: A) =
+</span>26 <span style=''>      new JsonMagnet {
+</span>27 <span style=''>        val json = ToJson[A].to(a)
+</span>28 <span style=''>      }
+</span>29 <span style=''>
+</span>30 <span style=''>    implicit def fromJson(js: JsonValue) =
+</span>31 <span style=''>      new JsonMagnet {
+</span>32 <span style=''>        val json = Some(js)
+</span>33 <span style=''>      }
+</span>34 <span style=''>  }
+</span>35 <span style=''>
+</span>36 <span style=''>  implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
+</span>37 <span style=''>      extends AnyVal
+</span>38 <span style=''>      with Dynamic {
+</span>39 <span style=''>
+</span>40 <span style=''>    def to[A: FromJson] = FromJson[A].from(maybeJson)
+</span>41 <span style=''>
+</span>42 <span style=''>    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
+</span>43 <span style=''>    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
+</span>44 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>45 <span style=''>
+</span>46 <span style=''>    def /(name: String) = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>47 <span style=''>    def /(i: Int)       = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>48 <span style=''>
+</span>49 <span style=''>    def * = this
+</span>50 <span style=''>  }
+</span>51 <span style=''>
+</span>52 <span style=''>  implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
+</span>53 <span style=''>      extends AnyVal
+</span>54 <span style=''>      with Dynamic {
+</span>55 <span style=''>    def to[A: FromJson] = hopefullyJson.flatMap(_.to[A])
+</span>56 <span style=''>
+</span>57 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+</span>58 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+</span>59 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>60 <span style=''>
+</span>61 <span style=''>    def /(name: String) = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>62 <span style=''>    def /(i: Int)       = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>63 <span style=''>
+</span>64 <span style=''>    def * = this
+</span>65 <span style=''>  }
+</span>66 <span style=''>
+</span>67 <span style=''>  implicit class HopefullyMaybeJsonSyntax(
+</span>68 <span style=''>      val maybeHopefullyJson: Try[Option[JsonValue]]
+</span>69 <span style=''>  ) extends AnyVal
+</span>70 <span style=''>      with Dynamic {
+</span>71 <span style=''>    def to[A: FromJson] = maybeHopefullyJson.flatMap(_.to[A])
+</span>72 <span style=''>
+</span>73 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+</span>74 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+</span>75 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>76 <span style=''>
+</span>77 <span style=''>    def /(name: String) = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>78 <span style=''>    def /(i: Int)       = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>79 <span style=''>
+</span>80 <span style=''>    def * = this
+</span>81 <span style=''>  }
+</span>82 <span style=''>
+</span>83 <span style=''>  implicit class AnySyntax[A](val a: A) extends AnyVal {
+</span>84 <span style=''>    def toJson(implicit toJson: ToJson[A])         = toJson.to(a)
+</span>85 <span style=''>    def toSomeJson(implicit toJson: ToSomeJson[A]) = toJson.toSome(a)
+</span>86 <span style=''>  }
+</span>87 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          10
+        </td>
+        <td>
+          164
+        </td>
+        <td>
+          289
+          -
+          289
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonObject.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonObject.apply(nameValues.toMap[String, io.github.kag0.ninny.package.JsonMagnet](scala.this.&lt;:&lt;.refl[(String, io.github.kag0.ninny.package.JsonMagnet)]).collect[String, io.github.kag0.ninny.ast.JsonValue](({
+  @SerialVersionUID(value = 0) final &lt;synthetic&gt; class $anonfun extends scala.runtime.AbstractPartialFunction[(String, io.github.kag0.ninny.package.JsonMagnet),(String, io.github.kag0.ninny.ast.JsonValue)] with java.io.Serializable {
+    def &lt;init&gt;(): &lt;$anon: ((String, io.github.kag0.ninny.package.JsonMagnet)) =&gt; (String, io.github.kag0.ninny.ast.JsonValue)&gt; = {
+      $anonfun.super.&lt;init&gt;();
+      ()
+    };
+    final override def applyOrElse[A1 &lt;: (String, io.github.kag0.ninny.package.JsonMagnet), B1 &gt;: (String, io.github.kag0.ninny.ast.JsonValue)](x1: A1, default: A1 =&gt; B1): B1 = ((x1.asInstanceOf[(String, io.github.kag0.ninny.package.JsonMagnet)]: (String, io.github.kag0.ninny.package.JsonMagnet)): (String, io.github.kag0.ninny.package.JsonMagnet) @unchecked) match {
+      case (_1: String, _2: io.github.kag0.ninny.package.JsonMagnet): (String, io.github.kag0.ninny.package.JsonMagnet)((name @ _), `package`.this.JsonMagnet.unapply(&lt;unapply-selector&gt;) &lt;unapply&gt; ((value: io.github.kag0.ninny.ast.JsonValue): Some[io.github.kag0.ninny.ast.JsonValue]((json @ _)))) =&gt; scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](json)
+      case (defaultCase$ @ _) =&gt; default.apply(x1)
+    };
+    final def isDefinedAt(x1: (String, io.github.kag0.ninny.package.JsonMagnet)): Boolean = ((x1.asInstanceOf[(String, io.github.kag0.ninny.package.JsonMagnet)]: (String, io.github.kag0.ninny.package.JsonMagnet)): (String, io.github.kag0.ninny.package.JsonMagnet) @unchecked) match {
+      case (_1: String, _2: io.github.kag0.ninny.package.JsonMagnet): (String, io.github.kag0.ninny.package.JsonMagnet)((name @ _), `package`.this.JsonMagnet.unapply(&lt;unapply-selector&gt;) &lt;unapply&gt; ((value: io.github.kag0.ninny.ast.JsonValue): Some[io.github.kag0.ninny.ast.JsonValue]((json @ _)))) =&gt; true
+      case (defaultCase$ @ _) =&gt; false
+    }
+  };
+  new $anonfun()
+}: PartialFunction[(String, io.github.kag0.ninny.package.JsonMagnet),(String, io.github.kag0.ninny.ast.JsonValue)])))
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          160
+        </td>
+        <td>
+          308
+          -
+          308
+        </td>
+        <td>
+          TypeApply
+        </td>
+        <td>
+          scala.&lt;:&lt;.refl
+        </td>
+        <td style="background: #AEF1AE">
+          scala.this.&lt;:&lt;.refl[(String, io.github.kag0.ninny.package.JsonMagnet)]
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          162
+        </td>
+        <td>
+          322
+          -
+          322
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.package.$anonfun.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new $anonfun()
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          163
+        </td>
+        <td>
+          322
+          -
+          322
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.MapOps.collect
+        </td>
+        <td style="background: #AEF1AE">
+          nameValues.toMap[String, io.github.kag0.ninny.package.JsonMagnet](scala.this.&lt;:&lt;.refl[(String, io.github.kag0.ninny.package.JsonMagnet)]).collect[String, io.github.kag0.ninny.ast.JsonValue](({
+  @SerialVersionUID(value = 0) final &lt;synthetic&gt; class $anonfun extends scala.runtime.AbstractPartialFunction[(String, io.github.kag0.ninny.package.JsonMagnet),(String, io.github.kag0.ninny.ast.JsonValue)] with java.io.Serializable {
+    def &lt;init&gt;(): &lt;$anon: ((String, io.github.kag0.ninny.package.JsonMagnet)) =&gt; (String, io.github.kag0.ninny.ast.JsonValue)&gt; = {
+      $anonfun.super.&lt;init&gt;();
+      ()
+    };
+    final override def applyOrElse[A1 &lt;: (String, io.github.kag0.ninny.package.JsonMagnet), B1 &gt;: (String, io.github.kag0.ninny.ast.JsonValue)](x1: A1, default: A1 =&gt; B1): B1 = ((x1.asInstanceOf[(String, io.github.kag0.ninny.package.JsonMagnet)]: (String, io.github.kag0.ninny.package.JsonMagnet)): (String, io.github.kag0.ninny.package.JsonMagnet) @unchecked) match {
+      case (_1: String, _2: io.github.kag0.ninny.package.JsonMagnet): (String, io.github.kag0.ninny.package.JsonMagnet)((name @ _), `package`.this.JsonMagnet.unapply(&lt;unapply-selector&gt;) &lt;unapply&gt; ((value: io.github.kag0.ninny.ast.JsonValue): Some[io.github.kag0.ninny.ast.JsonValue]((json @ _)))) =&gt; scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](json)
+      case (defaultCase$ @ _) =&gt; default.apply(x1)
+    };
+    final def isDefinedAt(x1: (String, io.github.kag0.ninny.package.JsonMagnet)): Boolean = ((x1.asInstanceOf[(String, io.github.kag0.ninny.package.JsonMagnet)]: (String, io.github.kag0.ninny.package.JsonMagnet)): (String, io.github.kag0.ninny.package.JsonMagnet) @unchecked) match {
+      case (_1: String, _2: io.github.kag0.ninny.package.JsonMagnet): (String, io.github.kag0.ninny.package.JsonMagnet)((name @ _), `package`.this.JsonMagnet.unapply(&lt;unapply-selector&gt;) &lt;unapply&gt; ((value: io.github.kag0.ninny.ast.JsonValue): Some[io.github.kag0.ninny.ast.JsonValue]((json @ _)))) =&gt; true
+      case (defaultCase$ @ _) =&gt; false
+    }
+  };
+  new $anonfun()
+}: PartialFunction[(String, io.github.kag0.ninny.package.JsonMagnet),(String, io.github.kag0.ninny.ast.JsonValue)]))
+        </td>
+      </tr><tr>
+        <td>
+          12
+        </td>
+        <td>
+          161
+        </td>
+        <td>
+          376
+          -
+          378
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Predef.ArrowAssoc.-&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](json)
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          165
+        </td>
+        <td>
+          459
+          -
+          459
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonMagnet.json
+        </td>
+        <td style="background: #AEF1AE">
+          x$1.json
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          166
+        </td>
+        <td>
+          456
+          -
+          456
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.IterableOps.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          values.flatMap[io.github.kag0.ninny.ast.JsonValue](((x$1: io.github.kag0.ninny.package.JsonMagnet) =&gt; x$1.json))
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          167
+        </td>
+        <td>
+          441
+          -
+          441
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonArray.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonArray.apply(values.flatMap[io.github.kag0.ninny.ast.JsonValue](((x$1: io.github.kag0.ninny.package.JsonMagnet) =&gt; x$1.json)))
+        </td>
+      </tr><tr>
+        <td>
+          23
+        </td>
+        <td>
+          168
+        </td>
+        <td>
+          618
+          -
+          618
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonMagnet.json
+        </td>
+        <td style="background: #AEF1AE">
+          arg.json
+        </td>
+      </tr><tr>
+        <td>
+          23
+        </td>
+        <td>
+          169
+        </td>
+        <td>
+          613
+          -
+          613
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Some.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Some.apply[Option[io.github.kag0.ninny.ast.JsonValue]](arg.json)
+        </td>
+      </tr><tr>
+        <td>
+          26
+        </td>
+        <td>
+          171
+        </td>
+        <td>
+          673
+          -
+          673
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonMagnet.$anon.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new $anon()
+        </td>
+      </tr><tr>
+        <td>
+          27
+        </td>
+        <td>
+          170
+        </td>
+        <td>
+          721
+          -
+          721
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJson.to
+        </td>
+        <td style="background: #AEF1AE">
+          ToJson.apply[A](evidence$1).to(a)
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          173
+        </td>
+        <td>
+          783
+          -
+          783
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.JsonMagnet.$anon.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new $anon()
+        </td>
+      </tr><tr>
+        <td>
+          32
+        </td>
+        <td>
+          172
+        </td>
+        <td>
+          823
+          -
+          823
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Some.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Some.apply[io.github.kag0.ninny.ast.JsonValue](js)
+        </td>
+      </tr><tr>
+        <td>
+          40
+        </td>
+        <td>
+          174
+        </td>
+        <td>
+          994
+          -
+          994
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax.maybeJson
+        </td>
+        <td style="background: #AEF1AE">
+          MaybeJsonSyntax.this.maybeJson
+        </td>
+      </tr><tr>
+        <td>
+          40
+        </td>
+        <td>
+          175
+        </td>
+        <td>
+          993
+          -
+          993
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.from
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.apply[A](evidence$2).from(MaybeJsonSyntax.this.maybeJson)
+        </td>
+      </tr><tr>
+        <td>
+          42
+        </td>
+        <td>
+          176
+        </td>
+        <td>
+          1068
+          -
+          1068
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          MaybeJsonSyntax.this./(name)
+        </td>
+      </tr><tr>
+        <td>
+          42
+        </td>
+        <td>
+          177
+        </td>
+        <td>
+          1066
+          -
+          1066
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.MaybeJsonSyntax(MaybeJsonSyntax.this./(name))
+        </td>
+      </tr><tr>
+        <td>
+          43
+        </td>
+        <td>
+          178
+        </td>
+        <td>
+          1138
+          -
+          1138
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          MaybeJsonSyntax.this./(i)
+        </td>
+      </tr><tr>
+        <td>
+          43
+        </td>
+        <td>
+          179
+        </td>
+        <td>
+          1136
+          -
+          1136
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.MaybeJsonSyntax(MaybeJsonSyntax.this./(i))
+        </td>
+      </tr><tr>
+        <td>
+          44
+        </td>
+        <td>
+          180
+        </td>
+        <td>
+          1207
+          -
+          1207
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax.apply
+        </td>
+        <td style="background: #F0ADAD">
+          MaybeJsonSyntax.this.selectDynamic(name).apply(i)
+        </td>
+      </tr><tr>
+        <td>
+          46
+        </td>
+        <td>
+          181
+        </td>
+        <td>
+          1258
+          -
+          1259
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          x$2./(name)
+        </td>
+      </tr><tr>
+        <td>
+          46
+        </td>
+        <td>
+          182
+        </td>
+        <td>
+          1255
+          -
+          1255
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Option.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          MaybeJsonSyntax.this.maybeJson.flatMap[io.github.kag0.ninny.ast.JsonValue](((x$2: io.github.kag0.ninny.ast.JsonValue) =&gt; x$2./(name)))
+        </td>
+      </tr><tr>
+        <td>
+          47
+        </td>
+        <td>
+          183
+        </td>
+        <td>
+          1312
+          -
+          1313
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          x$3./(i)
+        </td>
+      </tr><tr>
+        <td>
+          47
+        </td>
+        <td>
+          184
+        </td>
+        <td>
+          1309
+          -
+          1309
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Option.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          MaybeJsonSyntax.this.maybeJson.flatMap[io.github.kag0.ninny.ast.JsonValue](((x$3: io.github.kag0.ninny.ast.JsonValue) =&gt; x$3./(i)))
+        </td>
+      </tr><tr>
+        <td>
+          55
+        </td>
+        <td>
+          185
+        </td>
+        <td>
+          1506
+          -
+          1506
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue.to
+        </td>
+        <td style="background: #AEF1AE">
+          x$4.to[A](evidence$3)
+        </td>
+      </tr><tr>
+        <td>
+          55
+        </td>
+        <td>
+          186
+        </td>
+        <td>
+          1501
+          -
+          1501
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyJsonSyntax.this.hopefullyJson.flatMap[A](((x$4: io.github.kag0.ninny.ast.JsonValue) =&gt; x$4.to[A](evidence$3)))
+        </td>
+      </tr><tr>
+        <td>
+          57
+        </td>
+        <td>
+          187
+        </td>
+        <td>
+          1583
+          -
+          1583
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyJsonSyntax.this./(name)
+        </td>
+      </tr><tr>
+        <td>
+          57
+        </td>
+        <td>
+          188
+        </td>
+        <td>
+          1581
+          -
+          1581
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.HopefullyMaybeJsonSyntax(HopefullyJsonSyntax.this./(name))
+        </td>
+      </tr><tr>
+        <td>
+          58
+        </td>
+        <td>
+          189
+        </td>
+        <td>
+          1662
+          -
+          1662
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyJsonSyntax.this./(i)
+        </td>
+      </tr><tr>
+        <td>
+          58
+        </td>
+        <td>
+          190
+        </td>
+        <td>
+          1660
+          -
+          1660
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.HopefullyMaybeJsonSyntax(HopefullyJsonSyntax.this./(i))
+        </td>
+      </tr><tr>
+        <td>
+          59
+        </td>
+        <td>
+          191
+        </td>
+        <td>
+          1731
+          -
+          1731
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax.apply
+        </td>
+        <td style="background: #F0ADAD">
+          HopefullyJsonSyntax.this.selectDynamic(name).apply(i)
+        </td>
+      </tr><tr>
+        <td>
+          61
+        </td>
+        <td>
+          192
+        </td>
+        <td>
+          1782
+          -
+          1783
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          x$5./(name)
+        </td>
+      </tr><tr>
+        <td>
+          61
+        </td>
+        <td>
+          193
+        </td>
+        <td>
+          1779
+          -
+          1779
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyJsonSyntax.this.hopefullyJson.map[Option[io.github.kag0.ninny.ast.JsonValue]](((x$5: io.github.kag0.ninny.ast.JsonValue) =&gt; x$5./(name)))
+        </td>
+      </tr><tr>
+        <td>
+          62
+        </td>
+        <td>
+          194
+        </td>
+        <td>
+          1836
+          -
+          1837
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          x$6./(i)
+        </td>
+      </tr><tr>
+        <td>
+          62
+        </td>
+        <td>
+          195
+        </td>
+        <td>
+          1833
+          -
+          1833
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyJsonSyntax.this.hopefullyJson.map[Option[io.github.kag0.ninny.ast.JsonValue]](((x$6: io.github.kag0.ninny.ast.JsonValue) =&gt; x$6./(i)))
+        </td>
+      </tr><tr>
+        <td>
+          71
+        </td>
+        <td>
+          196
+        </td>
+        <td>
+          2057
+          -
+          2057
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax.to
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$4)
+        </td>
+      </tr><tr>
+        <td>
+          71
+        </td>
+        <td>
+          197
+        </td>
+        <td>
+          2052
+          -
+          2052
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.flatMap
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this.maybeHopefullyJson.flatMap[A](((x$7: Option[io.github.kag0.ninny.ast.JsonValue]) =&gt; `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$4)))
+        </td>
+      </tr><tr>
+        <td>
+          73
+        </td>
+        <td>
+          198
+        </td>
+        <td>
+          2134
+          -
+          2134
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this./(name)
+        </td>
+      </tr><tr>
+        <td>
+          73
+        </td>
+        <td>
+          199
+        </td>
+        <td>
+          2132
+          -
+          2132
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.HopefullyMaybeJsonSyntax(HopefullyMaybeJsonSyntax.this./(name))
+        </td>
+      </tr><tr>
+        <td>
+          74
+        </td>
+        <td>
+          200
+        </td>
+        <td>
+          2213
+          -
+          2213
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this./(i)
+        </td>
+      </tr><tr>
+        <td>
+          74
+        </td>
+        <td>
+          201
+        </td>
+        <td>
+          2211
+          -
+          2211
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.HopefullyMaybeJsonSyntax(HopefullyMaybeJsonSyntax.this./(i))
+        </td>
+      </tr><tr>
+        <td>
+          75
+        </td>
+        <td>
+          202
+        </td>
+        <td>
+          2282
+          -
+          2282
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.HopefullyMaybeJsonSyntax.apply
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this.selectDynamic(name).apply(i)
+        </td>
+      </tr><tr>
+        <td>
+          77
+        </td>
+        <td>
+          203
+        </td>
+        <td>
+          2338
+          -
+          2339
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.MaybeJsonSyntax(x$8)./(name)
+        </td>
+      </tr><tr>
+        <td>
+          77
+        </td>
+        <td>
+          204
+        </td>
+        <td>
+          2335
+          -
+          2335
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this.maybeHopefullyJson.map[Option[io.github.kag0.ninny.ast.JsonValue]](((x$8: Option[io.github.kag0.ninny.ast.JsonValue]) =&gt; `package`.this.MaybeJsonSyntax(x$8)./(name)))
+        </td>
+      </tr><tr>
+        <td>
+          78
+        </td>
+        <td>
+          205
+        </td>
+        <td>
+          2397
+          -
+          2398
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax./
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.MaybeJsonSyntax(x$9)./(i)
+        </td>
+      </tr><tr>
+        <td>
+          78
+        </td>
+        <td>
+          206
+        </td>
+        <td>
+          2394
+          -
+          2394
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Try.map
+        </td>
+        <td style="background: #AEF1AE">
+          HopefullyMaybeJsonSyntax.this.maybeHopefullyJson.map[Option[io.github.kag0.ninny.ast.JsonValue]](((x$9: Option[io.github.kag0.ninny.ast.JsonValue]) =&gt; `package`.this.MaybeJsonSyntax(x$9)./(i)))
+        </td>
+      </tr><tr>
+        <td>
+          84
+        </td>
+        <td>
+          207
+        </td>
+        <td>
+          2545
+          -
+          2545
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.AnySyntax.a
+        </td>
+        <td style="background: #AEF1AE">
+          AnySyntax.this.a
+        </td>
+      </tr><tr>
+        <td>
+          84
+        </td>
+        <td>
+          208
+        </td>
+        <td>
+          2544
+          -
+          2544
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJson.to
+        </td>
+        <td style="background: #AEF1AE">
+          toJson.to(AnySyntax.this.a)
+        </td>
+      </tr><tr>
+        <td>
+          85
+        </td>
+        <td>
+          209
+        </td>
+        <td>
+          2615
+          -
+          2615
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.AnySyntax.a
+        </td>
+        <td style="background: #AEF1AE">
+          AnySyntax.this.a
+        </td>
+      </tr><tr>
+        <td>
+          85
+        </td>
+        <td>
+          210
+        </td>
+        <td>
+          2614
+          -
+          2614
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToSomeJson.toSome
+        </td>
+        <td style="background: #AEF1AE">
+          toJson.toSome(AnySyntax.this.a)
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

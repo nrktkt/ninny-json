@@ -24,13 +24,11 @@ package object ast {
 
     def to[A: FromJson] = FromJson[A].from(this)
 
-    def * = MaybeJsonSyntax(Some(this))
-
     override def toString =
       this match {
         case JsonNull           => "null"
         case JsonBoolean(value) => value.toString
-        case JsonNumber(value)  => value.toString
+        case JsonNumber(value)  => value.toString.stripSuffix(".0")
         case s: JsonString      => s.toString
         case JsonArray(values)  => values.mkString("[", ",", "]")
         case JsonObject(values) =>
@@ -40,14 +38,11 @@ package object ast {
       }
   }
 
-  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue {
-    def ++(obj: JsonObject) = JsonObject(values ++ obj.values)
-  }
-
-  case class JsonArray(values: Seq[JsonValue]) extends JsonValue
-  case class JsonNumber(value: Double)         extends JsonValue
-  case class JsonBoolean(value: Boolean)       extends JsonValue
-  case object JsonNull                         extends JsonValue
+  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue
+  case class JsonArray(values: Seq[JsonValue])          extends JsonValue
+  case class JsonNumber(value: Double)                  extends JsonValue
+  case class JsonBoolean(value: Boolean)                extends JsonValue
+  case object JsonNull                                  extends JsonValue
 
   case class JsonString(value: String) extends JsonValue {
     override def toString = JsonString.escape(value)

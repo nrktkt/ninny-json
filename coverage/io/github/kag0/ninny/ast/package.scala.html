@@ -1,0 +1,550 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          io/github/kag0/ninny/ast/package.scala.html
+        </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier, monospace;'>1 <span style=''>package io.github.kag0.ninny
+</span>2 <span style=''>
+</span>3 <span style=''>import java.lang.Character.UnicodeBlock
+</span>4 <span style=''>
+</span>5 <span style=''>import scala.language.dynamics
+</span>6 <span style=''>
+</span>7 <span style=''>package object ast {
+</span>8 <span style=''>  sealed trait JsonValue extends Dynamic {
+</span>9 <span style=''>    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
+</span>10 <span style=''>    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
+</span>11 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>12 <span style=''>
+</span>13 <span style=''>    def /(name: String): Option[JsonValue] =
+</span>14 <span style=''>      this match {
+</span>15 <span style=''>        case JsonObject(values) =&gt; values.get(name)
+</span>16 <span style=''>        case _                  =&gt; None
+</span>17 <span style=''>      }
+</span>18 <span style=''>
+</span>19 <span style=''>    def /(i: Int): Option[JsonValue] =
+</span>20 <span style=''>      this match {
+</span>21 <span style=''>        case JsonArray(values) if values.length </span><span style='background: #AEF1AE'>&gt; i &amp;&amp; i &gt;=</span><span style=''> 0 =&gt; Some(values(i))
+</span>22 <span style=''>        case _                                                =&gt; None
+</span>23 <span style=''>      }
+</span>24 <span style=''>
+</span>25 <span style=''>    def to[A: FromJson] = FromJson[A].from(this)
+</span>26 <span style=''>
+</span>27 <span style=''>    override def toString =
+</span>28 <span style=''>      this match {
+</span>29 <span style=''>        case JsonNull           =&gt; &quot;null&quot;
+</span>30 <span style=''>        case JsonBoolean(value) =&gt; value.toString
+</span>31 <span style=''>        case JsonNumber(value)  =&gt; value.toString.stripSuffix(&quot;.0&quot;)
+</span>32 <span style=''>        case s: JsonString      =&gt; s.toString
+</span>33 <span style=''>        case JsonArray(values)  =&gt; values.mkString(&quot;[&quot;, &quot;,&quot;, &quot;]&quot;)
+</span>34 <span style=''>        case JsonObject(values) =&gt;
+</span>35 <span style=''>          values
+</span>36 <span style=''>            .map { case (k, v) =&gt; s&quot;${JsonString.escape(k)}:$v&quot; }
+</span>37 <span style=''>            .mkString(&quot;{&quot;, &quot;,&quot;, &quot;}&quot;)
+</span>38 <span style=''>      }
+</span>39 <span style=''>  }
+</span>40 <span style=''>
+</span>41 <span style=''>  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue
+</span>42 <span style=''>  case class JsonArray(values: Seq[JsonValue])          extends JsonValue
+</span>43 <span style=''>  case class JsonNumber(value: Double)                  extends JsonValue
+</span>44 <span style=''>  case class JsonBoolean(value: Boolean)                extends JsonValue
+</span>45 <span style=''>  case object JsonNull                                  extends JsonValue
+</span>46 <span style=''>
+</span>47 <span style=''>  case class JsonString(value: String) extends JsonValue {
+</span>48 <span style=''>    override def toString = JsonString.escape(value)
+</span>49 <span style=''>  }
+</span>50 <span style=''>  object JsonString {
+</span>51 <span style=''>    def escape(s: String): String =
+</span>52 <span style=''>      s&quot;${'&quot;'}${s.map {
+</span>53 <span style=''>        case '&quot;'  =&gt; &quot;\\\&quot;&quot;
+</span>54 <span style=''>        case '\\' =&gt; &quot;&quot;&quot;\\&quot;&quot;&quot;
+</span>55 <span style=''>        case '/'  =&gt; &quot;&quot;&quot;\/&quot;&quot;&quot;
+</span>56 <span style=''>        case '\b' =&gt; &quot;&quot;&quot;\b&quot;&quot;&quot;
+</span>57 <span style=''>        case '\f' =&gt; &quot;&quot;&quot;\f&quot;&quot;&quot;
+</span>58 <span style=''>        case '\n' =&gt; &quot;&quot;&quot;\n&quot;&quot;&quot;
+</span>59 <span style=''>        case '\r' =&gt; &quot;&quot;&quot;\r&quot;&quot;&quot;
+</span>60 <span style=''>        case '\t' =&gt; &quot;&quot;&quot;\t&quot;&quot;&quot;
+</span>61 <span style=''>        case c if UnicodeBlock.of(c) != UnicodeBlock.BASIC_LATIN =&gt;
+</span>62 <span style=''>          s&quot;\\u${String.format(&quot;%04x&quot;, c: Int)}&quot;
+</span>63 <span style=''>        case c =&gt; c
+</span>64 <span style=''>      }.mkString}${'&quot;'}&quot;
+</span>65 <span style=''>  }
+</span>66 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          9
+        </td>
+        <td>
+          129
+        </td>
+        <td>
+          229
+          -
+          229
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          JsonValue.this./(name)
+        </td>
+      </tr><tr>
+        <td>
+          9
+        </td>
+        <td>
+          130
+        </td>
+        <td>
+          227
+          -
+          227
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.`package`.MaybeJsonSyntax(JsonValue.this./(name))
+        </td>
+      </tr><tr>
+        <td>
+          10
+        </td>
+        <td>
+          131
+        </td>
+        <td>
+          299
+          -
+          299
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonValue./
+        </td>
+        <td style="background: #AEF1AE">
+          JsonValue.this./(i)
+        </td>
+      </tr><tr>
+        <td>
+          10
+        </td>
+        <td>
+          132
+        </td>
+        <td>
+          297
+          -
+          297
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax
+        </td>
+        <td style="background: #AEF1AE">
+          ninny.this.`package`.MaybeJsonSyntax(JsonValue.this./(i))
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          133
+        </td>
+        <td>
+          368
+          -
+          368
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax.apply
+        </td>
+        <td style="background: #F0ADAD">
+          JsonValue.this.selectDynamic(name).apply(i)
+        </td>
+      </tr><tr>
+        <td>
+          15
+        </td>
+        <td>
+          134
+        </td>
+        <td>
+          482
+          -
+          482
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.MapOps.get
+        </td>
+        <td style="background: #AEF1AE">
+          values.get(name)
+        </td>
+      </tr><tr>
+        <td>
+          16
+        </td>
+        <td>
+          135
+        </td>
+        <td>
+          524
+          -
+          524
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.None
+        </td>
+        <td style="background: #AEF1AE">
+          scala.None
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          136
+        </td>
+        <td>
+          653
+          -
+          655
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Int.&gt;=
+        </td>
+        <td style="background: #AEF1AE">
+          i.&gt;=(0)
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          137
+        </td>
+        <td>
+          644
+          -
+          655
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Boolean.&amp;&amp;
+        </td>
+        <td style="background: #AEF1AE">
+          values.length.&gt;(i).&amp;&amp;(i.&gt;=(0))
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          138
+        </td>
+        <td>
+          672
+          -
+          672
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.SeqOps.apply
+        </td>
+        <td style="background: #AEF1AE">
+          values.apply(i)
+        </td>
+      </tr><tr>
+        <td>
+          21
+        </td>
+        <td>
+          139
+        </td>
+        <td>
+          665
+          -
+          665
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Some.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Some.apply[io.github.kag0.ninny.ast.package.JsonValue](values.apply(i))
+        </td>
+      </tr><tr>
+        <td>
+          22
+        </td>
+        <td>
+          140
+        </td>
+        <td>
+          742
+          -
+          742
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.None
+        </td>
+        <td style="background: #AEF1AE">
+          scala.None
+        </td>
+      </tr><tr>
+        <td>
+          25
+        </td>
+        <td>
+          141
+        </td>
+        <td>
+          798
+          -
+          798
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.from
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.apply[A](evidence$1).from(this)
+        </td>
+      </tr><tr>
+        <td>
+          29
+        </td>
+        <td>
+          142
+        </td>
+        <td>
+          888
+          -
+          888
+        </td>
+        <td>
+          Literal
+        </td>
+        <td>
+          &lt;nosymbol&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          &quot;null&quot;
+        </td>
+      </tr><tr>
+        <td>
+          30
+        </td>
+        <td>
+          143
+        </td>
+        <td>
+          936
+          -
+          936
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Any.toString
+        </td>
+        <td style="background: #AEF1AE">
+          value.toString()
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          144
+        </td>
+        <td>
+          1006
+          -
+          1006
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.StringOps.stripSuffix
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.augmentString(value.toString()).stripSuffix(&quot;.0&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          32
+        </td>
+        <td>
+          145
+        </td>
+        <td>
+          1050
+          -
+          1050
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonString.toString
+        </td>
+        <td style="background: #F0ADAD">
+          s.toString
+        </td>
+      </tr><tr>
+        <td>
+          33
+        </td>
+        <td>
+          146
+        </td>
+        <td>
+          1109
+          -
+          1109
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.IterableOnceOps.mkString
+        </td>
+        <td style="background: #AEF1AE">
+          values.mkString(&quot;[&quot;, &quot;,&quot;, &quot;]&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          37
+        </td>
+        <td>
+          147
+        </td>
+        <td>
+          1264
+          -
+          1264
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.IterableOnceOps.mkString
+        </td>
+        <td style="background: #AEF1AE">
+          values.map[String](((x0$1: (String, io.github.kag0.ninny.ast.package.JsonValue)) =&gt; x0$1 match {
+  case (_1: String, _2: io.github.kag0.ninny.ast.package.JsonValue): (String, io.github.kag0.ninny.ast.package.JsonValue)((k @ _), (v @ _)) =&gt; (&quot;&quot;.+(`package`.this.JsonString.escape(k)).+(&quot;:&quot;).+(v): String)
+})).mkString(&quot;{&quot;, &quot;,&quot;, &quot;}&quot;)
+        </td>
+      </tr><tr>
+        <td>
+          48
+        </td>
+        <td>
+          148
+        </td>
+        <td>
+          1769
+          -
+          1769
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonString.value
+        </td>
+        <td style="background: #AEF1AE">
+          JsonString.this.value
+        </td>
+      </tr><tr>
+        <td>
+          48
+        </td>
+        <td>
+          149
+        </td>
+        <td>
+          1768
+          -
+          1768
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonString.escape
+        </td>
+        <td style="background: #AEF1AE">
+          `package`.this.JsonString.escape(JsonString.this.value)
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

@@ -1,0 +1,187 @@
+<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title id="title">
+          io/github/kag0/ninny/FromJson.scala.html
+        </title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css" type="text/css"/><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script><link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css"/><script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script><script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+      </script>
+        <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+        </style>
+      </head>
+      <body style="font-family: monospace;">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#codegrid" data-toggle="tab">Codegrid</a>
+          </li>
+          <li>
+            <a href="#statementlist" data-toggle="tab">Statement List</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier, monospace;'>1 <span style=''>package io.github.kag0.ninny
+</span>2 <span style=''>
+</span>3 <span style=''>import java.util.NoSuchElementException
+</span>4 <span style=''>
+</span>5 <span style=''>import io.github.kag0.ninny.ast.JsonValue
+</span>6 <span style=''>
+</span>7 <span style=''>import scala.util.{Failure, Try}
+</span>8 <span style=''>
+</span>9 <span style=''>trait FromJson[A] {
+</span>10 <span style=''>  def from(maybeJson: Option[JsonValue]): Try[A]
+</span>11 <span style=''>  def from(json: JsonValue): Try[A] = from(Some(json))
+</span>12 <span style=''>}
+</span>13 <span style=''>
+</span>14 <span style=''>object FromJson {
+</span>15 <span style=''>  def apply[A: FromJson]: FromJson[A] = implicitly[FromJson[A]]
+</span>16 <span style=''>  def fromSome[A](read: JsonValue =&gt; Try[A]): FromJson[A] = {
+</span>17 <span style=''>    case Some(json) =&gt; read(json)
+</span>18 <span style=''>    case None       =&gt; Failure(new NoSuchElementException())
+</span>19 <span style=''>  }
+</span>20 <span style=''>}
+</span></pre>
+          </div>
+          <div class="tab-pane" id="statementlist">
+            <table cellspacing="0" cellpadding="0" class="table statementlist">
+      <tr>
+        <th>Line</th>
+        <th>Stmt Id</th>
+        <th>Pos</th>
+        <th>Tree</th>
+        <th>Symbol</th>
+        <th>Code</th>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          1
+        </td>
+        <td>
+          264
+          -
+          264
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Some.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Some.apply[io.github.kag0.ninny.ast.JsonValue](json)
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          2
+        </td>
+        <td>
+          259
+          -
+          259
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJson.from
+        </td>
+        <td style="background: #AEF1AE">
+          FromJson.this.from(scala.Some.apply[io.github.kag0.ninny.ast.JsonValue](json))
+        </td>
+      </tr><tr>
+        <td>
+          15
+        </td>
+        <td>
+          3
+        </td>
+        <td>
+          343
+          -
+          343
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          scala.Predef.implicitly
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.implicitly[io.github.kag0.ninny.FromJson[A]](evidence$1)
+        </td>
+      </tr><tr>
+        <td>
+          17
+        </td>
+        <td>
+          4
+        </td>
+        <td>
+          446
+          -
+          446
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Function1.apply
+        </td>
+        <td style="background: #AEF1AE">
+          read.apply(json)
+        </td>
+      </tr><tr>
+        <td>
+          18
+        </td>
+        <td>
+          5
+        </td>
+        <td>
+          484
+          -
+          484
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          java.util.NoSuchElementException.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new java.util.NoSuchElementException()
+        </td>
+      </tr><tr>
+        <td>
+          18
+        </td>
+        <td>
+          6
+        </td>
+        <td>
+          483
+          -
+          483
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.util.Failure.apply
+        </td>
+        <td style="background: #AEF1AE">
+          scala.util.Failure.apply[Nothing](new java.util.NoSuchElementException())
+        </td>
+      </tr>
+    </table>
+          </div>
+        </div>
+      </body>
+    </html>

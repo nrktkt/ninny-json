@@ -6,5 +6,5 @@ import io.github.kag0.ninny.jawn.Facade
 
 object Json {
   def parse(s: String)        = Parser.parseFromString(s)
-  def render(json: JsonValue) = json.render
+  def render(json: JsonValue) = json.toString
 }

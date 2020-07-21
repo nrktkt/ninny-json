@@ -1,3 +1,5 @@
+[![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](coverage)
+
 # Reading values from JSON
 
 ```scala
