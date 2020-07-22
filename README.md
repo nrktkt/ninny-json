@@ -259,8 +259,7 @@ trait ToSomeJson[A] extends ToJson[A] {
   override def to(a: A) = Some(toSome(a))
 }
 ```
-
-### [Example](ninny/test/src/io/github/kag0/ninny/Example.scala)
+### [Example](ninny/test/src/io/github/kag0/ninny/example/Example.scala)
 
 An example of updating a user profile which clears one field, 
 sets the value of another, and leaves a third unchanged without overwriting it 
