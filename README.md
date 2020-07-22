@@ -23,7 +23,7 @@ can open up.
 
 ## What do libraries do today? 
 
-Let's look at three popular libraries and see how they deal with converting some
+Let's look at three popular libraries and see how they deal with converting
 `Option[A]` to and from JSON.
 
 ### json4s
