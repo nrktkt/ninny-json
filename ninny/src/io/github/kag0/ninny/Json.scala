@@ -7,4 +7,6 @@ import io.github.kag0.ninny.jawn.Facade
 object Json {
   def parse(s: String)        = Parser.parseFromString(s)
   def render(json: JsonValue) = json.toString
+
+  def toJson[A: ToJsonAuto] = implicitly[ToJsonAuto[A]].toJson
 }

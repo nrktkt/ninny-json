@@ -6,6 +6,11 @@ import scala.util.Try
 
 package object ninny extends ToJsonInstances with FromJsonInstances {
 
+  type ToJson[A]           = ToJsonValue[A, JsonValue]
+  type ToJsonObject[A]     = ToJsonValue[A, JsonObject]
+  type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
+  type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
+
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
     JsonObject(
       nameValues.toMap.collect {

@@ -7,7 +7,11 @@ def scalaV = "2.13.3"
 
 object ninny extends ScoverageModule {
   def scalaVersion = scalaV
-  def ivyDeps = Agg(ivy"org.typelevel::jawn-parser:1.0.0")
+  def ivyDeps = Agg(
+    ivy"org.typelevel::jawn-parser:1.0.0",
+    ivy"com.chuusai::shapeless:2.3.3"
+  )
+
   object test extends ScoverageTests {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps = Agg(
@@ -15,5 +19,6 @@ object ninny extends ScoverageModule {
       ivy"org.scalatest::scalatest:3.2.0"
     )
   }
+
   def scoverageVersion = "1.4.1"
 }

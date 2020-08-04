@@ -35,12 +35,14 @@ case class UpdateProfile(
 
 object Example extends App {
 
-  implicit val profileToJson: ToSomeJson[Profile] = a =>
+  val profileToJson: ToSomeJson[Profile] = a =>
     obj(
       "name"  -> a.name,
       "email" -> a.email,
       "bio"   -> a.bio
     )
+
+  implicit val profileToJson2 = Json.toJson[Profile]
 
   implicit def patchFromJson[A: FromJson]: FromJson[Patch[A]] = {
     case None           => Success(Nop)
