@@ -12,6 +12,7 @@ object ToJson {
     (a: A) => fn(a)
   def apply[A, Json <: JsonValue](fn: A => Json): ToSomeJsonValue[A, Json] =
     (a: A) => fn(a)
+  def auto[A: ToJsonAuto] = implicitly[ToJsonAuto[A]].toJson
 }
 
 trait ToSomeJsonValue[A, +Json <: JsonValue] extends ToJsonValue[A, Json] {

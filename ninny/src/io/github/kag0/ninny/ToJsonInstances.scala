@@ -41,19 +41,19 @@ trait ToJsonInstances {
   implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
     time => JsonString(time.toString)
 
-  import shapeless.{:: => ::::}
+  import shapeless.::
 
   implicit val hNilToJson: ToSomeJsonObject[HNil] = _ => JsonObject(Map.empty)
 
   implicit def recordToJson[Key <: Symbol, Head, Tail <: HList](implicit
       witness: Witness.Aux[Key],
-      headEncoder: Lazy[ToJson[Head]],
-      tailEncoder: ToSomeJsonObject[Tail]
-  ): ToSomeJsonObject[FieldType[Key, Head] :::: Tail] = {
+      headToJson: Lazy[ToJson[Head]],
+      tailToJson: ToSomeJsonObject[Tail]
+  ): ToSomeJsonObject[FieldType[Key, Head] :: Tail] = {
     val name = witness.value.name
     ToJson { record =>
-      val maybeHead = headEncoder.value.to(record.head)
-      val tail      = tailEncoder.toSome(record.tail)
+      val maybeHead = headToJson.value.to(record.head)
+      val tail      = tailToJson.toSome(record.tail)
 
       maybeHead match {
         case Some(head) => JsonObject(tail.values + (name -> head))
@@ -64,8 +64,8 @@ trait ToJsonInstances {
 
   implicit def labelledGenericToJson[A, Head](implicit
       generic: LabelledGeneric.Aux[A, Head],
-      headEncoder: Lazy[ToSomeJsonObject[Head]]
-  ) = new ToJsonAuto[A](a => headEncoder.value.toSome(generic.to(a)))
+      headToJson: Lazy[ToSomeJsonObject[Head]]
+  ) = new ToJsonAuto[A](a => headToJson.value.toSome(generic.to(a)))
 }
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
@@ -73,6 +73,6 @@ class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
 trait AutoToJson {
   implicit def lgToJson[A, Head](implicit
       generic: LabelledGeneric.Aux[A, Head],
-      headEncoder: Lazy[ToSomeJsonObject[Head]]
+      headToJson: Lazy[ToSomeJsonObject[Head]]
   ) = labelledGenericToJson[A, Head].toJson
 }
