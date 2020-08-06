@@ -11,6 +11,22 @@ package object ninny extends ToJsonInstances with FromJsonInstances {
   type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
   type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
 
+  trait ToAndFromJson[A] extends ToJson[A] with FromJson[A]
+  object ToAndFromJson {
+
+    def apply[A: ToJson: FromJson] =
+      new ToAndFromJson[A] {
+        def to(a: A)                           = a.toJson
+        def from(maybeJson: Option[JsonValue]) = maybeJson.to[A]
+      }
+
+    def auto[A: ToJsonAuto: FromJsonAuto]: ToAndFromJson[A] = {
+      implicit val toJson   = implicitly[ToJsonAuto[A]].toJson
+      implicit val fromJson = implicitly[FromJsonAuto[A]].fromJson
+      ToAndFromJson[A]
+    }
+  }
+
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
     JsonObject(
       nameValues.toMap.collect {

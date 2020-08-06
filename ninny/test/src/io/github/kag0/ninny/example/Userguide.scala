@@ -98,18 +98,19 @@ object Userguide extends App {
 
   case class Address(street: String, zip: String)
 
-  object Address {
+  // manual
+  {
     /*
      implement ToSomeJson instead of ToJson if your object always produces
      some kind of JSON. this is a common case.
      */
-    implicit val toJson: ToSomeJson[Address] = a =>
+    implicit val addressToJson: ToSomeJson[Address] = a =>
       obj(
         "street" -> a.street,
         "zip"    -> a.zip
       )
 
-    implicit val fromJson: FromJson[Address] = {
+    implicit val addressFromJson: FromJson[Address] = {
       case None => Failure(new NoSuchElementException())
       case Some(json) =>
         for {
@@ -117,10 +118,8 @@ object Userguide extends App {
           last  <- json.zip.to[String]
         } yield Address(first, last)
     }
-  }
 
-  object Person {
-    implicit val toJson: ToSomeJson[Person] = p =>
+    implicit val personToJson: ToSomeJson[Person] = p =>
       obj(
         "firstName" -> p.firstName,
         "lastName"  -> p.lastName,
@@ -129,7 +128,7 @@ object Userguide extends App {
         "age"       -> p.age
       )
 
-    implicit val fromJson = FromJson.fromSome[Person](json =>
+    implicit val personFromJson = FromJson.fromSome[Person](json =>
       for {
         first   <- json.firstName.to[String]
         last    <- json.lastName.to[String]
@@ -138,15 +137,53 @@ object Userguide extends App {
         age     <- json.age.to[Option[Int]]
       } yield Person(first, last, address, kids, age)
     )
+
+    Person(
+      "John",
+      "Doe",
+      Address("710 Ashbury St", "94117"),
+      Seq("Jr", "Jane"),
+      age = None
+    ).toSomeJson: JsonValue
+
+    Json.parse("").to[Person]: Try[Person]
   }
 
-  Person(
-    "John",
-    "Doe",
-    Address("710 Ashbury St", "94117"),
-    Seq("Jr", "Jane"),
-    age = None
-  ).toSomeJson: JsonValue
+  // semi auto
+  {
+    /*
+     implement ToSomeJson instead of ToJson if your object always produces
+     some kind of JSON. this is a common case.
+     */
+    implicit val addressToJson = ToAndFromJson.auto[Address]
 
-  Json.parse("").to[Person]: Try[Person]
+    implicit val personToJson = ToJson.auto[Person]
+
+    implicit val personFromJson = FromJson.auto[Person]
+
+    Person(
+      "John",
+      "Doe",
+      Address("710 Ashbury St", "94117"),
+      Seq("Jr", "Jane"),
+      age = None
+    ).toSomeJson: JsonValue
+
+    Json.parse("").to[Person]: Try[Person]
+  }
+
+  // full auto
+  {
+    import io.github.kag0.ninny.Auto._
+
+    Person(
+      "John",
+      "Doe",
+      Address("710 Ashbury St", "94117"),
+      Seq("Jr", "Jane"),
+      age = None
+    ).toSomeJson: JsonValue
+
+    Json.parse("").to[Person]: Try[Person]
+  }
 }

@@ -26,18 +26,26 @@
 </span>2 <span style=''>
 </span>3 <span style=''>import io.github.kag0.ninny.ast.JsonValue
 </span>4 <span style=''>
-</span>5 <span style=''>trait ToJson[A] {
-</span>6 <span style=''>  def to(a: A): Option[JsonValue]
+</span>5 <span style=''>trait ToJsonValue[A, +Json &lt;: JsonValue] {
+</span>6 <span style=''>  def to(a: A): Option[Json]
 </span>7 <span style=''>}
 </span>8 <span style=''>
 </span>9 <span style=''>object ToJson {
 </span>10 <span style=''>  def apply[A: ToJson]: ToJson[A] = implicitly[ToJson[A]]
-</span>11 <span style=''>}
-</span>12 <span style=''>
-</span>13 <span style=''>trait ToSomeJson[A] extends ToJson[A] {
-</span>14 <span style=''>  def toSome(a: A): JsonValue
-</span>15 <span style=''>  override def to(a: A) = Some(toSome(a))
-</span>16 <span style=''>}
+</span>11 <span style=''>
+</span>12 <span style=''>  def apply[A, Json &lt;: JsonValue](fn: A =&gt; Option[Json]): ToJsonValue[A, Json] =
+</span>13 <span style=''>    (a: A) =&gt; fn(a)
+</span>14 <span style=''>
+</span>15 <span style=''>  def apply[A, Json &lt;: JsonValue](fn: A =&gt; Json): ToSomeJsonValue[A, Json] =
+</span>16 <span style=''>    (a: A) =&gt; fn(a)
+</span>17 <span style=''>
+</span>18 <span style=''>  def auto[A: ToJsonAuto] = implicitly[ToJsonAuto[A]].toJson
+</span>19 <span style=''>}
+</span>20 <span style=''>
+</span>21 <span style=''>trait ToSomeJsonValue[A, +Json &lt;: JsonValue] extends ToJsonValue[A, Json] {
+</span>22 <span style=''>  def toSome(a: A): Json
+</span>23 <span style=''>  override def to(a: A) = Some(toSome(a))
+</span>24 <span style=''>}
 </span></pre>
           </div>
           <div class="tab-pane" id="statementlist">
@@ -54,12 +62,12 @@
           10
         </td>
         <td>
-          98
+          112
         </td>
         <td>
-          190
+          210
           -
-          190
+          210
         </td>
         <td>
           ApplyToImplicitArgs
@@ -72,36 +80,99 @@
         </td>
       </tr><tr>
         <td>
-          15
+          13
         </td>
         <td>
-          99
+          113
         </td>
         <td>
-          312
+          320
           -
-          312
+          320
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToSomeJson.toSome
+          scala.Function1.apply
         </td>
-        <td style="background: #AEF1AE">
-          ToSomeJson.this.toSome(a)
+        <td style="background: #F0ADAD">
+          fn.apply(a)
         </td>
       </tr><tr>
         <td>
-          15
+          16
         </td>
         <td>
-          100
+          114
         </td>
         <td>
-          305
+          418
           -
-          305
+          418
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Function1.apply
+        </td>
+        <td style="background: #AEF1AE">
+          fn.apply(a)
+        </td>
+      </tr><tr>
+        <td>
+          18
+        </td>
+        <td>
+          115
+        </td>
+        <td>
+          477
+          -
+          477
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJsonAuto.toJson
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.implicitly[io.github.kag0.ninny.ToJsonAuto[A]](evidence$2).toJson
+        </td>
+      </tr><tr>
+        <td>
+          23
+        </td>
+        <td>
+          116
+        </td>
+        <td>
+          625
+          -
+          625
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToSomeJsonValue.toSome
+        </td>
+        <td style="background: #AEF1AE">
+          ToSomeJsonValue.this.toSome(a)
+        </td>
+      </tr><tr>
+        <td>
+          23
+        </td>
+        <td>
+          117
+        </td>
+        <td>
+          618
+          -
+          618
         </td>
         <td>
           Apply
@@ -110,7 +181,7 @@
           scala.Some.apply
         </td>
         <td style="background: #AEF1AE">
-          scala.Some.apply[io.github.kag0.ninny.ast.JsonValue](ToSomeJson.this.toSome(a))
+          scala.Some.apply[Json](ToSomeJsonValue.this.toSome(a))
         </td>
       </tr>
     </table>

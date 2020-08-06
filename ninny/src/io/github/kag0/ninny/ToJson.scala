@@ -8,10 +8,13 @@ trait ToJsonValue[A, +Json <: JsonValue] {
 
 object ToJson {
   def apply[A: ToJson]: ToJson[A] = implicitly[ToJson[A]]
+
   def apply[A, Json <: JsonValue](fn: A => Option[Json]): ToJsonValue[A, Json] =
     (a: A) => fn(a)
+
   def apply[A, Json <: JsonValue](fn: A => Json): ToSomeJsonValue[A, Json] =
     (a: A) => fn(a)
+
   def auto[A: ToJsonAuto] = implicitly[ToJsonAuto[A]].toJson
 }
 

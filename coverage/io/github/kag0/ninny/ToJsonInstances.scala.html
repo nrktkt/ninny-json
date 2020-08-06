@@ -27,42 +27,79 @@
 </span>3 <span style=''>import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 </span>4 <span style=''>
 </span>5 <span style=''>import io.github.kag0.ninny.ast._
-</span>6 <span style=''>
-</span>7 <span style=''>trait ToJsonInstances {
-</span>8 <span style=''>  implicit val stringToJson: ToSomeJson[String]   = JsonString(_)
-</span>9 <span style=''>  implicit val booleanToJson: ToSomeJson[Boolean] = JsonBoolean(_)
-</span>10 <span style=''>  implicit val nullToJson: ToSomeJson[Null]       = _ =&gt; JsonNull
-</span>11 <span style=''>  implicit val doubleToJson: ToSomeJson[Double]   = JsonNumber(_)
-</span>12 <span style=''>  implicit val intToJson: ToSomeJson[Int]         = JsonNumber(_)
-</span>13 <span style=''>  implicit val unitToJson: ToSomeJson[Unit]       = _ =&gt; JsonArray(Nil)
-</span>14 <span style=''>  implicit val jsonToJson: ToSomeJson[JsonValue]  = identity
-</span>15 <span style=''>
-</span>16 <span style=''>  implicit def seqToJson[A: ToSomeJson]: ToSomeJson[Seq[A]] =
-</span>17 <span style=''>    a =&gt; JsonArray(a.map(_.toSomeJson))
-</span>18 <span style=''>
-</span>19 <span style=''>  implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
-</span>20 <span style=''>    m =&gt;
-</span>21 <span style=''>      JsonObject(m.collect[String, JsonValue](Function.unlift {
-</span>22 <span style=''>        case (k, v) =&gt; v.toJson.map(k </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> _)
-</span>23 <span style=''>      }))
-</span>24 <span style=''>
-</span>25 <span style=''>  implicit def optionToJson[A: ToJson]: ToJson[Option[A]] =
-</span>26 <span style=''>    a =&gt; a.flatMap(ToJson[A].to(_))
-</span>27 <span style=''>
-</span>28 <span style=''>  implicit val noneToJson: ToJson[None.type]          = _ =&gt; None
-</span>29 <span style=''>  implicit def someToJson[A: ToJson]: ToJson[Some[A]] = optionToJson[A].to(_)
-</span>30 <span style=''>  implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] =
-</span>31 <span style=''>    _.value.toSomeJson
-</span>32 <span style=''>
-</span>33 <span style=''>  implicit val instantToJson: ToSomeJson[Instant] =
-</span>34 <span style=''>    i =&gt; JsonNumber(i.getEpochSecond)
-</span>35 <span style=''>
-</span>36 <span style=''>  implicit val offsetDateTimeToJson: ToSomeJson[OffsetDateTime] =
-</span>37 <span style=''>    time =&gt; JsonString(time.toString)
-</span>38 <span style=''>
-</span>39 <span style=''>  implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
-</span>40 <span style=''>    time =&gt; JsonString(time.toString)
-</span>41 <span style=''>}
+</span>6 <span style=''>import shapeless.labelled.FieldType
+</span>7 <span style=''>import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
+</span>8 <span style=''>
+</span>9 <span style=''>trait ToJsonInstances {
+</span>10 <span style=''>  implicit val stringToJson: ToSomeJson[String]   = ToJson(JsonString(_))
+</span>11 <span style=''>  implicit val booleanToJson: ToSomeJson[Boolean] = JsonBoolean(_)
+</span>12 <span style=''>  implicit val nullToJson: ToSomeJson[Null]       = _ =&gt; JsonNull
+</span>13 <span style=''>  implicit val doubleToJson: ToSomeJson[Double]   = JsonNumber(_)
+</span>14 <span style=''>  implicit val intToJson: ToSomeJson[Int]         = JsonNumber(_)
+</span>15 <span style=''>  implicit val unitToJson: ToSomeJson[Unit]       = _ =&gt; JsonArray(Nil)
+</span>16 <span style=''>  implicit val jsonToJson: ToSomeJson[JsonValue]  = identity
+</span>17 <span style=''>
+</span>18 <span style=''>  implicit def seqToJson[A: ToSomeJson]: ToSomeJson[Seq[A]] =
+</span>19 <span style=''>    a =&gt; JsonArray(a.map(_.toSomeJson))
+</span>20 <span style=''>
+</span>21 <span style=''>  implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
+</span>22 <span style=''>    m =&gt;
+</span>23 <span style=''>      JsonObject(m.collect[String, JsonValue](Function.unlift {
+</span>24 <span style=''>        case (k, v) =&gt; v.toJson.map(k </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> _)
+</span>25 <span style=''>      }))
+</span>26 <span style=''>
+</span>27 <span style=''>  implicit def optionToJson[A: ToJson]: ToJson[Option[A]] =
+</span>28 <span style=''>    a =&gt; a.flatMap(ToJson[A].to(_))
+</span>29 <span style=''>
+</span>30 <span style=''>  implicit val noneToJson: ToJson[None.type]          = _ =&gt; None
+</span>31 <span style=''>  implicit def someToJson[A: ToJson]: ToJson[Some[A]] = optionToJson[A].to(_)
+</span>32 <span style=''>  implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] =
+</span>33 <span style=''>    _.value.toSomeJson
+</span>34 <span style=''>
+</span>35 <span style=''>  implicit val instantToJson: ToSomeJson[Instant] =
+</span>36 <span style=''>    i =&gt; JsonNumber(i.getEpochSecond)
+</span>37 <span style=''>
+</span>38 <span style=''>  implicit val offsetDateTimeToJson: ToSomeJson[OffsetDateTime] =
+</span>39 <span style=''>    time =&gt; JsonString(time.toString)
+</span>40 <span style=''>
+</span>41 <span style=''>  implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
+</span>42 <span style=''>    time =&gt; JsonString(time.toString)
+</span>43 <span style=''>
+</span>44 <span style=''>  import shapeless.::
+</span>45 <span style=''>
+</span>46 <span style=''>  implicit val hNilToJson: ToSomeJsonObject[HNil] = _ =&gt; JsonObject(Map.empty)
+</span>47 <span style=''>
+</span>48 <span style=''>  implicit def recordToJson[Key &lt;: Symbol, Head, Tail &lt;: HList](implicit
+</span>49 <span style=''>      witness: Witness.Aux[Key],
+</span>50 <span style=''>      headToJson: Lazy[ToJson[Head]],
+</span>51 <span style=''>      tailToJson: ToSomeJsonObject[Tail]
+</span>52 <span style=''>  ): ToSomeJsonObject[FieldType[Key, Head] :: Tail] = {
+</span>53 <span style=''>    val name = witness.value.name
+</span>54 <span style=''>    ToJson { record =&gt;
+</span>55 <span style=''>      val maybeHead = headToJson.value.to(record.head)
+</span>56 <span style=''>      val tail      = tailToJson.toSome(record.tail)
+</span>57 <span style=''>
+</span>58 <span style=''>      maybeHead match {
+</span>59 <span style=''>        case Some(head) =&gt; JsonObject(tail.values </span><span style='background: #AEF1AE'>+</span><span style=''> (name </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> head))
+</span>60 <span style=''>        case None       =&gt; tail
+</span>61 <span style=''>      }
+</span>62 <span style=''>    }
+</span>63 <span style=''>  }
+</span>64 <span style=''>
+</span>65 <span style=''>  implicit def labelledGenericToJson[A, Head](implicit
+</span>66 <span style=''>      generic: LabelledGeneric.Aux[A, Head],
+</span>67 <span style=''>      headToJson: Lazy[ToSomeJsonObject[Head]]
+</span>68 <span style=''>  ) = new ToJsonAuto[A](a =&gt; headToJson.value.toSome(generic.to(a)))
+</span>69 <span style=''>}
+</span>70 <span style=''>
+</span>71 <span style=''>class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
+</span>72 <span style=''>
+</span>73 <span style=''>trait AutoToJson {
+</span>74 <span style=''>  implicit def lgToJson[A, Head](implicit
+</span>75 <span style=''>      generic: LabelledGeneric.Aux[A, Head],
+</span>76 <span style=''>      headToJson: Lazy[ToSomeJsonObject[Head]]
+</span>77 <span style=''>  ) = labelledGenericToJson[A, Head].toJson
+</span>78 <span style=''>}
 </span></pre>
           </div>
           <div class="tab-pane" id="statementlist">
@@ -76,15 +113,15 @@
         <th>Code</th>
       </tr><tr>
         <td>
-          8
+          10
         </td>
         <td>
-          101
+          118
         </td>
         <td>
-          210
+          316
           -
-          210
+          316
         </td>
         <td>
           Apply
@@ -97,15 +134,36 @@
         </td>
       </tr><tr>
         <td>
-          9
+          10
         </td>
         <td>
-          102
+          119
         </td>
         <td>
-          277
+          305
           -
-          277
+          305
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJson.apply
+        </td>
+        <td style="background: #AEF1AE">
+          ToJson.apply[String, io.github.kag0.ninny.ast.JsonString](((x$1: String) =&gt; io.github.kag0.ninny.ast.`package`.JsonString.apply(x$1)))
+        </td>
+      </tr><tr>
+        <td>
+          11
+        </td>
+        <td>
+          120
+        </td>
+        <td>
+          384
+          -
+          384
         </td>
         <td>
           Apply
@@ -118,15 +176,15 @@
         </td>
       </tr><tr>
         <td>
-          10
+          12
         </td>
         <td>
-          103
+          121
         </td>
         <td>
-          338
+          445
           -
-          338
+          445
         </td>
         <td>
           Select
@@ -134,20 +192,20 @@
         <td>
           io.github.kag0.ninny.ast.JsonNull
         </td>
-        <td style="background: #F0ADAD">
+        <td style="background: #AEF1AE">
           io.github.kag0.ninny.ast.`package`.JsonNull
         </td>
       </tr><tr>
         <td>
-          11
+          13
         </td>
         <td>
-          104
+          122
         </td>
         <td>
-          409
+          516
           -
-          409
+          516
         </td>
         <td>
           Apply
@@ -160,15 +218,15 @@
         </td>
       </tr><tr>
         <td>
-          12
+          14
         </td>
         <td>
-          105
+          123
         </td>
         <td>
-          476
+          583
           -
-          476
+          583
         </td>
         <td>
           Select
@@ -181,15 +239,15 @@
         </td>
       </tr><tr>
         <td>
-          12
+          14
         </td>
         <td>
-          106
+          124
         </td>
         <td>
-          475
+          582
           -
-          475
+          582
         </td>
         <td>
           Apply
@@ -202,15 +260,15 @@
         </td>
       </tr><tr>
         <td>
-          13
+          15
         </td>
         <td>
-          107
+          125
         </td>
         <td>
-          546
+          653
           -
-          546
+          653
         </td>
         <td>
           Select
@@ -223,15 +281,15 @@
         </td>
       </tr><tr>
         <td>
-          13
+          15
         </td>
         <td>
-          108
+          126
         </td>
         <td>
-          545
+          652
           -
-          545
+          652
         </td>
         <td>
           Apply
@@ -244,15 +302,15 @@
         </td>
       </tr><tr>
         <td>
-          14
+          16
         </td>
         <td>
-          109
+          127
         </td>
         <td>
-          603
+          710
           -
-          603
+          710
         </td>
         <td>
           Apply
@@ -260,20 +318,20 @@
         <td>
           scala.Predef.identity
         </td>
-        <td style="background: #F0ADAD">
+        <td style="background: #AEF1AE">
           scala.Predef.identity[io.github.kag0.ninny.ast.JsonValue](x)
         </td>
       </tr><tr>
         <td>
-          17
+          19
         </td>
         <td>
-          110
+          128
         </td>
         <td>
-          702
+          809
           -
-          702
+          809
         </td>
         <td>
           ApplyToImplicitArgs
@@ -286,15 +344,15 @@
         </td>
       </tr><tr>
         <td>
-          17
+          19
         </td>
         <td>
-          111
+          129
         </td>
         <td>
-          699
+          806
           -
-          699
+          806
         </td>
         <td>
           Apply
@@ -307,15 +365,15 @@
         </td>
       </tr><tr>
         <td>
-          17
+          19
         </td>
         <td>
-          112
+          130
         </td>
         <td>
-          693
+          800
           -
-          693
+          800
         </td>
         <td>
           Apply
@@ -328,15 +386,15 @@
         </td>
       </tr><tr>
         <td>
-          21
+          23
         </td>
         <td>
-          115
+          133
         </td>
         <td>
-          853
+          960
           -
-          853
+          960
         </td>
         <td>
           Apply
@@ -351,15 +409,15 @@
         </td>
       </tr><tr>
         <td>
-          21
+          23
         </td>
         <td>
-          116
+          134
         </td>
         <td>
-          836
+          943
           -
-          836
+          943
         </td>
         <td>
           Apply
@@ -374,15 +432,15 @@
         </td>
       </tr><tr>
         <td>
-          21
+          23
         </td>
         <td>
-          117
+          135
         </td>
         <td>
-          807
+          914
           -
-          807
+          914
         </td>
         <td>
           Apply
@@ -397,15 +455,15 @@
         </td>
       </tr><tr>
         <td>
-          22
+          24
         </td>
         <td>
-          113
+          131
         </td>
         <td>
-          893
+          1000
           -
-          895
+          1002
         </td>
         <td>
           Apply
@@ -418,15 +476,15 @@
         </td>
       </tr><tr>
         <td>
-          22
+          24
         </td>
         <td>
-          114
+          132
         </td>
         <td>
-          890
+          997
           -
-          890
+          997
         </td>
         <td>
           Apply
@@ -439,36 +497,36 @@
         </td>
       </tr><tr>
         <td>
-          26
+          28
         </td>
         <td>
-          118
+          136
         </td>
         <td>
-          1001
+          1108
           -
-          1001
+          1108
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToJson.to
+          io.github.kag0.ninny.ToJsonValue.to
         </td>
         <td style="background: #AEF1AE">
           ToJson.apply[A](evidence$3).to(x$9)
         </td>
       </tr><tr>
         <td>
-          26
+          28
         </td>
         <td>
-          119
+          137
         </td>
         <td>
-          988
+          1095
           -
-          988
+          1095
         </td>
         <td>
           Apply
@@ -481,15 +539,15 @@
         </td>
       </tr><tr>
         <td>
-          28
+          30
         </td>
         <td>
-          120
+          138
         </td>
         <td>
-          1068
+          1175
           -
-          1068
+          1175
         </td>
         <td>
           Select
@@ -502,36 +560,36 @@
         </td>
       </tr><tr>
         <td>
-          29
+          31
         </td>
         <td>
-          121
+          139
         </td>
         <td>
-          1147
+          1254
           -
-          1147
+          1254
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToJson.to
+          io.github.kag0.ninny.ToJsonValue.to
         </td>
         <td style="background: #AEF1AE">
           ToJsonInstances.this.optionToJson[A](evidence$4).to(x$11)
         </td>
       </tr><tr>
         <td>
-          31
+          33
         </td>
         <td>
-          122
+          140
         </td>
         <td>
-          1231
+          1338
           -
-          1231
+          1338
         </td>
         <td>
           ApplyToImplicitArgs
@@ -544,15 +602,15 @@
         </td>
       </tr><tr>
         <td>
-          34
+          36
         </td>
         <td>
-          123
+          141
         </td>
         <td>
-          1317
+          1424
           -
-          1317
+          1424
         </td>
         <td>
           Select
@@ -565,15 +623,15 @@
         </td>
       </tr><tr>
         <td>
-          34
+          36
         </td>
         <td>
-          124
+          142
         </td>
         <td>
-          1314
+          1421
           -
-          1314
+          1421
         </td>
         <td>
           Apply
@@ -586,15 +644,15 @@
         </td>
       </tr><tr>
         <td>
-          37
+          39
         </td>
         <td>
-          125
+          143
         </td>
         <td>
-          1428
+          1535
           -
-          1428
+          1535
         </td>
         <td>
           Apply
@@ -607,15 +665,15 @@
         </td>
       </tr><tr>
         <td>
-          37
+          39
         </td>
         <td>
-          126
+          144
         </td>
         <td>
-          1422
+          1529
           -
-          1422
+          1529
         </td>
         <td>
           Apply
@@ -628,15 +686,15 @@
         </td>
       </tr><tr>
         <td>
-          40
+          42
         </td>
         <td>
-          127
+          145
         </td>
         <td>
-          1531
+          1638
           -
-          1531
+          1638
         </td>
         <td>
           Apply
@@ -649,15 +707,15 @@
         </td>
       </tr><tr>
         <td>
-          40
+          42
         </td>
         <td>
-          128
+          146
         </td>
         <td>
-          1525
+          1632
           -
-          1525
+          1632
         </td>
         <td>
           Apply
@@ -667,6 +725,328 @@
         </td>
         <td style="background: #AEF1AE">
           io.github.kag0.ninny.ast.`package`.JsonString.apply(time.toString())
+        </td>
+      </tr><tr>
+        <td>
+          46
+        </td>
+        <td>
+          147
+        </td>
+        <td>
+          1744
+          -
+          1744
+        </td>
+        <td>
+          TypeApply
+        </td>
+        <td>
+          scala.collection.immutable.Map.empty
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.Map.empty[String, Nothing]
+        </td>
+      </tr><tr>
+        <td>
+          46
+        </td>
+        <td>
+          148
+        </td>
+        <td>
+          1739
+          -
+          1739
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonObject.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonObject.apply(scala.Predef.Map.empty[String, Nothing])
+        </td>
+      </tr><tr>
+        <td>
+          53
+        </td>
+        <td>
+          149
+        </td>
+        <td>
+          2022
+          -
+          2022
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          scala.Symbol.name
+        </td>
+        <td style="background: #AEF1AE">
+          witness.value.name
+        </td>
+      </tr><tr>
+        <td>
+          54
+        </td>
+        <td>
+          157
+        </td>
+        <td>
+          2038
+          -
+          2038
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJson.apply
+        </td>
+        <td style="background: #AEF1AE">
+          ToJson.apply[shapeless.labelled.FieldType[Key,Head] :: Tail, io.github.kag0.ninny.ast.JsonObject](((record: shapeless.labelled.FieldType[Key,Head] :: Tail) =&gt; {
+  val maybeHead: Option[io.github.kag0.ninny.ast.JsonValue] = headToJson.value.to(record.head);
+  val tail: io.github.kag0.ninny.ast.JsonObject = tailToJson.toSome(record.tail);
+  maybeHead match {
+    case (value: io.github.kag0.ninny.ast.JsonValue): Some[io.github.kag0.ninny.ast.JsonValue]((head @ _)) =&gt; io.github.kag0.ninny.ast.`package`.JsonObject.apply(tail.values.+[io.github.kag0.ninny.ast.JsonValue](scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](head)))
+    case scala.None =&gt; tail
+  }
+}))
+        </td>
+      </tr><tr>
+        <td>
+          55
+        </td>
+        <td>
+          150
+        </td>
+        <td>
+          2099
+          -
+          2099
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          shapeless.::.head
+        </td>
+        <td style="background: #AEF1AE">
+          record.head
+        </td>
+      </tr><tr>
+        <td>
+          55
+        </td>
+        <td>
+          151
+        </td>
+        <td>
+          2091
+          -
+          2091
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJsonValue.to
+        </td>
+        <td style="background: #AEF1AE">
+          headToJson.value.to(record.head)
+        </td>
+      </tr><tr>
+        <td>
+          56
+        </td>
+        <td>
+          152
+        </td>
+        <td>
+          2152
+          -
+          2152
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          shapeless.::.tail
+        </td>
+        <td style="background: #AEF1AE">
+          record.tail
+        </td>
+      </tr><tr>
+        <td>
+          56
+        </td>
+        <td>
+          153
+        </td>
+        <td>
+          2144
+          -
+          2144
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToSomeJsonValue.toSome
+        </td>
+        <td style="background: #AEF1AE">
+          tailToJson.toSome(record.tail)
+        </td>
+      </tr><tr>
+        <td>
+          59
+        </td>
+        <td>
+          154
+        </td>
+        <td>
+          2241
+          -
+          2243
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.Predef.ArrowAssoc.-&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](head)
+        </td>
+      </tr><tr>
+        <td>
+          59
+        </td>
+        <td>
+          155
+        </td>
+        <td>
+          2233
+          -
+          2234
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          scala.collection.immutable.MapOps.+
+        </td>
+        <td style="background: #AEF1AE">
+          tail.values.+[io.github.kag0.ninny.ast.JsonValue](scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](head))
+        </td>
+      </tr><tr>
+        <td>
+          59
+        </td>
+        <td>
+          156
+        </td>
+        <td>
+          2220
+          -
+          2220
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ast.JsonObject.apply
+        </td>
+        <td style="background: #AEF1AE">
+          io.github.kag0.ninny.ast.`package`.JsonObject.apply(tail.values.+[io.github.kag0.ninny.ast.JsonValue](scala.Predef.ArrowAssoc[String](name).-&gt;[io.github.kag0.ninny.ast.JsonValue](head)))
+        </td>
+      </tr><tr>
+        <td>
+          68
+        </td>
+        <td>
+          158
+        </td>
+        <td>
+          2512
+          -
+          2512
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          shapeless.LabelledGeneric.to
+        </td>
+        <td style="background: #AEF1AE">
+          generic.to(a)
+        </td>
+      </tr><tr>
+        <td>
+          68
+        </td>
+        <td>
+          159
+        </td>
+        <td>
+          2501
+          -
+          2501
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToSomeJsonValue.toSome
+        </td>
+        <td style="background: #AEF1AE">
+          headToJson.value.toSome(generic.to(a))
+        </td>
+      </tr><tr>
+        <td>
+          68
+        </td>
+        <td>
+          160
+        </td>
+        <td>
+          2455
+          -
+          2455
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJsonAuto.&lt;init&gt;
+        </td>
+        <td style="background: #AEF1AE">
+          new io.github.kag0.ninny.ToJsonAuto[A](((a: A) =&gt; headToJson.value.toSome(generic.to(a))))
+        </td>
+      </tr><tr>
+        <td>
+          77
+        </td>
+        <td>
+          161
+        </td>
+        <td>
+          2780
+          -
+          2780
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJsonAuto.toJson
+        </td>
+        <td style="background: #F0ADAD">
+          ninny.this.`package`.labelledGenericToJson[A, Head](generic, headToJson).toJson
         </td>
       </tr>
     </table>

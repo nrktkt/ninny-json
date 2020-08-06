@@ -30,85 +30,106 @@
 </span>6 <span style=''>
 </span>7 <span style=''>package object ninny extends ToJsonInstances with FromJsonInstances {
 </span>8 <span style=''>
-</span>9 <span style=''>  def obj(nameValues: (String, JsonMagnet)*): JsonObject =
-</span>10 <span style=''>    JsonObject(
-</span>11 <span style=''>      nameValues.toMap.collect {
-</span>12 <span style=''>        case (name, JsonMagnet(Some(json))) =&gt; name </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> json
-</span>13 <span style=''>      }
-</span>14 <span style=''>    )
-</span>15 <span style=''>
-</span>16 <span style=''>  def arr(values: JsonMagnet*) = JsonArray(values.flatMap(_.json))
-</span>17 <span style=''>
-</span>18 <span style=''>  trait JsonMagnet {
-</span>19 <span style=''>    val json: Option[JsonValue]
-</span>20 <span style=''>  }
-</span>21 <span style=''>
-</span>22 <span style=''>  object JsonMagnet {
-</span>23 <span style=''>    def unapply(arg: JsonMagnet): Option[Option[JsonValue]] = Some(arg.json)
-</span>24 <span style=''>
-</span>25 <span style=''>    implicit def fromA[A: ToJson](a: A) =
-</span>26 <span style=''>      new JsonMagnet {
-</span>27 <span style=''>        val json = ToJson[A].to(a)
-</span>28 <span style=''>      }
+</span>9 <span style=''>  type ToJson[A]           = ToJsonValue[A, JsonValue]
+</span>10 <span style=''>  type ToJsonObject[A]     = ToJsonValue[A, JsonObject]
+</span>11 <span style=''>  type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
+</span>12 <span style=''>  type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
+</span>13 <span style=''>
+</span>14 <span style=''>  trait ToAndFromJson[A] extends ToJson[A] with FromJson[A]
+</span>15 <span style=''>  object ToAndFromJson {
+</span>16 <span style=''>
+</span>17 <span style=''>    def apply[A: ToJson: FromJson] =
+</span>18 <span style=''>      new ToAndFromJson[A] {
+</span>19 <span style=''>        def to(a: A)                           = a.toJson
+</span>20 <span style=''>        def from(maybeJson: Option[JsonValue]) = maybeJson.to[A]
+</span>21 <span style=''>      }
+</span>22 <span style=''>
+</span>23 <span style=''>    def auto[A: ToJsonAuto: FromJsonAuto]: ToAndFromJson[A] = {
+</span>24 <span style=''>      implicit val toJson   = implicitly[ToJsonAuto[A]].toJson
+</span>25 <span style=''>      implicit val fromJson = implicitly[FromJsonAuto[A]].fromJson
+</span>26 <span style=''>      ToAndFromJson[A]
+</span>27 <span style=''>    }
+</span>28 <span style=''>  }
 </span>29 <span style=''>
-</span>30 <span style=''>    implicit def fromJson(js: JsonValue) =
-</span>31 <span style=''>      new JsonMagnet {
-</span>32 <span style=''>        val json = Some(js)
-</span>33 <span style=''>      }
-</span>34 <span style=''>  }
-</span>35 <span style=''>
-</span>36 <span style=''>  implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
-</span>37 <span style=''>      extends AnyVal
-</span>38 <span style=''>      with Dynamic {
-</span>39 <span style=''>
-</span>40 <span style=''>    def to[A: FromJson] = FromJson[A].from(maybeJson)
-</span>41 <span style=''>
-</span>42 <span style=''>    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
-</span>43 <span style=''>    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
-</span>44 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>30 <span style=''>  def obj(nameValues: (String, JsonMagnet)*): JsonObject =
+</span>31 <span style=''>    JsonObject(
+</span>32 <span style=''>      nameValues.toMap.collect {
+</span>33 <span style=''>        case (name, JsonMagnet(Some(json))) =&gt; name </span><span style='background: #AEF1AE'>-&gt;</span><span style=''> json
+</span>34 <span style=''>      }
+</span>35 <span style=''>    )
+</span>36 <span style=''>
+</span>37 <span style=''>  def arr(values: JsonMagnet*) = JsonArray(values.flatMap(_.json))
+</span>38 <span style=''>
+</span>39 <span style=''>  trait JsonMagnet {
+</span>40 <span style=''>    val json: Option[JsonValue]
+</span>41 <span style=''>  }
+</span>42 <span style=''>
+</span>43 <span style=''>  object JsonMagnet {
+</span>44 <span style=''>    def unapply(arg: JsonMagnet): Option[Option[JsonValue]] = Some(arg.json)
 </span>45 <span style=''>
-</span>46 <span style=''>    def /(name: String) = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
-</span>47 <span style=''>    def /(i: Int)       = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
-</span>48 <span style=''>
-</span>49 <span style=''>    def * = this
-</span>50 <span style=''>  }
-</span>51 <span style=''>
-</span>52 <span style=''>  implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
-</span>53 <span style=''>      extends AnyVal
-</span>54 <span style=''>      with Dynamic {
-</span>55 <span style=''>    def to[A: FromJson] = hopefullyJson.flatMap(_.to[A])
+</span>46 <span style=''>    implicit def fromA[A: ToJson](a: A) =
+</span>47 <span style=''>      new JsonMagnet {
+</span>48 <span style=''>        val json = ToJson[A].to(a)
+</span>49 <span style=''>      }
+</span>50 <span style=''>
+</span>51 <span style=''>    implicit def fromJson(js: JsonValue) =
+</span>52 <span style=''>      new JsonMagnet {
+</span>53 <span style=''>        val json = Some(js)
+</span>54 <span style=''>      }
+</span>55 <span style=''>  }
 </span>56 <span style=''>
-</span>57 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
-</span>58 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
-</span>59 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>57 <span style=''>  implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
+</span>58 <span style=''>      extends AnyVal
+</span>59 <span style=''>      with Dynamic {
 </span>60 <span style=''>
-</span>61 <span style=''>    def /(name: String) = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
-</span>62 <span style=''>    def /(i: Int)       = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
-</span>63 <span style=''>
-</span>64 <span style=''>    def * = this
-</span>65 <span style=''>  }
+</span>61 <span style=''>    def to[A: FromJson] = FromJson[A].from(maybeJson)
+</span>62 <span style=''>
+</span>63 <span style=''>    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
+</span>64 <span style=''>    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
+</span>65 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
 </span>66 <span style=''>
-</span>67 <span style=''>  implicit class HopefullyMaybeJsonSyntax(
-</span>68 <span style=''>      val maybeHopefullyJson: Try[Option[JsonValue]]
-</span>69 <span style=''>  ) extends AnyVal
-</span>70 <span style=''>      with Dynamic {
-</span>71 <span style=''>    def to[A: FromJson] = maybeHopefullyJson.flatMap(_.to[A])
+</span>67 <span style=''>    def /(name: String) = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>68 <span style=''>    def /(i: Int)       = maybeJson.flatMap(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>69 <span style=''>
+</span>70 <span style=''>    def * = this
+</span>71 <span style=''>  }
 </span>72 <span style=''>
-</span>73 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
-</span>74 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
-</span>75 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
-</span>76 <span style=''>
-</span>77 <span style=''>    def /(name: String) = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
-</span>78 <span style=''>    def /(i: Int)       = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
-</span>79 <span style=''>
-</span>80 <span style=''>    def * = this
-</span>81 <span style=''>  }
-</span>82 <span style=''>
-</span>83 <span style=''>  implicit class AnySyntax[A](val a: A) extends AnyVal {
-</span>84 <span style=''>    def toJson(implicit toJson: ToJson[A])         = toJson.to(a)
-</span>85 <span style=''>    def toSomeJson(implicit toJson: ToSomeJson[A]) = toJson.toSome(a)
+</span>73 <span style=''>  implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
+</span>74 <span style=''>      extends AnyVal
+</span>75 <span style=''>      with Dynamic {
+</span>76 <span style=''>    def to[A: FromJson] = hopefullyJson.flatMap(_.to[A])
+</span>77 <span style=''>
+</span>78 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+</span>79 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+</span>80 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>81 <span style=''>
+</span>82 <span style=''>    def /(name: String) = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>83 <span style=''>    def /(i: Int)       = hopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>84 <span style=''>
+</span>85 <span style=''>    def * = this
 </span>86 <span style=''>  }
-</span>87 <span style=''>}
+</span>87 <span style=''>
+</span>88 <span style=''>  implicit class HopefullyMaybeJsonSyntax(
+</span>89 <span style=''>      val maybeHopefullyJson: Try[Option[JsonValue]]
+</span>90 <span style=''>  ) extends AnyVal
+</span>91 <span style=''>      with Dynamic {
+</span>92 <span style=''>    def to[A: FromJson] = maybeHopefullyJson.flatMap(_.to[A])
+</span>93 <span style=''>
+</span>94 <span style=''>    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
+</span>95 <span style=''>    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
+</span>96 <span style=''>    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
+</span>97 <span style=''>
+</span>98 <span style=''>    def /(name: String) = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> name)
+</span>99 <span style=''>    def /(i: Int)       = maybeHopefullyJson.map(_ </span><span style='background: #AEF1AE'>/</span><span style=''> i)
+</span>100 <span style=''>
+</span>101 <span style=''>    def * = this
+</span>102 <span style=''>  }
+</span>103 <span style=''>
+</span>104 <span style=''>  implicit class AnySyntax[A](val a: A) extends AnyVal {
+</span>105 <span style=''>    def toJson(implicit toJson: ToJson[A])         = toJson.to(a)
+</span>106 <span style=''>    def toSomeJson(implicit toJson: ToSomeJson[A]) = toJson.toSome(a)
+</span>107 <span style=''>  }
+</span>108 <span style=''>}
 </span></pre>
           </div>
           <div class="tab-pane" id="statementlist">
@@ -122,15 +143,141 @@
         <th>Code</th>
       </tr><tr>
         <td>
-          10
+          18
         </td>
         <td>
-          164
+          195
         </td>
         <td>
-          289
+          576
           -
-          289
+          576
+        </td>
+        <td>
+          Apply
+        </td>
+        <td>
+          io.github.kag0.ninny.ToAndFromJson.$anon.&lt;init&gt;
+        </td>
+        <td style="background: #F0ADAD">
+          new $anon()
+        </td>
+      </tr><tr>
+        <td>
+          19
+        </td>
+        <td>
+          193
+        </td>
+        <td>
+          650
+          -
+          650
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          io.github.kag0.ninny.AnySyntax.toJson
+        </td>
+        <td style="background: #F0ADAD">
+          `package`.this.AnySyntax[A](a).toJson(evidence$1)
+        </td>
+      </tr><tr>
+        <td>
+          20
+        </td>
+        <td>
+          194
+        </td>
+        <td>
+          718
+          -
+          718
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          io.github.kag0.ninny.MaybeJsonSyntax.to
+        </td>
+        <td style="background: #F0ADAD">
+          `package`.this.MaybeJsonSyntax(maybeJson).to[A](evidence$2)
+        </td>
+      </tr><tr>
+        <td>
+          24
+        </td>
+        <td>
+          196
+        </td>
+        <td>
+          851
+          -
+          851
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.ToJsonAuto.toJson
+        </td>
+        <td style="background: #F0ADAD">
+          scala.Predef.implicitly[io.github.kag0.ninny.ToJsonAuto[A]](evidence$3).toJson
+        </td>
+      </tr><tr>
+        <td>
+          25
+        </td>
+        <td>
+          197
+        </td>
+        <td>
+          916
+          -
+          916
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonAuto.fromJson
+        </td>
+        <td style="background: #F0ADAD">
+          scala.Predef.implicitly[io.github.kag0.ninny.FromJsonAuto[A]](evidence$4).fromJson
+        </td>
+      </tr><tr>
+        <td>
+          26
+        </td>
+        <td>
+          198
+        </td>
+        <td>
+          944
+          -
+          944
+        </td>
+        <td>
+          ApplyToImplicitArgs
+        </td>
+        <td>
+          io.github.kag0.ninny.ToAndFromJson.apply
+        </td>
+        <td style="background: #F0ADAD">
+          `package`.this.ToAndFromJson.apply[A](toJson, fromJson)
+        </td>
+      </tr><tr>
+        <td>
+          31
+        </td>
+        <td>
+          203
+        </td>
+        <td>
+          1032
+          -
+          1032
         </td>
         <td>
           Apply
@@ -159,15 +306,15 @@
         </td>
       </tr><tr>
         <td>
-          11
+          32
         </td>
         <td>
-          160
+          199
         </td>
         <td>
-          308
+          1051
           -
-          308
+          1051
         </td>
         <td>
           TypeApply
@@ -180,15 +327,15 @@
         </td>
       </tr><tr>
         <td>
-          11
+          32
         </td>
         <td>
-          162
+          201
         </td>
         <td>
-          322
+          1065
           -
-          322
+          1065
         </td>
         <td>
           Apply
@@ -201,15 +348,15 @@
         </td>
       </tr><tr>
         <td>
-          11
+          32
         </td>
         <td>
-          163
+          202
         </td>
         <td>
-          322
+          1065
           -
-          322
+          1065
         </td>
         <td>
           Apply
@@ -238,15 +385,15 @@
         </td>
       </tr><tr>
         <td>
-          12
+          33
         </td>
         <td>
-          161
+          200
         </td>
         <td>
-          376
+          1119
           -
-          378
+          1121
         </td>
         <td>
           Apply
@@ -259,15 +406,15 @@
         </td>
       </tr><tr>
         <td>
-          16
+          37
         </td>
         <td>
-          165
+          204
         </td>
         <td>
-          459
+          1202
           -
-          459
+          1202
         </td>
         <td>
           Select
@@ -280,15 +427,15 @@
         </td>
       </tr><tr>
         <td>
-          16
+          37
         </td>
         <td>
-          166
+          205
         </td>
         <td>
-          456
+          1199
           -
-          456
+          1199
         </td>
         <td>
           Apply
@@ -301,15 +448,15 @@
         </td>
       </tr><tr>
         <td>
-          16
+          37
         </td>
         <td>
-          167
+          206
         </td>
         <td>
-          441
+          1184
           -
-          441
+          1184
         </td>
         <td>
           Apply
@@ -322,15 +469,15 @@
         </td>
       </tr><tr>
         <td>
-          23
+          44
         </td>
         <td>
-          168
+          207
         </td>
         <td>
-          618
+          1361
           -
-          618
+          1361
         </td>
         <td>
           Select
@@ -343,15 +490,15 @@
         </td>
       </tr><tr>
         <td>
-          23
+          44
         </td>
         <td>
-          169
+          208
         </td>
         <td>
-          613
+          1356
           -
-          613
+          1356
         </td>
         <td>
           Apply
@@ -364,15 +511,15 @@
         </td>
       </tr><tr>
         <td>
-          26
+          47
         </td>
         <td>
-          171
+          210
         </td>
         <td>
-          673
+          1416
           -
-          673
+          1416
         </td>
         <td>
           Apply
@@ -385,36 +532,36 @@
         </td>
       </tr><tr>
         <td>
-          27
+          48
         </td>
         <td>
-          170
+          209
         </td>
         <td>
-          721
+          1464
           -
-          721
+          1464
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToJson.to
+          io.github.kag0.ninny.ToJsonValue.to
         </td>
         <td style="background: #AEF1AE">
-          ToJson.apply[A](evidence$1).to(a)
+          ToJson.apply[A](evidence$5).to(a)
         </td>
       </tr><tr>
         <td>
-          31
+          52
         </td>
         <td>
-          173
+          212
         </td>
         <td>
-          783
+          1526
           -
-          783
+          1526
         </td>
         <td>
           Apply
@@ -427,15 +574,15 @@
         </td>
       </tr><tr>
         <td>
-          32
+          53
         </td>
         <td>
-          172
+          211
         </td>
         <td>
-          823
+          1566
           -
-          823
+          1566
         </td>
         <td>
           Apply
@@ -448,15 +595,15 @@
         </td>
       </tr><tr>
         <td>
-          40
+          61
         </td>
         <td>
-          174
+          213
         </td>
         <td>
-          994
+          1737
           -
-          994
+          1737
         </td>
         <td>
           Select
@@ -469,15 +616,15 @@
         </td>
       </tr><tr>
         <td>
-          40
+          61
         </td>
         <td>
-          175
+          214
         </td>
         <td>
-          993
+          1736
           -
-          993
+          1736
         </td>
         <td>
           Apply
@@ -486,19 +633,19 @@
           io.github.kag0.ninny.FromJson.from
         </td>
         <td style="background: #AEF1AE">
-          FromJson.apply[A](evidence$2).from(MaybeJsonSyntax.this.maybeJson)
+          FromJson.apply[A](evidence$6).from(MaybeJsonSyntax.this.maybeJson)
         </td>
       </tr><tr>
         <td>
-          42
+          63
         </td>
         <td>
-          176
+          215
         </td>
         <td>
-          1068
+          1811
           -
-          1068
+          1811
         </td>
         <td>
           Apply
@@ -511,15 +658,15 @@
         </td>
       </tr><tr>
         <td>
-          42
+          63
         </td>
         <td>
-          177
+          216
         </td>
         <td>
-          1066
+          1809
           -
-          1066
+          1809
         </td>
         <td>
           Apply
@@ -532,15 +679,15 @@
         </td>
       </tr><tr>
         <td>
-          43
+          64
         </td>
         <td>
-          178
+          217
         </td>
         <td>
-          1138
+          1881
           -
-          1138
+          1881
         </td>
         <td>
           Apply
@@ -553,15 +700,15 @@
         </td>
       </tr><tr>
         <td>
-          43
+          64
         </td>
         <td>
-          179
+          218
         </td>
         <td>
-          1136
+          1879
           -
-          1136
+          1879
         </td>
         <td>
           Apply
@@ -574,15 +721,15 @@
         </td>
       </tr><tr>
         <td>
-          44
+          65
         </td>
         <td>
-          180
+          219
         </td>
         <td>
-          1207
+          1950
           -
-          1207
+          1950
         </td>
         <td>
           Apply
@@ -595,15 +742,15 @@
         </td>
       </tr><tr>
         <td>
-          46
+          67
         </td>
         <td>
-          181
+          220
         </td>
         <td>
-          1258
+          2001
           -
-          1259
+          2002
         </td>
         <td>
           Apply
@@ -616,15 +763,15 @@
         </td>
       </tr><tr>
         <td>
-          46
+          67
         </td>
         <td>
-          182
+          221
         </td>
         <td>
-          1255
+          1998
           -
-          1255
+          1998
         </td>
         <td>
           Apply
@@ -637,15 +784,15 @@
         </td>
       </tr><tr>
         <td>
-          47
+          68
         </td>
         <td>
-          183
+          222
         </td>
         <td>
-          1312
+          2055
           -
-          1313
+          2056
         </td>
         <td>
           Apply
@@ -658,15 +805,15 @@
         </td>
       </tr><tr>
         <td>
-          47
+          68
         </td>
         <td>
-          184
+          223
         </td>
         <td>
-          1309
+          2052
           -
-          1309
+          2052
         </td>
         <td>
           Apply
@@ -679,15 +826,15 @@
         </td>
       </tr><tr>
         <td>
-          55
+          76
         </td>
         <td>
-          185
+          224
         </td>
         <td>
-          1506
+          2249
           -
-          1506
+          2249
         </td>
         <td>
           ApplyToImplicitArgs
@@ -696,19 +843,19 @@
           io.github.kag0.ninny.ast.JsonValue.to
         </td>
         <td style="background: #AEF1AE">
-          x$4.to[A](evidence$3)
+          x$4.to[A](evidence$7)
         </td>
       </tr><tr>
         <td>
-          55
+          76
         </td>
         <td>
-          186
+          225
         </td>
         <td>
-          1501
+          2244
           -
-          1501
+          2244
         </td>
         <td>
           Apply
@@ -717,19 +864,19 @@
           scala.util.Try.flatMap
         </td>
         <td style="background: #AEF1AE">
-          HopefullyJsonSyntax.this.hopefullyJson.flatMap[A](((x$4: io.github.kag0.ninny.ast.JsonValue) =&gt; x$4.to[A](evidence$3)))
+          HopefullyJsonSyntax.this.hopefullyJson.flatMap[A](((x$4: io.github.kag0.ninny.ast.JsonValue) =&gt; x$4.to[A](evidence$7)))
         </td>
       </tr><tr>
         <td>
-          57
+          78
         </td>
         <td>
-          187
+          226
         </td>
         <td>
-          1583
+          2326
           -
-          1583
+          2326
         </td>
         <td>
           Apply
@@ -742,15 +889,15 @@
         </td>
       </tr><tr>
         <td>
-          57
+          78
         </td>
         <td>
-          188
+          227
         </td>
         <td>
-          1581
+          2324
           -
-          1581
+          2324
         </td>
         <td>
           Apply
@@ -763,15 +910,15 @@
         </td>
       </tr><tr>
         <td>
-          58
+          79
         </td>
         <td>
-          189
+          228
         </td>
         <td>
-          1662
+          2405
           -
-          1662
+          2405
         </td>
         <td>
           Apply
@@ -784,15 +931,15 @@
         </td>
       </tr><tr>
         <td>
-          58
+          79
         </td>
         <td>
-          190
+          229
         </td>
         <td>
-          1660
+          2403
           -
-          1660
+          2403
         </td>
         <td>
           Apply
@@ -805,15 +952,15 @@
         </td>
       </tr><tr>
         <td>
-          59
+          80
         </td>
         <td>
-          191
+          230
         </td>
         <td>
-          1731
+          2474
           -
-          1731
+          2474
         </td>
         <td>
           Apply
@@ -826,15 +973,15 @@
         </td>
       </tr><tr>
         <td>
-          61
+          82
         </td>
         <td>
-          192
+          231
         </td>
         <td>
-          1782
+          2525
           -
-          1783
+          2526
         </td>
         <td>
           Apply
@@ -847,15 +994,15 @@
         </td>
       </tr><tr>
         <td>
-          61
+          82
         </td>
         <td>
-          193
+          232
         </td>
         <td>
-          1779
+          2522
           -
-          1779
+          2522
         </td>
         <td>
           Apply
@@ -868,15 +1015,15 @@
         </td>
       </tr><tr>
         <td>
-          62
+          83
         </td>
         <td>
-          194
+          233
         </td>
         <td>
-          1836
+          2579
           -
-          1837
+          2580
         </td>
         <td>
           Apply
@@ -889,15 +1036,15 @@
         </td>
       </tr><tr>
         <td>
-          62
+          83
         </td>
         <td>
-          195
+          234
         </td>
         <td>
-          1833
+          2576
           -
-          1833
+          2576
         </td>
         <td>
           Apply
@@ -910,15 +1057,15 @@
         </td>
       </tr><tr>
         <td>
-          71
+          92
         </td>
         <td>
-          196
+          235
         </td>
         <td>
-          2057
+          2800
           -
-          2057
+          2800
         </td>
         <td>
           ApplyToImplicitArgs
@@ -927,19 +1074,19 @@
           io.github.kag0.ninny.MaybeJsonSyntax.to
         </td>
         <td style="background: #AEF1AE">
-          `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$4)
+          `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$8)
         </td>
       </tr><tr>
         <td>
-          71
+          92
         </td>
         <td>
-          197
+          236
         </td>
         <td>
-          2052
+          2795
           -
-          2052
+          2795
         </td>
         <td>
           Apply
@@ -948,19 +1095,19 @@
           scala.util.Try.flatMap
         </td>
         <td style="background: #AEF1AE">
-          HopefullyMaybeJsonSyntax.this.maybeHopefullyJson.flatMap[A](((x$7: Option[io.github.kag0.ninny.ast.JsonValue]) =&gt; `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$4)))
+          HopefullyMaybeJsonSyntax.this.maybeHopefullyJson.flatMap[A](((x$7: Option[io.github.kag0.ninny.ast.JsonValue]) =&gt; `package`.this.MaybeJsonSyntax(x$7).to[A](evidence$8)))
         </td>
       </tr><tr>
         <td>
-          73
+          94
         </td>
         <td>
-          198
+          237
         </td>
         <td>
-          2134
+          2877
           -
-          2134
+          2877
         </td>
         <td>
           Apply
@@ -973,15 +1120,15 @@
         </td>
       </tr><tr>
         <td>
-          73
+          94
         </td>
         <td>
-          199
+          238
         </td>
         <td>
-          2132
+          2875
           -
-          2132
+          2875
         </td>
         <td>
           Apply
@@ -994,15 +1141,15 @@
         </td>
       </tr><tr>
         <td>
-          74
+          95
         </td>
         <td>
-          200
+          239
         </td>
         <td>
-          2213
+          2956
           -
-          2213
+          2956
         </td>
         <td>
           Apply
@@ -1015,15 +1162,15 @@
         </td>
       </tr><tr>
         <td>
-          74
+          95
         </td>
         <td>
-          201
+          240
         </td>
         <td>
-          2211
+          2954
           -
-          2211
+          2954
         </td>
         <td>
           Apply
@@ -1036,15 +1183,15 @@
         </td>
       </tr><tr>
         <td>
-          75
+          96
         </td>
         <td>
-          202
+          241
         </td>
         <td>
-          2282
+          3025
           -
-          2282
+          3025
         </td>
         <td>
           Apply
@@ -1057,15 +1204,15 @@
         </td>
       </tr><tr>
         <td>
-          77
+          98
         </td>
         <td>
-          203
+          242
         </td>
         <td>
-          2338
+          3081
           -
-          2339
+          3082
         </td>
         <td>
           Apply
@@ -1078,15 +1225,15 @@
         </td>
       </tr><tr>
         <td>
-          77
+          98
         </td>
         <td>
-          204
+          243
         </td>
         <td>
-          2335
+          3078
           -
-          2335
+          3078
         </td>
         <td>
           Apply
@@ -1099,15 +1246,15 @@
         </td>
       </tr><tr>
         <td>
-          78
+          99
         </td>
         <td>
-          205
+          244
         </td>
         <td>
-          2397
+          3140
           -
-          2398
+          3141
         </td>
         <td>
           Apply
@@ -1120,15 +1267,15 @@
         </td>
       </tr><tr>
         <td>
-          78
+          99
         </td>
         <td>
-          206
+          245
         </td>
         <td>
-          2394
+          3137
           -
-          2394
+          3137
         </td>
         <td>
           Apply
@@ -1141,15 +1288,15 @@
         </td>
       </tr><tr>
         <td>
-          84
+          105
         </td>
         <td>
-          207
+          246
         </td>
         <td>
-          2545
+          3288
           -
-          2545
+          3288
         </td>
         <td>
           Select
@@ -1162,36 +1309,36 @@
         </td>
       </tr><tr>
         <td>
-          84
+          105
         </td>
         <td>
-          208
+          247
         </td>
         <td>
-          2544
+          3287
           -
-          2544
+          3287
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToJson.to
+          io.github.kag0.ninny.ToJsonValue.to
         </td>
         <td style="background: #AEF1AE">
           toJson.to(AnySyntax.this.a)
         </td>
       </tr><tr>
         <td>
-          85
+          106
         </td>
         <td>
-          209
+          248
         </td>
         <td>
-          2615
+          3358
           -
-          2615
+          3358
         </td>
         <td>
           Select
@@ -1204,21 +1351,21 @@
         </td>
       </tr><tr>
         <td>
-          85
+          106
         </td>
         <td>
-          210
+          249
         </td>
         <td>
-          2614
+          3357
           -
-          2614
+          3357
         </td>
         <td>
           Apply
         </td>
         <td>
-          io.github.kag0.ninny.ToSomeJson.toSome
+          io.github.kag0.ninny.ToSomeJsonValue.toSome
         </td>
         <td style="background: #AEF1AE">
           toJson.toSome(AnySyntax.this.a)
