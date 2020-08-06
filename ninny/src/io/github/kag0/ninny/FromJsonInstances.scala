@@ -29,7 +29,7 @@ trait FromJsonInstances {
     case json              => Failure(new JsonException(s"Expected number, got $json"))
   }
 
-  implicit val longFromJson =
+  implicit val longFromJson: FromJson[Long] =
     FromJson.fromSome(_.to[Double].flatMap {
       case d if d % 1 != 0 =>
         Failure(

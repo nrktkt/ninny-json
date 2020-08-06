@@ -1,11 +1,12 @@
-import mill._, scalalib._
-
+import mill._
+import scalalib._
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
 import mill.contrib.scoverage.ScoverageModule
+import mill.scalalib.publish._
 
 def scalaV = "2.13.3"
 
-object ninny extends ScoverageModule {
+object ninny extends ScoverageModule with PublishModule {
   def scalaVersion = scalaV
   def ivyDeps = Agg(
     ivy"org.typelevel::jawn-parser:1.0.0",
@@ -21,4 +22,14 @@ object ninny extends ScoverageModule {
   }
 
   def scoverageVersion = "1.4.1"
+
+  def publishVersion = "0.1.0"
+  def pomSettings = PomSettings(
+    description = "NoneIsNotNullY",
+    organization = "io.github.kag0",
+    url = "https://github.com/kag0/ninny-json",
+    Seq(License.Unlicense),
+    VersionControl.github("kag0", "ninny-json"),
+    Seq(Developer("kag0", "Nathan Fischer", "https://github.com/kag0"))
+  )
 }
