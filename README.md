@@ -231,9 +231,7 @@ How are we doing with our pros and cons?
 - [x] Able to distinguish null from absent fields when reading and writing JSON 
 from inside the type class.
 - [x] AST is predictable and closely models JSON.
-- [x] Macros should still work, and they can be used even if we want to control 
-field visibility based on a value type. 
-(Although this project doesn't implement any macros).
+- [x] We can automatically (or semi-automatically) derive type classes using shapeless.
 - [x] `Option` is handled in the same way when reading and writing.
 
 ### Ergonomic improvements
