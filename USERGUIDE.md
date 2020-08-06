@@ -174,3 +174,33 @@ object Person {
 
 Json.parse(someString).to[Person]: Try[Person]
 ```
+
+## Semi-auto derivation for `ToJson` and `FromJson`
+
+Rather than implementing `ToJson` and `FromJson` by hand, you can generate them 
+automatically using
+
+```scala
+// generate ToJson and FromJson at the same time with ToAndFromJson
+implicit val toAndFromJson = ToAndFromJson.auto[Address]
+// or generate them separately
+implicit val fromJson = FromJson.auto[Person]
+implicit val toJson = ToJson.auto[Person]
+```
+
+## Full-auto derivation for `ToJson` and `FromJson`
+
+If you like you can even skip the declaration by mixing in `AutoToJson` or 
+`AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
+
+```scala
+import io.github.kag0.ninny.Auto._
+
+Person(
+  "John",
+  "Doe",
+  Address("710 Ashbury St", "94117"),
+  Seq("Jr", "Jane"),
+  age = None
+).toSomeJson // just works
+```

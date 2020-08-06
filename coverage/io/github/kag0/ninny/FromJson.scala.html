@@ -41,7 +41,8 @@
 </span>17 <span style=''>    case Some(json) =&gt; read(json)
 </span>18 <span style=''>    case None       =&gt; Failure(new NoSuchElementException())
 </span>19 <span style=''>  }
-</span>20 <span style=''>}
+</span>20 <span style=''>  def auto[A: FromJsonAuto] = implicitly[FromJsonAuto[A]].fromJson
+</span>21 <span style=''>}
 </span></pre>
           </div>
           <div class="tab-pane" id="statementlist">
@@ -178,6 +179,27 @@
         </td>
         <td style="background: #AEF1AE">
           scala.util.Failure.apply[Nothing](new java.util.NoSuchElementException())
+        </td>
+      </tr><tr>
+        <td>
+          20
+        </td>
+        <td>
+          7
+        </td>
+        <td>
+          576
+          -
+          576
+        </td>
+        <td>
+          Select
+        </td>
+        <td>
+          io.github.kag0.ninny.FromJsonAuto.fromJson
+        </td>
+        <td style="background: #AEF1AE">
+          scala.Predef.implicitly[io.github.kag0.ninny.FromJsonAuto[A]](evidence$2).fromJson
         </td>
       </tr>
     </table>

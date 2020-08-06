@@ -3,6 +3,8 @@ package io.github.kag0.ninny
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 
 import io.github.kag0.ninny.ast._
+import shapeless.labelled.{FieldType, field}
+import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
 import scala.util.{Failure, Success, Try}
 
@@ -108,4 +110,39 @@ trait FromJsonInstances {
     FromJson.fromSome(
       _.to[String].flatMap(s => Try(ZonedDateTime.parse(s)))
     )
+
+  import shapeless.::
+
+  implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
+
+  implicit def recordFromJson[Key <: Symbol, Head, Tail <: HList](implicit
+      witness: Witness.Aux[Key],
+      headFromJson: Lazy[FromJson[Head]],
+      tailFromJson: FromJson[Tail]
+  ): FromJson[FieldType[Key, Head] :: Tail] = {
+    val key  = witness.value
+    val name = key.name
+
+    FromJson.fromSome[FieldType[Key, Head] :: Tail] { json =>
+      val maybeHeadJson = json / name
+      for {
+        head <- headFromJson.value.from(maybeHeadJson)
+        tail <- tailFromJson.from(json)
+      } yield field[Key](head) :: tail
+    }
+  }
+
+  implicit def labelledGenericFromJson[A, Head](implicit
+      generic: LabelledGeneric.Aux[A, Head],
+      headFromJson: Lazy[FromJson[Head]]
+  ) = new FromJsonAuto[A](headFromJson.value.from(_).map(generic.from))
+}
+
+class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
+
+trait AutoFromJson {
+  implicit def lgFromJson[A, Head](implicit
+      generic: LabelledGeneric.Aux[A, Head],
+      headFromJson: Lazy[FromJson[Head]]
+  ) = labelledGenericFromJson[A, Head].fromJson
 }

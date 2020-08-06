@@ -51,24 +51,15 @@ class JsonSpec
       string: String,
       number: Double,
       bool: Boolean,
-      `false`: false,
+      `false`: Boolean, // semi auto derivation won't work with false literal type
       `null`: Null,
       unit: Unit,
       none: Option[String],
       some: Option[String]
   )
   object SampleValues {
-    implicit val toSomeJson: ToSomeJson[SampleValues] = a =>
-      obj(
-        "string" -> a.string,
-        "number" -> a.number,
-        "bool"   -> a.bool,
-        "false"  -> a.`false`,
-        "null"   -> nullToJson.toSome(a.`null`),
-        "unit"   -> a.unit,
-        "none"   -> a.none,
-        "some"   -> a.some
-      )
+
+    implicit val toSomeJson = ToJson.auto[SampleValues]
 
     implicit val fromJson = FromJson.fromSome(json =>
       for {
@@ -272,18 +263,7 @@ class JsonSpec
   )
 
   object Address {
-    implicit val fromJson: FromJson[Address] = FromJson.fromSome(json =>
-      for {
-        prec    <- json.precision.to[Precision.Value]
-        lat     <- json.Latitude.to[Double]
-        lon     <- json.Longitude.to[Double]
-        addr    <- json.Address.to[String]
-        city    <- json.City.to[String]
-        state   <- json.State.to[String]
-        zip     <- json.Zip.to[String]
-        country <- json.Country.to[String]
-      } yield Address(prec, lat, lon, addr, city, state, zip, country)
-    )
+    implicit val fromJson = FromJson.auto[Address]
 
     implicit val toJson: ToSomeJson[Address] = a =>
       obj(

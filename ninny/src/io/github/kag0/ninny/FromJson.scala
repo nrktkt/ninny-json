@@ -17,4 +17,5 @@ object FromJson {
     case Some(json) => read(json)
     case None       => Failure(new NoSuchElementException())
   }
+  def auto[A: FromJsonAuto] = implicitly[FromJsonAuto[A]].fromJson
 }

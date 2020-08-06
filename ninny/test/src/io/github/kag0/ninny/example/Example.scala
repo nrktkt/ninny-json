@@ -9,6 +9,13 @@ sealed trait Patch[+A]
 case object Clear          extends Patch[Nothing]
 case object Nop            extends Patch[Nothing]
 case class Update[A](a: A) extends Patch[A]
+object Patch {
+  implicit def patchFromJson[A: FromJson]: FromJson[Patch[A]] = {
+    case None           => Success(Nop)
+    case Some(JsonNull) => Success(Clear)
+    case Some(value)    => value.to[A].map(Update(_))
+  }
+}
 
 case class Profile(name: String, email: Option[String], bio: Option[String]) {
   def update(update: UpdateProfile) =
@@ -26,35 +33,21 @@ case class Profile(name: String, email: Option[String], bio: Option[String]) {
       }
     )
 }
+object Profile {
+  implicit val toJson   = ToJson.auto[Profile]
+  implicit val fromJson = FromJson.auto[Profile]
+}
 
 case class UpdateProfile(
     name: Option[String],
     email: Patch[String],
     bio: Patch[String]
 )
+object UpdateProfile {
+  implicit val json = FromJson.auto[UpdateProfile]
+}
 
 object Example extends App {
-
-  implicit val profileToJson: ToSomeJson[Profile] = a =>
-    obj(
-      "name"  -> a.name,
-      "email" -> a.email,
-      "bio"   -> a.bio
-    )
-
-  implicit def patchFromJson[A: FromJson]: FromJson[Patch[A]] = {
-    case None           => Success(Nop)
-    case Some(JsonNull) => Success(Clear)
-    case Some(value)    => value.to[A].map(Update(_))
-  }
-
-  implicit val updateProfileFromJson = FromJson.fromSome[UpdateProfile](json =>
-    for {
-      email <- json.email.to[Patch[String]]
-      bio   <- json.bio.to[Patch[String]]
-      name  <- json.name.to[Option[String]]
-    } yield UpdateProfile(name, email, bio)
-  )
 
   val userProfile = Profile("John Doe", Some("john.doe@example.com"), None)
 
@@ -65,7 +58,7 @@ object Example extends App {
   println()
 
   println("User profile parsed from JSON AST")
-  println(userProfileJson.to[UpdateProfile])
+  println(userProfileJson.to[Profile])
   println()
 
   val profileUpdateJson =
