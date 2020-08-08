@@ -12,8 +12,14 @@ trait ToJsonInstances {
   implicit val nullToJson: ToSomeJson[Null]       = _ => JsonNull
   implicit val doubleToJson: ToSomeJson[Double]   = JsonNumber(_)
   implicit val intToJson: ToSomeJson[Int]         = JsonNumber(_)
-  implicit val unitToJson: ToSomeJson[Unit]       = _ => JsonArray(Nil)
   implicit val jsonToJson: ToSomeJson[JsonValue]  = identity
+
+  /**
+    * represents unit as an empty JSON array.
+    * because a tuple is a heterogeneous list; (5, "foo") => [5, "foo"]
+    * and unit is an empty tuple; () => []
+    */
+  implicit val unitToJson: ToSomeJson[Unit] = _ => JsonArray(Nil)
 
   implicit def seqToJson[A: ToSomeJson]: ToSomeJson[Seq[A]] =
     a => JsonArray(a.map(_.toSomeJson))
