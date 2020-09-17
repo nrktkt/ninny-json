@@ -20,6 +20,7 @@ than the AST. When the AST doesn't match the JSON output, testability issues
 can open up.
 
 ## [Jump to proposal](#what-are-we-proposing)
+## [User Guide / Getting Started](USERGUIDE.md)
 
 ## What do libraries do today? 
 
