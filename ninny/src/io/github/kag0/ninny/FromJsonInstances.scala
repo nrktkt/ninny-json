@@ -77,8 +77,8 @@ trait FromJsonInstances {
   implicit val unitFromJson: FromJson[Unit] = maybeJson =>
     Success(maybeJson.map(_ => ()))
 
-  implicit val jsonFromJson: FromJson[JsonValue] =
-    FromJson.fromSome[JsonValue](Success(_))
+  implicit def jsonFromJson[J <: JsonValue]: FromJson[J] =
+    FromJson.fromSome[J](j => Try(j.asInstanceOf[J]))
 
   implicit def seqFromJson[A: FromJson]: FromJson[Seq[A]] =
     FromJson.fromSome {

@@ -7,12 +7,16 @@ import shapeless.labelled.FieldType
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait ToJsonInstances {
-  implicit val stringToJson: ToSomeJson[String]   = ToJson(JsonString(_))
-  implicit val booleanToJson: ToSomeJson[Boolean] = JsonBoolean(_)
-  implicit val nullToJson: ToSomeJson[Null]       = _ => JsonNull
-  implicit val doubleToJson: ToSomeJson[Double]   = JsonNumber(_)
-  implicit val intToJson: ToSomeJson[Int]         = JsonNumber(_)
-  implicit val jsonToJson: ToSomeJson[JsonValue]  = identity
+  implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
+    ToJson(JsonString(_))
+
+  implicit val booleanToJson: ToSomeJsonValue[Boolean, JsonBoolean] =
+    JsonBoolean(_)
+
+  implicit val nullToJson: ToSomeJsonValue[Null, JsonNull.type]  = _ => JsonNull
+  implicit val doubleToJson: ToSomeJsonValue[Double, JsonNumber] = JsonNumber(_)
+  implicit val intToJson: ToSomeJsonValue[Int, JsonNumber]       = JsonNumber(_)
+  implicit val jsonToJson: ToSomeJson[JsonValue]                 = identity
 
   /**
     * represents unit as an empty JSON array.

@@ -9,6 +9,8 @@ import scala.util.{Failure, Try}
 trait FromJson[A] {
   def from(maybeJson: Option[JsonValue]): Try[A]
   def from(json: JsonValue): Try[A] = from(Some(json))
+
+  def map[B](f: A => B): FromJson[B] = from(_).map(f)
 }
 
 object FromJson {

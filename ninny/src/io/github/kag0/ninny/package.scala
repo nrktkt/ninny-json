@@ -102,7 +102,12 @@ package object ninny extends ToJsonInstances with FromJsonInstances {
   }
 
   implicit class AnySyntax[A](val a: A) extends AnyVal {
-    def toJson(implicit toJson: ToJson[A])         = toJson.to(a)
-    def toSomeJson(implicit toJson: ToSomeJson[A]) = toJson.toSome(a)
+    def toJson[Json <: JsonValue](implicit toJson: ToJsonValue[A, Json]) =
+      toJson.to(a)
+
+    def toSomeJson[Json <: JsonValue](implicit
+        toJson: ToSomeJsonValue[A, Json]
+    ) = toJson.toSome(a)
   }
+
 }

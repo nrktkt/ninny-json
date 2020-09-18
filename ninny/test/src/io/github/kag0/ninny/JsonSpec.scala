@@ -45,6 +45,9 @@ class JsonSpec
     val parsed = Json.parse(jsonString).get
     println(parsed == sampleObject)
     println(parsed.array.to[Seq[JsonValue]].get == sampleArray.values)
+
+    5.toSomeJson[JsonNumber] shouldEqual JsonNumber(5d)
+    5.toJson shouldEqual Some(JsonNumber(5d))
   }
 
   case class SampleValues(

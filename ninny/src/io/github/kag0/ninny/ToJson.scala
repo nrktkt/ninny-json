@@ -4,6 +4,8 @@ import io.github.kag0.ninny.ast.JsonValue
 
 trait ToJsonValue[A, +Json <: JsonValue] {
   def to(a: A): Option[Json]
+
+  def contramap[B](f: B => A): ToJsonValue[B, Json] = b => to(f(b))
 }
 
 object ToJson {
