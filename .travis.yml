@@ -4,3 +4,10 @@ scala:
 
 script:
   - ./mill --disable-ticker __.test
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash -xeu ci/deploy.sh
+  on:
+    tags: true

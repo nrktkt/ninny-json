@@ -23,7 +23,7 @@ object ninny extends ScoverageModule with PublishModule {
 
   def scoverageVersion = "1.4.1"
 
-  def publishVersion = "0.1.0"
+  def publishVersion = T.input(T.ctx().env("PUBLISH_VERSION"))
   def pomSettings = PomSettings(
     description = "NoneIsNotNullY",
     organization = "io.github.kag0",
