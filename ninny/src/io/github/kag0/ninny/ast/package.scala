@@ -1,7 +1,6 @@
 package io.github.kag0.ninny
 
 import java.lang.Character.UnicodeBlock
-
 import scala.language.dynamics
 
 package object ast {
@@ -38,15 +37,57 @@ package object ast {
       }
   }
 
-  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue
-  case class JsonArray(values: Seq[JsonValue])          extends JsonValue
-  case class JsonNumber(value: Double)                  extends JsonValue
-  case class JsonBoolean(value: Boolean)                extends JsonValue
-  case object JsonNull                                  extends JsonValue
+  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue {
+
+    def +(entry: (String, JsonMagnet)) =
+      entry match {
+        case (key, JsonMagnet(Some(value))) =>
+          this.copy(values = values + (key -> value))
+        case _ => this
+      }
+
+    def ++(other: JsonObject) =
+      this.copy(values = values ++ other.values)
+
+    def ++(entries: IterableOnce[(String, JsonValue)]) =
+      this.copy(values = values ++ entries)
+
+    def -(key: String)                 = this.copy(values = values - key)
+    def --(keys: IterableOnce[String]) = this.copy(values = values -- keys)
+  }
+
+  case class JsonArray(values: Seq[JsonValue]) extends JsonValue {
+
+    def :+(value: JsonMagnet) =
+      value.json match {
+        case Some(v) => this.copy(values = values :+ v)
+        case None    => this
+      }
+
+    def +:(value: JsonMagnet) =
+      value.json match {
+        case Some(v) => this.copy(values = v +: values)
+        case None    => this
+      }
+
+    def :++(values: IterableOnce[JsonValue]) =
+      this.copy(values = this.values :++ values)
+
+    def ++:(values: IterableOnce[JsonValue]) =
+      this.copy(values = values ++: this.values)
+
+    def :++(values: JsonArray): JsonArray = this :++ values.values
+    def ++:(values: JsonArray): JsonArray = values.values ++: this
+  }
+
+  case class JsonNumber(value: Double)   extends JsonValue
+  case class JsonBoolean(value: Boolean) extends JsonValue
+  case object JsonNull                   extends JsonValue
 
   case class JsonString(value: String) extends JsonValue {
     override def toString = JsonString.escape(value)
   }
+
   object JsonString {
     def escape(s: String): String =
       s"${'"'}${s.map {

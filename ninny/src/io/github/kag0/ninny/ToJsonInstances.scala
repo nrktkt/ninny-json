@@ -66,7 +66,7 @@ trait ToJsonInstances {
       val tail      = tailToJson.toSome(record.tail)
 
       maybeHead match {
-        case Some(head) => JsonObject(tail.values + (name -> head))
+        case Some(head) => tail + (name -> head)
         case None       => tail
       }
     }
