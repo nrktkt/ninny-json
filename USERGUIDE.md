@@ -205,3 +205,7 @@ Person(
   age = None
 ).toSomeJson // just works
 ```
+
+# Integrations
+
+* [blackdoor jose](https://github.com/blackdoor/jose)
