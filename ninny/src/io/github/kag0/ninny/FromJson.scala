@@ -13,7 +13,7 @@ trait FromJson[A] {
   def map[B](f: A => B): FromJson[B] = from(_).map(f)
 }
 
-object FromJson {
+object FromJson extends FromJsonInstances {
   def apply[A: FromJson]: FromJson[A] = implicitly[FromJson[A]]
   def fromSome[A](read: JsonValue => Try[A]): FromJson[A] = {
     case Some(json) => read(json)

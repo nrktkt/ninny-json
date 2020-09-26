@@ -110,10 +110,9 @@ trait FromJsonInstances {
     FromJson.fromSome(
       _.to[String].flatMap(s => Try(ZonedDateTime.parse(s)))
     )
+  implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
 
   import shapeless.::
-
-  implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
 
   implicit def recordFromJson[Key <: Symbol, Head, Tail <: HList](implicit
       witness: Witness.Aux[Key],
@@ -131,18 +130,14 @@ trait FromJsonInstances {
       } yield field[Key](head) :: tail
     }
   }
+}
+object FromJsonInstances extends FromJsonInstances
+
+class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
+object FromJsonAuto {
 
   implicit def labelledGenericFromJson[A, Head](implicit
       generic: LabelledGeneric.Aux[A, Head],
       headFromJson: Lazy[FromJson[Head]]
   ) = new FromJsonAuto[A](headFromJson.value.from(_).map(generic.from))
-}
-
-class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
-
-trait AutoFromJson {
-  implicit def lgFromJson[A, Head](implicit
-      generic: LabelledGeneric.Aux[A, Head],
-      headFromJson: Lazy[FromJson[Head]]
-  ) = labelledGenericFromJson[A, Head].fromJson
 }
