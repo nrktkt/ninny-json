@@ -4,7 +4,7 @@ import io.github.kag0.ninny.ast.{JsonArray, JsonObject, JsonValue}
 import scala.language.dynamics
 import scala.util.Try
 
-package object ninny extends ToJsonInstances with FromJsonInstances {
+package object ninny {
 
   type ToJson[A]           = ToJsonValue[A, JsonValue]
   type ToJsonObject[A]     = ToJsonValue[A, JsonObject]

@@ -8,6 +8,8 @@ trait ToJsonValue[A, +Json <: JsonValue] {
   def contramap[B](f: B => A): ToJsonValue[B, Json] = b => to(f(b))
 }
 
+object ToJsonValue extends ToJsonInstances
+
 object ToJson {
   def apply[A: ToJson]: ToJson[A] = implicitly[ToJson[A]]
 

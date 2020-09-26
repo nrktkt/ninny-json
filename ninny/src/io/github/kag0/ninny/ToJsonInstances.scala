@@ -71,18 +71,14 @@ trait ToJsonInstances {
       }
     }
   }
+}
+object ToJsonInstances extends ToJsonInstances
+
+class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
+object ToJsonAuto {
 
   implicit def labelledGenericToJson[A, Head](implicit
       generic: LabelledGeneric.Aux[A, Head],
       headToJson: Lazy[ToSomeJsonObject[Head]]
   ) = new ToJsonAuto[A](a => headToJson.value.toSome(generic.to(a)))
-}
-
-class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
-
-trait AutoToJson {
-  implicit def lgToJson[A, Head](implicit
-      generic: LabelledGeneric.Aux[A, Head],
-      headToJson: Lazy[ToSomeJsonObject[Head]]
-  ) = labelledGenericToJson[A, Head].toJson
 }
