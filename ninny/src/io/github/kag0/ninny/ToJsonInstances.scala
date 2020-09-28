@@ -30,7 +30,7 @@ trait ToJsonInstances {
 
   implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
     m =>
-      JsonObject(m.collect[String, JsonValue](Function.unlift {
+      JsonObject(m.collect(Function.unlift {
         case (k, v) => v.toJson.map(k -> _)
       }))
 

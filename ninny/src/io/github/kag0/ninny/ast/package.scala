@@ -2,6 +2,7 @@ package io.github.kag0.ninny
 
 import java.lang.Character.UnicodeBlock
 import scala.language.dynamics
+import scala.collection.compat._
 
 package object ast {
   sealed trait JsonValue extends Dynamic {
@@ -41,7 +42,7 @@ package object ast {
 
     def +(entry: (String, JsonMagnet)) =
       entry match {
-        case (key, JsonMagnet(Some(value))) =>
+        case (key, JsonMagnet(value)) =>
           this.copy(values = values + (key -> value))
         case _ => this
       }
@@ -71,10 +72,10 @@ package object ast {
       }
 
     def :++(values: IterableOnce[JsonValue]) =
-      this.copy(values = this.values :++ values)
+      this.copy(values = this.values ++ values)
 
     def ++:(values: IterableOnce[JsonValue]) =
-      this.copy(values = values ++: this.values)
+      this.copy(values = (values.iterator ++ this.values).toSeq)
 
     def :++(values: JsonArray): JsonArray = this :++ values.values
     def ++:(values: JsonArray): JsonArray = values.values ++: this
@@ -100,7 +101,7 @@ package object ast {
         case '\r' => """\r"""
         case '\t' => """\t"""
         case c if UnicodeBlock.of(c) != UnicodeBlock.BASIC_LATIN =>
-          s"\\u${String.format("%04x", c: Int)}"
+          String.format("\\u%04x", Int.box(c))
         case c => c
       }.mkString}${'"'}"
   }

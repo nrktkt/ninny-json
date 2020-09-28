@@ -23,7 +23,7 @@ class JsonSpec
       "number" -> 1.79e308,
       "bool"   -> true,
       "false"  -> false,
-      "null"   -> null,
+      "null"   -> JsonNull,
       "unit"   -> (),
       "some"   -> "str"
     )
@@ -60,6 +60,7 @@ class JsonSpec
       none: Option[String],
       some: Option[String]
   )
+
   object SampleValues {
 
     implicit val toSomeJson = ToJson.auto[SampleValues]
@@ -72,7 +73,7 @@ class JsonSpec
         f <-
           json.`false`
             .to[Boolean]
-            .flatMap[false](if (_) fail() else Success(false))
+            .flatMap[Boolean](if (_) fail() else Success(false))
         n    <- json.`null`.to[Null]
         unit <- json.unit.to[Unit]
         none <- json.none.to[Option[String]]
@@ -446,6 +447,24 @@ class JsonSpec
     tryArray(1).maybeHopefullyJson.success.value shouldBe defined
     tryArray(-1).maybeHopefullyJson.success.value shouldBe None
     tryArray(3).maybeHopefullyJson.success.value shouldBe None
+  }
+
+  it should "prepend correctly" in {
+    val head = arr(1, 2, 3)
+    val tail = arr(4, 5, 6)
+
+    head.values ++: tail shouldEqual arr(1, 2, 3, 4, 5, 6)
+
+    head ++: tail shouldEqual arr(1, 2, 3, 4, 5, 6)
+  }
+
+  it should "append correctly" in {
+    val head = arr(1, 2, 3)
+    val tail = arr(4, 5, 6)
+
+    head :++ tail.values shouldEqual arr(1, 2, 3, 4, 5, 6)
+
+    head :++ tail shouldEqual arr(1, 2, 3, 4, 5, 6)
   }
 
   "numbers" should "fail on precision loss" in {
