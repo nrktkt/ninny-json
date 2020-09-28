@@ -209,4 +209,4 @@ Person(
 # Integrations
 
 * [Akka HTTP](https://github.com/hseeberger/akka-http-json)
-* [blackdoor jose](https://github.com/blackdoor/jose)
+* [blackdoor jose](https://blackdoor.github.io/jose/)
