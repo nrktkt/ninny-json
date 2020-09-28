@@ -4,6 +4,7 @@ import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.FieldType
+import scala.collection.immutable._
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
 trait ToJsonInstances {

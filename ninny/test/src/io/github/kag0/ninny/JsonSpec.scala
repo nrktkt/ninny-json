@@ -8,6 +8,7 @@ import io.github.kag0.ninny.ast._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
+import scala.collection.immutable._
 
 import scala.util.{Success, Try}
 

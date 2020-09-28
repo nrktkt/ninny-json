@@ -3,6 +3,7 @@ package io.github.kag0.ninny.example
 import io.github.kag0.ninny.ast.JsonValue
 
 import scala.util.{Failure, Try}
+import scala.collection.immutable._
 
 object Userguide extends App {
   import io.github.kag0.ninny._

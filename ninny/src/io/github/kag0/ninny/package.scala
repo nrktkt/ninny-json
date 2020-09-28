@@ -1,9 +1,10 @@
 package io.github.kag0
 
-import io.github.kag0.ninny.ast.{JsonArray, JsonObject, JsonValue}
+import io.github.kag0.ninny.ast._
+import scala.collection.immutable._
+
 import scala.language.dynamics
 import scala.util.Try
-import io.github.kag0.ninny.ast.JsonNull
 
 package object ninny {
 
@@ -35,7 +36,8 @@ package object ninny {
       }
     )
 
-  def arr(values: JsonMagnet*) = JsonArray(values.flatMap(_.json))
+  def arr(values: JsonMagnet*) =
+    JsonArray(Seq(values.flatMap(_.json): _*))
 
   trait JsonMagnet {
     def json: Option[JsonValue]
