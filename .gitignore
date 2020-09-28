@@ -3,3 +3,4 @@ out/
 .bloop
 .coursier
 .metals
+target/

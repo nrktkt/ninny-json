@@ -2,6 +2,7 @@ package io.github.kag0.ninny
 
 import java.lang.Character.UnicodeBlock
 import scala.language.dynamics
+import scala.collection.immutable._
 import scala.collection.compat._
 
 package object ast {
@@ -75,7 +76,7 @@ package object ast {
       this.copy(values = this.values ++ values)
 
     def ++:(values: IterableOnce[JsonValue]) =
-      this.copy(values = (values.iterator ++ this.values).toSeq)
+      this.copy(values = (Seq((values.iterator ++: this.values): _*)))
 
     def :++(values: JsonArray): JsonArray = this :++ values.values
     def ++:(values: JsonArray): JsonArray = values.values ++: this
