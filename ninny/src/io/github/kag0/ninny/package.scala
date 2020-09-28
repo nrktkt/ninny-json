@@ -3,6 +3,7 @@ package io.github.kag0
 import io.github.kag0.ninny.ast.{JsonArray, JsonObject, JsonValue}
 import scala.language.dynamics
 import scala.util.Try
+import io.github.kag0.ninny.ast.JsonNull
 
 package object ninny {
 
@@ -30,22 +31,22 @@ package object ninny {
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
     JsonObject(
       nameValues.toMap.collect {
-        case (name, JsonMagnet(Some(json))) => name -> json
+        case (name, JsonMagnet(json)) => name -> json
       }
     )
 
   def arr(values: JsonMagnet*) = JsonArray(values.flatMap(_.json))
 
   trait JsonMagnet {
-    val json: Option[JsonValue]
+    def json: Option[JsonValue]
   }
 
   object JsonMagnet {
-    def unapply(arg: JsonMagnet): Option[Option[JsonValue]] = Some(arg.json)
+    def unapply(arg: JsonMagnet): Option[JsonValue] = arg.json
 
     implicit def fromA[A: ToJson](a: A) =
       new JsonMagnet {
-        val json = ToJson[A].to(a)
+        val json = if (a == null) Some(JsonNull) else ToJson[A].to(a)
       }
 
     implicit def fromJson(js: JsonValue) =
