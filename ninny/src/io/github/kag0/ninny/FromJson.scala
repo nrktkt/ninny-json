@@ -17,7 +17,14 @@ object FromJson extends FromJsonInstances {
   def apply[A: FromJson]: FromJson[A] = implicitly[FromJson[A]]
   def fromSome[A](read: JsonValue => Try[A]): FromJson[A] = {
     case Some(json) => read(json)
-    case None       => Failure(new NoSuchElementException())
+    case None =>
+      Failure(
+        new JsonException(
+          "Tried to read a mandatory field that was absent",
+          new NoSuchElementException("None.get")
+        )
+      )
   }
+
   def auto[A: FromJsonAuto] = implicitly[FromJsonAuto[A]].fromJson
 }
