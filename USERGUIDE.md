@@ -1,6 +1,14 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.kag0/ninny_2.13?style=for-the-badge)](https://mvnrepository.com/artifact/io.github.kag0/ninny)
 [![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://kag0.github.io/ninny-json/coverage)
 
+
+# Integrations
+
+* [Akka HTTP](https://github.com/hseeberger/akka-http-json)
+* [blackdoor jose](https://blackdoor.github.io/jose/)
+* [mercury JSON-RPC](https://github.com/lightform-oss/mercury/tree/master/ninny)
+
+
 # Reading values from JSON
 
 ```scala
@@ -205,8 +213,3 @@ Person(
   age = None
 ).toSomeJson // just works
 ```
-
-# Integrations
-
-* [Akka HTTP](https://github.com/hseeberger/akka-http-json)
-* [blackdoor jose](https://blackdoor.github.io/jose/)
