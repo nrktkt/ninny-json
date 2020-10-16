@@ -7,6 +7,7 @@
 * [Akka HTTP](https://github.com/hseeberger/akka-http-json)
 * [blackdoor jose](https://blackdoor.github.io/jose/)
 * [mercury JSON-RPC](https://github.com/lightform-oss/mercury/tree/master/ninny)
+* [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
 
 # Reading values from JSON
