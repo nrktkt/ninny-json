@@ -407,7 +407,7 @@ class JsonSpec
 
     (exampleObjectAstParsed / "Image" / "Width").*.NotAField.maybeJson shouldBe None
 
-    (obj() / "field").to[Int].failed.get shouldBe a[NoSuchElementException]
+    (obj() / "field").to[Int].failed.get.getCause shouldBe a[NoSuchElementException]
     exampleObjectAst.Image.to[String].failed.get shouldBe a[JsonException]
     exampleObjectAst.Image.to[Boolean].failed.get shouldBe a[JsonException]
     exampleObjectAst.Image.to[Null].failed.get shouldBe a[JsonException]
