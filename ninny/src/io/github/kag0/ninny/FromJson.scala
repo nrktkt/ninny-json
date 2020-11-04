@@ -26,5 +26,14 @@ object FromJson extends FromJsonInstances {
       )
   }
 
+  def partial[A](
+      read: PartialFunction[Option[JsonValue], Try[A]]
+  ): FromJson[A] =
+    read.applyOrElse(
+      _,
+      (_: Option[JsonValue]) =>
+        Failure(new JsonException("Provided JSON did not match expectations"))
+    )
+
   def auto[A: FromJsonAuto] = implicitly[FromJsonAuto[A]].fromJson
 }
