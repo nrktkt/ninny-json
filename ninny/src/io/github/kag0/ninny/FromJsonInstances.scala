@@ -1,6 +1,7 @@
 package io.github.kag0.ninny
 
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
+import java.util.UUID
 
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.{FieldType, field}
@@ -111,6 +112,11 @@ trait FromJsonInstances {
     FromJson.fromSome(
       _.to[String].flatMap(s => Try(ZonedDateTime.parse(s)))
     )
+
+  implicit val uuidFromJson: FromJson[UUID] = FromJson.fromSome(
+    _.to[String].flatMap(s => Try(UUID.fromString(s)))
+  )
+
   implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
 
   import shapeless.::

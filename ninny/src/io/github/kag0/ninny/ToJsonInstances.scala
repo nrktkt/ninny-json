@@ -6,6 +6,7 @@ import io.github.kag0.ninny.ast._
 import shapeless.labelled.FieldType
 import scala.collection.immutable._
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
+import java.util.UUID
 
 trait ToJsonInstances {
   implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
@@ -51,6 +52,9 @@ trait ToJsonInstances {
 
   implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
     time => JsonString(time.toString)
+
+  implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] = 
+    uuid => JsonString(uuid.toString)
 
   import shapeless.::
 

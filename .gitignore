@@ -4,3 +4,4 @@ out/
 .coursier
 .metals
 target/
+.vscode

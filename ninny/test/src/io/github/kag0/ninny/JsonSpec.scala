@@ -11,6 +11,7 @@ import org.scalatest.matchers._
 import scala.collection.immutable._
 
 import scala.util.{Success, Try}
+import java.util.UUID
 
 class JsonSpec
     extends AnyFlatSpec
@@ -527,5 +528,19 @@ class JsonSpec
       .to[Instant]
       .success
       .value
+  }
+
+  "UUIDs" should "work" in {
+    val id = UUID.randomUUID
+
+    val json = id.toSomeJson
+
+    val parsed = json.to[UUID].success
+
+    parsed.value shouldEqual id
+  }
+
+  it should "not throw exceptions" in {
+    JsonString("asdfajos;o;ohsa").to[UUID].isSuccess shouldBe false
   }
 }
