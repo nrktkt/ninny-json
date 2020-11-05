@@ -437,6 +437,18 @@ class JsonSpec
     Some(Option("string")).toJson shouldEqual Some(JsonString("string"))
   }
 
+  "FromJson" should "preprocess values" in {
+    val intFromStringFromJson = FromJsonInstances.intFromJson.preprocess{ case Some(JsonString(s)) => JsonNumber(s.toDouble) }
+    intFromStringFromJson.from(JsonString("5")).success.value shouldBe 5
+  }
+  
+  "JsonObjects" should "rename fields" in {
+    val json = obj("foo" -> "bar")
+    val renamed = json.renameField("foo", "baz")
+    (renamed / "baz").value shouldEqual JsonString("bar")
+    (renamed / "foo") shouldEqual None
+  }
+
   "JsonArrays" should "return none on indexes out of bounds" in {
     val array = Some(arr("one", "two", 3))
 

@@ -11,6 +11,11 @@ trait FromJson[A] {
   def from(json: JsonValue): Try[A] = from(Some(json))
 
   def map[B](f: A => B): FromJson[B] = from(_).map(f)
+
+  def preprocess(
+      f: PartialFunction[Option[JsonValue], JsonValue]
+  ): FromJson[A] = json => from(f.lift(json).orElse(json))
+
 }
 
 object FromJson extends FromJsonInstances {

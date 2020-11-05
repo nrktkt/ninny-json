@@ -56,6 +56,13 @@ package object ast {
 
     def -(key: String)                 = this.copy(values = values - key)
     def --(keys: IterableOnce[String]) = this.copy(values = values -- keys)
+
+    def renameField(currentName: String, newName: String) = {
+      values.get(currentName) match {
+        case Some(value) => JsonObject(values - currentName + (newName -> value))
+        case None => this
+      }
+    }
   }
 
   case class JsonArray(values: Seq[JsonValue]) extends JsonValue {
