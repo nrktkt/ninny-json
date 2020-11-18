@@ -8,8 +8,8 @@ import io.github.kag0.ninny.ast._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
-import scala.collection.immutable._
 
+import scala.collection.immutable._
 import scala.util.{Success, Try}
 import java.util.UUID
 
@@ -26,7 +26,7 @@ class JsonSpec
       "bool"   -> true,
       "false"  -> false,
       "null"   -> JsonNull,
-      "unit"   -> (),
+      "unit"   -> ((): Unit),
       "some"   -> "str"
     )
 
@@ -90,7 +90,7 @@ class JsonSpec
     "bool"   -> true,
     "false"  -> false,
     "null"   -> JsonNull,
-    "unit"   -> (),
+    "unit"   -> ((): Unit),
     "some"   -> Some("str")
   )
 
@@ -408,7 +408,11 @@ class JsonSpec
 
     (exampleObjectAstParsed / "Image" / "Width").*.NotAField.maybeJson shouldBe None
 
-    (obj() / "field").to[Int].failed.get.getCause shouldBe a[NoSuchElementException]
+    (obj() / "field")
+      .to[Int]
+      .failed
+      .get
+      .getCause shouldBe a[NoSuchElementException]
     exampleObjectAst.Image.to[String].failed.get shouldBe a[JsonException]
     exampleObjectAst.Image.to[Boolean].failed.get shouldBe a[JsonException]
     exampleObjectAst.Image.to[Null].failed.get shouldBe a[JsonException]
@@ -438,12 +442,14 @@ class JsonSpec
   }
 
   "FromJson" should "preprocess values" in {
-    val intFromStringFromJson = FromJsonInstances.intFromJson.preprocess{ case Some(JsonString(s)) => JsonNumber(s.toDouble) }
+    val intFromStringFromJson = FromJsonInstances.intFromJson.preprocess {
+      case Some(JsonString(s)) => JsonNumber(s.toDouble)
+    }
     intFromStringFromJson.from(JsonString("5")).success.value shouldBe 5
   }
-  
+
   "JsonObjects" should "rename fields" in {
-    val json = obj("foo" -> "bar")
+    val json    = obj("foo" -> "bar")
     val renamed = json.renameField("foo", "baz")
     (renamed / "baz").value shouldEqual JsonString("bar")
     (renamed / "foo") shouldEqual None

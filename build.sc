@@ -31,7 +31,13 @@ object ninny extends mill.Cross[Ninny](`2.12`, `2.13`)
 class Ninny(val crossScalaVersion: String)
     extends CrossScalaModule
     with ScoverageModule
-    with PublishMod {
+    with PublishMod { self =>
+
+  def scalacOptions = Seq(
+    "-Xfatal-warnings", "-feature", "-unchecked", "-deprecation",
+    "-Ywarn-macros:after", "-Ywarn-unused"
+  )
+
 
   def ivyDeps =
     Agg(
@@ -41,6 +47,7 @@ class Ninny(val crossScalaVersion: String)
     )
 
   object test extends ScoverageTests {
+    def scalacOptions = self.scalacOptions().filterNot(_ == "-Xfatal-warnings")
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps =
       Agg(

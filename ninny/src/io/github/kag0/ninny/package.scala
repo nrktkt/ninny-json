@@ -1,9 +1,9 @@
 package io.github.kag0
 
 import io.github.kag0.ninny.ast._
-import scala.collection.immutable._
 
-import scala.language.dynamics
+import scala.collection.immutable._
+import scala.language.{dynamics, implicitConversions}
 import scala.util.Try
 
 package object ninny {

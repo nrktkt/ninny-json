@@ -45,7 +45,7 @@ trait ToJsonInstances {
     _.value.toSomeJson
 
   implicit val instantToJson: ToSomeJson[Instant] =
-    i => JsonNumber(i.getEpochSecond)
+    i => JsonNumber(i.getEpochSecond.toDouble)
 
   implicit val offsetDateTimeToJson: ToSomeJson[OffsetDateTime] =
     time => JsonString(time.toString)
@@ -53,7 +53,7 @@ trait ToJsonInstances {
   implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
     time => JsonString(time.toString)
 
-  implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] = 
+  implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] =
     uuid => JsonString(uuid.toString)
 
   import shapeless.::
