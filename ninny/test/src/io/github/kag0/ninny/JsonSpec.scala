@@ -487,7 +487,7 @@ class JsonSpec
     head :++ tail shouldEqual arr(1, 2, 3, 4, 5, 6)
   }
 
-  "numbers" should "fail on precision loss" in {
+  "JsonNumbers" should "fail on precision loss" in {
     JsonNumber(12.3)
       .to[Long]
       .failed
@@ -528,6 +528,17 @@ class JsonSpec
       .failed
       .get
       .getCause shouldBe a[ArithmeticException]
+  }
+
+  it should "parse with high precision when requested" in {
+    val parsed = Json
+      .parse("9.88731224174273635E+308", true)
+      .to[JsonNumber]
+      .success
+      .value
+
+    parsed.value shouldEqual Double.PositiveInfinity
+    parsed.asInstanceOf[JsonDecimal].preciseValue shouldEqual BigDecimal("9.88731224174273635E+308")
   }
 
   "Java 8 time" should "work" in {
