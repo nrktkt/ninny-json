@@ -89,7 +89,36 @@ package object ast {
     def ++:(values: JsonArray): JsonArray = values.values ++: this
   }
 
-  case class JsonNumber(value: Double)   extends JsonValue
+  sealed trait JsonNumber extends JsonValue {
+    def value: Double
+    def equals(obj: Any): Boolean
+  }
+
+  object JsonNumber {
+    def apply(value: Double)      = JsonDouble(value)
+    def apply(value: BigDecimal)  = JsonDecimal(value)
+    def unapply(json: JsonNumber) = Some(json.value)
+  }
+
+  case class JsonDouble(value: Double) extends JsonNumber {
+    override def equals(obj: Any) =
+      obj match {
+        case JsonDecimal(v) => value == v
+        case JsonDouble(v)  => value == v
+        case other          => value == other
+      }
+  }
+
+  case class JsonDecimal(preciseValue: BigDecimal) extends JsonNumber {
+    def value = preciseValue.doubleValue
+    override def equals(obj: Any) =
+      obj match {
+        case JsonDecimal(v) => preciseValue == v
+        case JsonDouble(v)  => preciseValue == v
+        case other          => preciseValue == other
+      }
+  }
+
   case class JsonBoolean(value: Boolean) extends JsonValue
   case object JsonNull                   extends JsonValue
 
