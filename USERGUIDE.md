@@ -99,6 +99,23 @@ val json = obj(
 json.toString // {"lastName":"Doe","firstName":"John","address":{"street":"710 Ashbury St","zip":"94117"},"kids":["Jr","Jane"]}
 ```
 
+# Updating nested values
+
+With immutable ASTs it can be a pain to update values deep inside the tree.  
+You can use ninny's dynamic update syntax easly to replace values way down in there.
+
+```scala
+val json = obj(
+  "one" -> obj(
+    "two" -> obj(
+      "three" -> "value!"
+    )
+  )
+)
+
+json.withUpdated.one.two.three := "new value!" // {"one":{"two":{"three":"new value!"}}}
+```
+
 # Converting domain objects to JSON
 
 ```scala

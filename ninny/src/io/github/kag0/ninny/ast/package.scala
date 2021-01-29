@@ -37,6 +37,8 @@ package object ast {
             .map { case (k, v) => s"${JsonString.escape(k)}:$v" }
             .mkString("{", ",", "}")
       }
+
+    def withUpdated = Update(this, Vector())
   }
 
   case class JsonObject(values: Map[String, JsonValue]) extends JsonValue {
