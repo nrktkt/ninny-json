@@ -57,6 +57,23 @@ package object ninny {
       }
   }
 
+  trait SomeJsonMagnet extends JsonMagnet {
+    def someJson: JsonValue
+    def json = Some(someJson)
+  }
+
+  object SomeJsonMagnet {
+    implicit def fromA[A: ToSomeJson](a: A) =
+      new SomeJsonMagnet {
+        val someJson = if (a == null) JsonNull else a.toSomeJson
+      }
+
+    implicit def fromJson(js: JsonValue) =
+      new SomeJsonMagnet {
+        val someJson = js
+      }
+  }
+
   implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
       extends AnyVal
       with Dynamic {
@@ -104,13 +121,12 @@ package object ninny {
     def * = this
   }
 
-  implicit class AnySyntax[A](val a: A) extends AnyVal {
+  implicit class AnySyntax[A](val _a: A) extends AnyVal {
     def toJson[Json <: JsonValue](implicit toJson: ToJsonValue[A, Json]) =
-      toJson.to(a)
+      toJson.to(_a)
 
     def toSomeJson[Json <: JsonValue](implicit
         toJson: ToSomeJsonValue[A, Json]
-    ) = toJson.toSome(a)
+    ) = toJson.toSome(_a)
   }
-
 }

@@ -89,6 +89,19 @@ object Userguide extends App {
 
 /////////////////////////////////////////////////////////////////////////////
 
+val deep = obj(
+  "one" -> obj(
+    "two" -> obj(
+      "three" -> "value!"
+    )
+  )
+)
+
+deep.withUpdated.one.two.three := "new value!" // {"one":{"two":{"three":"new value!"}}}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
   case class Person(
       firstName: String,
       lastName: String,
