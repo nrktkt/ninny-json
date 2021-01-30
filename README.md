@@ -1,5 +1,7 @@
 # None Is Not Null
 
+[![Join the chat at https://gitter.im/blackdoor/ninny-json](https://badges.gitter.im/blackdoor/ninny-json.svg)](https://gitter.im/blackdoor/ninny-json?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ninny-json is an experiment to look at what JSON type classes would look like
 if they made a distinction between absent JSON fields, and fields with `null` 
 values.  
