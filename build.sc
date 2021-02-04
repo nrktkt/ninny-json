@@ -43,7 +43,7 @@ class Ninny(val crossScalaVersion: String)
     Agg(
       ivy"org.typelevel::jawn-parser:1.0.0",
       ivy"com.chuusai::shapeless:2.3.3",
-      ivy"org.scala-lang.modules::scala-collection-compat:2.2.0"
+      ivy"org.scala-lang.modules::scala-collection-compat:2.4.1"
     )
 
   object test extends ScoverageTests {
