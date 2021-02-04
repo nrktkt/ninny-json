@@ -8,6 +8,8 @@
 * [mercury JSON-RPC](https://github.com/lightform-oss/mercury/tree/master/ninny)
 * [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
+<link href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow.css" type="text/css" rel="stylesheet" />
+
 # Reading values from JSON
 <script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">  
   If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE   
