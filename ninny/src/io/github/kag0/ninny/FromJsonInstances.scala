@@ -5,12 +5,12 @@ import java.util.UUID
 
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.{FieldType, field}
-import scala.collection.immutable._
+import scala.collection.immutable
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
 import scala.util.{Failure, Success, Try}
 
-trait FromJsonInstances {
+trait FromJsonInstances extends LowPriorityFromJsonInstances {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
     case JsonString(value) => Success(value)
     case json              => Failure(new JsonException(s"Expected string, got $json"))
@@ -139,6 +139,11 @@ trait FromJsonInstances {
   }
 }
 object FromJsonInstances extends FromJsonInstances
+
+trait LowPriorityFromJsonInstances {
+  implicit def immutableSeqFromJson[A: FromJson]: FromJson[immutable.Seq[A]] =
+    FromJsonInstances.seqFromJson[A].map(_.toList)
+}
 
 class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
 object FromJsonAuto {

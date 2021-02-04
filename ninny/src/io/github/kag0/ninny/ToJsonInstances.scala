@@ -4,11 +4,13 @@ import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.FieldType
-import scala.collection.immutable._
+import scala.collection.mutable
+import scala.collection.immutable
+
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 import java.util.UUID
 
-trait ToJsonInstances {
+trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
     ToJson(JsonString(_))
 
@@ -27,8 +29,12 @@ trait ToJsonInstances {
     */
   implicit val unitToJson: ToSomeJson[Unit] = _ => JsonArray(Nil)
 
+  // 2.12 compat
   implicit def seqToJson[A: ToSomeJson]: ToSomeJson[Seq[A]] =
-    a => JsonArray(a.map(_.toSomeJson))
+    a => JsonArray(a match {
+      case mut: mutable.Seq[A]    => mut.map(_.toSomeJson).toList
+      case imut: immutable.Seq[A] => imut.map(_.toSomeJson)
+    })
 
   implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
     m =>
@@ -78,6 +84,11 @@ trait ToJsonInstances {
   }
 }
 object ToJsonInstances extends ToJsonInstances
+
+trait LowPriorityToJsonInstances {
+  implicit def immutableSeqToJson[A: ToSomeJson]: ToSomeJson[immutable.Seq[A]] =
+    a => JsonArray(a.map(_.toSomeJson))
+}
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
 object ToJsonAuto {
