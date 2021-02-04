@@ -9,7 +9,9 @@
 * [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
 # Reading values from JSON
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE </script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">
+  If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE 
+</script>
 
 # Writing values to JSON
 
