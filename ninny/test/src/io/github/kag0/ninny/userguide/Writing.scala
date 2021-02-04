@@ -15,7 +15,7 @@ import io.github.kag0.ninny._
 // use .toSomeJson to skip the Option
 42.toSomeJson   // JsonNumber(42)
 
-// .toSomeJson doesn't work unless the type 
+// .toSomeJson doesn't compile unless the type 
 // definitely produces a JSON value
 None.toSomeJson 
 //   ^
