@@ -25,7 +25,7 @@
 With immutable ASTs it can be a pain to update values deep inside the tree.  
 You can use ninny's dynamic update syntax easly to replace values way down in there.
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala?slice=25:47"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Updating.scala?slice=4:17"></script>
 
 # Converting domain objects to JSON
 
