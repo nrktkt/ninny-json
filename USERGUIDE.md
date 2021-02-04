@@ -9,6 +9,25 @@
 * [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
 <link href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow.css" type="text/css" rel="stylesheet" />
+<style>
+.gist-it-gist .gist-file .gist-meta,
+.gister-gist .gist-file .gist-meta {
+    overflow: hidden;
+    padding: 0.5em;
+}
+
+.gist-it-gist .gist-file .gist-data,
+.gister-gist .gist-file .gist-data {
+    overflow: auto;
+    word-wrap: normal;
+}
+
+.gist-it-gist .gist-file .gist-data pre,
+.gister-gist .gist-file .gist-data pre {
+    margin: 0 !important;
+    padding: 0.5em;
+}
+</style>
 
 # Reading values from JSON
 <script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">  
