@@ -1,16 +1,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.kag0/ninny_2.13?style=for-the-badge)](https://mvnrepository.com/artifact/io.github.kag0/ninny)
 [![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://kag0.github.io/ninny-json/coverage)
 
-<script>
-  (function () {
-    var links = document.querySelectorAll("link[href='http://gist-it.appspot.com/assets/embed.css'], link[href='http://gist-it.appspot.com/assets/prettify/prettify.css']");
-    links.forEach(function (link, index) {
-        console.log(index, link);
-        link.parentNode.removeChild(link);
-    }); 
-}()); 
-</script>
-
 # Integrations
 
 * [Akka HTTP](https://github.com/hseeberger/akka-http-json)
@@ -57,3 +47,13 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 `AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
 
 <script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/FullAuto.scala?slice=7:17"></script>
+
+<script>
+  (function () {
+    var links = document.querySelectorAll("link[href='http://gist-it.appspot.com/assets/embed.css'], link[href='http://gist-it.appspot.com/assets/prettify/prettify.css']");
+    links.forEach(function (link, index) {
+        console.log(index, link);
+        link.parentNode.removeChild(link);
+    }); 
+}()); 
+</script>
