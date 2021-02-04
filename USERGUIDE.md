@@ -11,6 +11,7 @@
 
 
 # Reading values from JSON
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/example/Userguide.scala?slice=10:63"></script>
 
 ```scala
 import io.github.kag0.ninny._
