@@ -3,6 +3,7 @@ scala:
   - "2.13"
 
 script:
+  - ./mill --disable-ticker __.compile
   - ./mill --disable-ticker __.test
 
 deploy:
