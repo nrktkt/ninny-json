@@ -9,8 +9,8 @@
 * [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
 # Reading values from JSON
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">
-  If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE 
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">  
+  If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE   
 </script>
 
 # Writing values to JSON
@@ -52,7 +52,7 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 
 <script>
   (function () {
-    var links = document.querySelectorAll("link[href='http://gist-it.appspot.com/assets/embed.css'], link[href='http://gist-it.appspot.com/assets/prettify/prettify.css']");
+    var links = document.querySelectorAll("link[href='https://gist-it.appspot.com/assets/embed.css'], link[href='https://gist-it.appspot.com/assets/prettify/prettify.css']");
     links.forEach(function (link, index) {
         console.log(index, link);
         link.parentNode.removeChild(link);
