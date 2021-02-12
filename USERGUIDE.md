@@ -1,5 +1,9 @@
+
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.kag0/ninny_2.13?style=for-the-badge)](https://mvnrepository.com/artifact/io.github.kag0/ninny)
-[![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://kag0.github.io/ninny-json/coverage)
+[![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://kag0.github.io/ninny-json/coverage)  
+[![Gitter](https://img.shields.io/gitter/room/kag0/ninny-json?style=for-the-badge)](https://gitter.im/kag0/ninny-json?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+[![Matrix](https://img.shields.io/matrix/kag0_ninny-json:gitter.im?label=chat%20on%20matrix&style=for-the-badge&logoColor=0dbd8b)](https://matrix.to/#/#kag0_ninny-json:gitter.im?via=gitter.im&via=matrix.org)
+
 
 # Integrations
 
