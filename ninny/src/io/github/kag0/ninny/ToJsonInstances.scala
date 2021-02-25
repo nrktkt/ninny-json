@@ -1,14 +1,12 @@
 package io.github.kag0.ninny
 
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
-
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.FieldType
-import scala.collection.mutable
-import scala.collection.immutable
-
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
+
 import java.util.UUID
+import scala.collection.immutable
 
 trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
@@ -28,13 +26,6 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
     * and unit is an empty tuple; () => []
     */
   implicit val unitToJson: ToSomeJson[Unit] = _ => JsonArray(Nil)
-
-  // 2.12 compat
-  implicit def seqToJson[A: ToSomeJson]: ToSomeJson[Seq[A]] =
-    a => JsonArray(a match {
-      case mut: mutable.Seq[A]    => mut.map(_.toSomeJson).toList
-      case imut: immutable.Seq[A] => imut.map(_.toSomeJson)
-    })
 
   implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
     m =>
@@ -86,8 +77,15 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
 object ToJsonInstances extends ToJsonInstances
 
 trait LowPriorityToJsonInstances {
-  implicit def immutableSeqToJson[A: ToSomeJson]: ToSomeJson[immutable.Seq[A]] =
-    a => JsonArray(a.map(_.toSomeJson))
+  implicit def iterableToJson[I, A](implicit
+      ev: I <:< Iterable[A],
+      toJson: ToSomeJson[A]
+  ): ToSomeJsonValue[I, JsonArray] =
+    xs => {
+      val builder = immutable.Seq.newBuilder[JsonValue]
+      xs.foreach(builder += _.toSomeJson)
+      JsonArray(builder.result())
+    }
 }
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
