@@ -2,12 +2,10 @@ package io.github.kag0.ninny
 
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 import java.util.UUID
-
 import io.github.kag0.ninny.ast._
 import shapeless.labelled.{FieldType, field}
-import scala.collection.immutable
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
-
+import scala.collection.compat._
 import scala.util.{Failure, Success, Try}
 
 trait FromJsonInstances extends LowPriorityFromJsonInstances {
@@ -82,17 +80,6 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances {
   implicit def jsonFromJson[J <: JsonValue]: FromJson[J] =
     FromJson.fromSome[J](j => Try(j.asInstanceOf[J]))
 
-  implicit def seqFromJson[A: FromJson]: FromJson[Seq[A]] =
-    FromJson.fromSome {
-      case JsonArray(values) =>
-        values
-          .foldLeft[Try[List[A]]](Success(Nil))((soFar, js) =>
-            soFar.flatMap(arr => js.to[A].map(_ :: arr))
-          )
-          .map(_.reverse)
-      case json => Failure(new JsonException(s"Expected array, got $json"))
-    }
-
   implicit def optionFromJson[A: FromJson]: FromJson[Option[A]] = {
     case Some(JsonNull) => Success(None)
     case Some(json)     => FromJson[A].from(json).map(Some(_))
@@ -141,8 +128,28 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances {
 object FromJsonInstances extends FromJsonInstances
 
 trait LowPriorityFromJsonInstances {
-  implicit def immutableSeqFromJson[A: FromJson]: FromJson[immutable.Seq[A]] =
-    FromJsonInstances.seqFromJson[A].map(_.toList)
+  // this roundabout way to import compiler flag for higher kinded types avoids a deprecation warning when building for 2.13
+  protected implicit lazy val hkhack = scala.languageFeature.higherKinds
+
+  implicit def collectionFromJson[F[_], A](implicit
+      factory: Factory[A, F[A]],
+      A: FromJson[A]
+  ): FromJson[F[A]] =
+    FromJson.fromSome {
+      case JsonArray(values) =>
+        val builder = factory.newBuilder
+        builder.sizeHint(values)
+        values
+          .foldLeft[Try[Vector[A]]](Success(Vector.empty[A]))((soFar, js) =>
+            soFar.flatMap(arr => js.to[A].map(arr :+ _))
+          )
+          .map { out =>
+            builder ++= out
+            builder.result()
+          }
+
+      case json => Failure(new JsonException(s"Expected array, got $json"))
+    }
 }
 
 class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
