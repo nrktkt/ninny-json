@@ -5,6 +5,7 @@ import io.github.kag0.ninny.ast._
 import shapeless.labelled.FieldType
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
+import java.math.MathContext
 import java.util.UUID
 import scala.collection.immutable
 
@@ -15,10 +16,15 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val booleanToJson: ToSomeJsonValue[Boolean, JsonBoolean] =
     JsonBoolean(_)
 
-  implicit val nullToJson: ToSomeJsonValue[Null, JsonNull.type]  = _ => JsonNull
-  implicit val doubleToJson: ToSomeJsonValue[Double, JsonNumber] = JsonNumber(_)
-  implicit val intToJson: ToSomeJsonValue[Int, JsonNumber]       = JsonNumber(_)
-  implicit val jsonToJson: ToSomeJson[JsonValue]                 = identity
+  implicit val nullToJson: ToSomeJsonValue[Null, JsonNull.type] = _ => JsonNull
+
+  implicit val bigDecimalToJson: ToSomeJsonValue[BigDecimal, JsonDecimal] =
+    JsonDecimal(_)
+
+  implicit val bigIntToJson: ToSomeJsonValue[BigInt, JsonDecimal] = i =>
+    JsonDecimal(BigDecimal(i, MathContext.UNLIMITED))
+
+  implicit val jsonToJson: ToSomeJson[JsonValue] = identity
 
   /**
     * represents unit as an empty JSON array.
@@ -86,6 +92,9 @@ trait LowPriorityToJsonInstances {
       xs.foreach(builder += _.toSomeJson)
       JsonArray(builder.result())
     }
+
+  implicit def numericToJson[A: Numeric]: ToSomeJsonValue[A, JsonDouble] =
+    a => JsonDouble(implicitly[Numeric[A]].toDouble(a))
 }
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal

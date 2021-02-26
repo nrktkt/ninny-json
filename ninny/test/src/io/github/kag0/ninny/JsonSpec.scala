@@ -537,7 +537,30 @@ class JsonSpec
       .value
 
     parsed.value shouldEqual Double.PositiveInfinity
-    parsed.asInstanceOf[JsonDecimal].preciseValue shouldEqual BigDecimal("9.88731224174273635E+308")
+    parsed.asInstanceOf[JsonDecimal].preciseValue shouldEqual BigDecimal(
+      "9.88731224174273635E+308"
+    )
+  }
+
+  it should "write any Numeric" in {
+    val long: Long     = 5
+    val int: Int       = 5
+    val byte: Byte     = 5
+    val double: Double = 5.5
+    val float: Float   = 5.5f
+
+    long.toSomeJson shouldEqual JsonDouble(5)
+    int.toSomeJson shouldEqual JsonDouble(5)
+    byte.toSomeJson shouldEqual JsonDouble(5)
+    double.toSomeJson shouldEqual JsonDouble(double)
+    float.toSomeJson shouldEqual JsonDouble(5.5)
+  }
+
+  it should "write big numbers with high precision" in {
+    val i = BigInt(123)
+    val d = BigDecimal("123.456")
+    i.toSomeJson shouldEqual JsonDecimal(BigDecimal(123))
+    d.toSomeJson shouldEqual JsonDecimal(d)
   }
 
   "Java 8 time" should "work" in {
