@@ -169,11 +169,11 @@ deep.withUpdated.one.two.three := "new value!" // {"one":{"two":{"three":"new va
      implement ToSomeJson instead of ToJson if your object always produces
      some kind of JSON. this is a common case.
      */
-    implicit val addressToJson = ToAndFromJson.auto[Address]
+    implicit val addressToJson: ToAndFromJson[Address] = ToAndFromJson.auto
 
-    implicit val personToJson = ToJson.auto[Person]
+    implicit val personToJson: ToSomeJsonObject[Person] = ToJson.auto
 
-    implicit val personFromJson = FromJson.auto[Person]
+    implicit val personFromJson: FromJson[Person] = FromJson.auto
 
     Person(
       "John",

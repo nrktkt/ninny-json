@@ -22,6 +22,7 @@ object ToJson {
   def auto[A: ToJsonAuto] = implicitly[ToJsonAuto[A]].toJson
 }
 
+@FunctionalInterface
 trait ToSomeJsonValue[A, +Json <: JsonValue] extends ToJsonValue[A, Json] {
   def toSome(a: A): Json
   override def to(a: A) = Some(toSome(a))

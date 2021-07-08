@@ -6,7 +6,7 @@ import io.github.kag0.ninny.jawn._
 
 object Json {
   def parse(s: String, highPrecision: Boolean = false) = {
-    implicit def facade = if (highPrecision) DecimalFacade else DoubleFacade
+    implicit def facade: Facade = if (highPrecision) DecimalFacade else DoubleFacade
     Parser.parseFromString(s)
   }
   

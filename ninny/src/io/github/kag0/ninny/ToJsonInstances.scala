@@ -2,14 +2,14 @@ package io.github.kag0.ninny
 
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 import io.github.kag0.ninny.ast._
-import shapeless.labelled.FieldType
-import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 
 import java.math.MathContext
 import java.util.UUID
 import scala.collection.immutable
 
-trait ToJsonInstances extends LowPriorityToJsonInstances {
+trait ToJsonInstances
+    extends AdditionalToJsonInstances
+    with LowPriorityToJsonInstances {
   implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
     ToJson(JsonString(_))
 
@@ -59,26 +59,6 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] =
     uuid => JsonString(uuid.toString)
 
-  import shapeless.::
-
-  implicit val hNilToJson: ToSomeJsonObject[HNil] = _ => JsonObject(Map.empty)
-
-  implicit def recordToJson[Key <: Symbol, Head, Tail <: HList](implicit
-      witness: Witness.Aux[Key],
-      headToJson: Lazy[ToJson[Head]],
-      tailToJson: ToSomeJsonObject[Tail]
-  ): ToSomeJsonObject[FieldType[Key, Head] :: Tail] = {
-    val name = witness.value.name
-    ToJson { record =>
-      val maybeHead = headToJson.value.to(record.head)
-      val tail      = tailToJson.toSome(record.tail)
-
-      maybeHead match {
-        case Some(head) => tail + (name -> head)
-        case None       => tail
-      }
-    }
-  }
 }
 object ToJsonInstances extends ToJsonInstances
 
@@ -98,10 +78,4 @@ trait LowPriorityToJsonInstances {
 }
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
-object ToJsonAuto {
-
-  implicit def labelledGenericToJson[A, Head](implicit
-      generic: LabelledGeneric.Aux[A, Head],
-      headToJson: Lazy[ToSomeJsonObject[Head]]
-  ) = new ToJsonAuto[A](a => headToJson.value.toSome(generic.to(a)))
-}
+object ToJsonAuto                                    extends ToJsonAutoImpl

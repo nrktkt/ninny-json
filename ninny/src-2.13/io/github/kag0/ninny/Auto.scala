@@ -15,5 +15,3 @@ trait AutoFromJson {
       headFromJson: Lazy[FromJson[Head]]
   ) = FromJsonAuto.labelledGenericFromJson[A, Head].fromJson
 }
-
-object Auto extends AutoToJson with AutoFromJson

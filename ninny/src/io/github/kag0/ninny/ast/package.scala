@@ -30,7 +30,7 @@ package object ast {
         case JsonNull           => "null"
         case JsonBoolean(value) => value.toString
         case JsonNumber(value)  => value.toString.stripSuffix(".0")
-        case s: JsonString      => s.toString
+        case s: JsonString      => s.escape
         case JsonArray(values)  => values.mkString("[", ",", "]")
         case JsonObject(values) =>
           values
@@ -61,7 +61,8 @@ package object ast {
 
     def renameField(currentName: String, newName: String) = {
       values.get(currentName) match {
-        case Some(value) => JsonObject(values - currentName + (newName -> value))
+        case Some(value) =>
+          JsonObject(values - currentName + (newName -> value))
         case None => this
       }
     }
@@ -125,7 +126,7 @@ package object ast {
   case object JsonNull                   extends JsonValue
 
   case class JsonString(value: String) extends JsonValue {
-    override def toString = JsonString.escape(value)
+    def escape = JsonString.escape(value)
   }
 
   object JsonString {

@@ -8,10 +8,10 @@ import scala.util.Try
 
 package object ninny {
 
-  type ToJson[A]           = ToJsonValue[A, JsonValue]
-  type ToJsonObject[A]     = ToJsonValue[A, JsonObject]
-  type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
-  type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
+  type ToJson[A]                          = ToJsonValue[A, JsonValue]
+  type ToJsonObject[A]                    = ToJsonValue[A, JsonObject]
+  type ToSomeJson[A] = ToSomeJsonValue[A, JsonValue]
+  type ToSomeJsonObject[A]                = ToSomeJsonValue[A, JsonObject]
 
   trait ToAndFromJson[A] extends ToJson[A] with FromJson[A]
   object ToAndFromJson {
@@ -23,8 +23,12 @@ package object ninny {
       }
 
     def auto[A: ToJsonAuto: FromJsonAuto]: ToAndFromJson[A] = {
-      implicit val toJson   = implicitly[ToJsonAuto[A]].toJson
-      implicit val fromJson = implicitly[FromJsonAuto[A]].fromJson
+      implicit val toJson: ToSomeJsonObject[A] =
+        implicitly[ToJsonAuto[A]].toJson
+
+      implicit val fromJson: FromJson[A] =
+        implicitly[FromJsonAuto[A]].fromJson
+
       ToAndFromJson[A]
     }
   }
@@ -46,12 +50,12 @@ package object ninny {
   object JsonMagnet {
     def unapply(arg: JsonMagnet): Option[JsonValue] = arg.json
 
-    implicit def fromA[A: ToJson](a: A) =
+    implicit def fromA[A: ToJson](a: A): JsonMagnet =
       new JsonMagnet {
         val json = if (a == null) Some(JsonNull) else ToJson[A].to(a)
       }
 
-    implicit def fromJson(js: JsonValue) =
+    implicit def fromJson(js: JsonValue): JsonMagnet =
       new JsonMagnet {
         val json = Some(js)
       }
@@ -63,12 +67,12 @@ package object ninny {
   }
 
   object SomeJsonMagnet {
-    implicit def fromA[A: ToSomeJson](a: A) =
+    implicit def fromA[A: ToSomeJson](a: A): SomeJsonMagnet =
       new SomeJsonMagnet {
         val someJson = if (a == null) JsonNull else a.toSomeJson
       }
 
-    implicit def fromJson(js: JsonValue) =
+    implicit def fromJson(js: JsonValue): SomeJsonMagnet =
       new SomeJsonMagnet {
         val someJson = js
       }
