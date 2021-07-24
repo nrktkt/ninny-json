@@ -1,6 +1,7 @@
 package io.github.kag0.ninny.userguide
 
 object Updating {
+// format: off
 
 import io.github.kag0.ninny._
 

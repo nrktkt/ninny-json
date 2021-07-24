@@ -3,6 +3,7 @@ package io.github.kag0.ninny.userguide
 import io.github.kag0.ninny.ast.JsonValue
 
 object DomainTo extends App {
+// format: off
 
 import io.github.kag0.ninny._
 

@@ -10,7 +10,8 @@ trait ToJsonValue[A, +Json <: JsonValue] {
 
 object ToJsonValue extends ToJsonInstances
 
-object ToJson {
+object ToJson extends ProductToJson {
+
   def apply[A: ToJson]: ToJson[A] = implicitly[ToJson[A]]
 
   def apply[A, Json <: JsonValue](fn: A => Option[Json]): ToJsonValue[A, Json] =

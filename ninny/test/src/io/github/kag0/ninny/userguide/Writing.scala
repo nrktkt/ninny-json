@@ -3,6 +3,7 @@ package io.github.kag0.ninny.userguide
 import io.github.kag0.ninny.ToSomeJson
 
 object Writing {
+// format: off
 
 private implicit def noneToSomeJson: ToSomeJson[None.type] = ???
 
