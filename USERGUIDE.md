@@ -34,13 +34,13 @@
 </style>
 
 # Reading values from JSON
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=7:62">  
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala?slice=8:63">  
   If you're reading this, you should go to the userguide website at https://kag0.github.io/ninny-json/USERGUIDE   
 </script>
 
 # Writing values to JSON
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala?slice=8:23"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala?slice=9:23"></script>
 
 `obj` and `arr` build JSON structures
 
@@ -51,29 +51,35 @@
 With immutable ASTs it can be a pain to update values deep inside the tree.  
 You can use ninny's dynamic update syntax easly to replace values way down in there.
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Updating.scala?slice=4:17"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/Updating.scala?slice=5:18"></script>
 
 # Converting domain objects to JSON
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/DomainTo.scala?slice=6:50"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/DomainTo.scala?slice=7:51"></script>
 
 # Converting JSON to domain objects
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/DomainFrom.scala?slice=9:47"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/DomainFrom.scala?slice=22:49"></script>
 
 ## Semi-auto derivation for `ToJson` and `FromJson`
 
 Rather than implementing `ToJson` and `FromJson` by hand, you can generate them 
 automatically using
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/SemiAuto.scala?slice=8:15"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/SemiAuto.scala?slice=10:16"></script>
 
 ## Full-auto derivation for `ToJson` and `FromJson`
 
 If you like you can even skip the declaration by mixing in `AutoToJson` or 
 `AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
 
-<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/FullAuto.scala?slice=7:17"></script>
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/FullAuto.scala?slice=8:18"></script>
+
+## `forProductN` derivation for `toJson` and `FromJson`
+
+Often you want to have different names in a case class than what's in the JSON, but you don't need to change the types at all. `forProductN` methods are perfect for this, just specify what the JSON field name should be and provide the case class `apply`/`unapply` method to generate a `ToJson`, `FromJson`, or both together.
+
+<script src="https://gist-it.appspot.com/github/kag0/ninny-json/blob/master/ninny/test/src/io/github/kag0/ninny/userguide/ForProductN.scala?slice=8:24"></script>
 
 <script>
   (function () {

@@ -4,6 +4,7 @@ import scala.util.Failure
 import scala.util.Try
 
 object DomainFrom {
+// format: off
 
 val personString = """{"lastName":"Doe","firstName":"John","address":{"street":"710 Ashbury St","zip":"94117"},"kids":["Jr","Jane"]}"""
 
@@ -16,6 +17,7 @@ case class Person(
     kids: Seq[String],
     age: Option[Int]
 )
+
 case class Address(street: String, zip: String)
 
 object Address {

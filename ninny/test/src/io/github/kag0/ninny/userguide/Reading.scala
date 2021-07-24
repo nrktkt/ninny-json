@@ -4,6 +4,7 @@ import scala.util.Try
 import io.github.kag0.ninny.ast.JsonValue
 
 object Reading {
+// format: off
 
 import io.github.kag0.ninny._
 

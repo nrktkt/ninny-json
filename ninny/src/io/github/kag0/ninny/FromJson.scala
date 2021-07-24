@@ -18,7 +18,7 @@ trait FromJson[A] {
 
 }
 
-object FromJson extends FromJsonInstances {
+object FromJson extends FromJsonInstances with ProductFromJson {
   def apply[A: FromJson]: FromJson[A] = implicitly
   def fromSome[A](read: JsonValue => Try[A]): FromJson[A] = {
     case Some(json) => read(json)

@@ -4,6 +4,7 @@ import io.github.kag0.ninny.userguide.DomainFrom.Person
 import io.github.kag0.ninny.userguide.DomainFrom.Address
 
 object FullAuto {
+// format: off
 
 import io.github.kag0.ninny.Auto._
 
