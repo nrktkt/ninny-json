@@ -497,7 +497,7 @@ class JsonSpec
       .failed
       .get
       .getCause shouldBe a[ArithmeticException]
-    JsonNumber(Double.MaxValue)
+    JsonDecimal(Double.MaxValue)
       .to[Long]
       .failed
       .get
@@ -517,7 +517,7 @@ class JsonSpec
       .failed
       .get
       .getCause shouldBe a[ArithmeticException]
-    JsonNumber(Long.MaxValue)
+    JsonDecimal(Long.MaxValue)
       .to[Int]
       .failed
       .get
@@ -529,15 +529,29 @@ class JsonSpec
       .getCause shouldBe a[ArithmeticException]
   }
 
-  it should "parse with high precision when requested" in {
-    val parsed = Json
-      .parse("9.88731224174273635E+308", true)
-      .to[JsonNumber]
-      .success
-      .value
+  it should "parse decimal strings and numbers" in {
+    val big = BigDecimal(Double.MaxValue) + BigDecimal("12.3")
+    val parsedString = Json.parse('"' + big.toString + '"', true).to[BigDecimal].success.value
+    val parsedNumber = Json.parse(s"${big.toString}", true).to[BigDecimal].success.value
 
-    parsed.value shouldEqual Double.PositiveInfinity
-    parsed.asInstanceOf[JsonDecimal].preciseValue shouldEqual BigDecimal(
+    parsedNumber shouldEqual big
+    parsedString shouldEqual big
+  }
+
+  it should "parse integer strings and numbers" in {
+    val big = BigInt(Long.MaxValue) + 1
+    val parsedString = Json.parse('"' + big.toString + '"', true)
+    val parsedNumber = Json.parse(s"${big.toString}", true)
+
+    parsedString.to[BigInt].success.value shouldEqual big
+    parsedNumber.to[BigInt].success.value shouldEqual big
+  }
+
+  it should "parse with high precision when requested" in {
+    val parsed = Json.parse("9.88731224174273635E+308", true)
+
+    parsed.to[Double].success.value shouldEqual Double.PositiveInfinity
+    parsed.to[java.math.BigDecimal].success.value shouldEqual new java.math.BigDecimal(
       "9.88731224174273635E+308"
     )
   }
