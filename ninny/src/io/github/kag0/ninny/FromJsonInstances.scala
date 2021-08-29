@@ -7,6 +7,7 @@ import shapeless.labelled.{FieldType, field}
 import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 import scala.collection.compat._
 import scala.util.{Failure, Success, Try}
+import java.math.BigInteger
 
 trait FromJsonInstances extends LowPriorityFromJsonInstances {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
@@ -29,16 +30,41 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances {
     case json              => Failure(new JsonException(s"Expected number, got $json"))
   }
 
-  implicit val longFromJson: FromJson[Long] =
-    FromJson.fromSome(_.to[Double].flatMap {
-      case d if d % 1 != 0 =>
-        Failure(
+  implicit val sBigDecimalFromJson: FromJson[BigDecimal] = FromJson.fromSome {
+    case JsonDecimal(value) => Success(value)
+    case JsonDouble(value) => Success(value)
+    case JsonString(value) => Try(BigDecimal(value))
+    case json => Failure(new JsonException(s"Expected number or string, got $json"))
+  }
+
+  implicit val jBigDecimalFromJson: FromJson[java.math.BigDecimal] = sBigDecimalFromJson.map(_.bigDecimal)
+
+  implicit val jBigIntFromJson: FromJson[BigInteger] = FromJson.fromSome {
+    case n: JsonNumber =>
+      val preciseValue = n match {
+        case JsonDecimal(value) => value
+        case JsonDouble(value) => BigDecimal(value)
+      }
+      
+      if (preciseValue.isWhole) 
+        Try(preciseValue.bigDecimal.toBigIntegerExact)
+      else Failure(
           new JsonException(
-            s"Expected long, got $d (decimal)",
+            s"Expected whole number, got ${preciseValue} (decimal)",
             new ArithmeticException("Rounding necessary")
           )
         )
-      case d if d > Long.MaxValue =>
+
+    case JsonString(value) => Try(new BigInteger(value))
+
+    case json => Failure(new JsonException(s"Expected number or string, got $json"))
+  }
+
+  implicit val sBigIntFromJson: FromJson[BigInt] = jBigIntFromJson.map(BigInt(_))
+
+  implicit val longFromJson: FromJson[Long] =
+    FromJson.fromSome(_.to[BigInt].flatMap{
+     case d if d > Long.MaxValue =>
         Failure(
           new JsonException(
             s"Expected long, got $d (too large)",
