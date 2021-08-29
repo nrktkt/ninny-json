@@ -8,8 +8,9 @@ import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 import scala.collection.compat._
 import scala.util.{Failure, Success, Try}
 import java.math.BigInteger
+import com.typesafe.scalalogging.LazyLogging
 
-trait FromJsonInstances extends LowPriorityFromJsonInstances {
+trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
     case JsonString(value) => Success(value)
     case json              => Failure(new JsonException(s"Expected string, got $json"))
@@ -32,39 +33,56 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances {
 
   implicit val sBigDecimalFromJson: FromJson[BigDecimal] = FromJson.fromSome {
     case JsonDecimal(value) => Success(value)
-    case JsonDouble(value) => Success(value)
+    case JsonDouble(value) =>
+      logger.warn(
+        "Converting JsonDouble to BigDecimal. Precision loss possible. It is recommended to use Json.parse(string, highPrecision = true) or convert to Double instead of BigDecimal"
+      )
+      Success(value)
     case JsonString(value) => Try(BigDecimal(value))
-    case json => Failure(new JsonException(s"Expected number or string, got $json"))
+    case json =>
+      Failure(new JsonException(s"Expected number or string, got $json"))
   }
 
-  implicit val jBigDecimalFromJson: FromJson[java.math.BigDecimal] = sBigDecimalFromJson.map(_.bigDecimal)
+  implicit val jBigDecimalFromJson: FromJson[java.math.BigDecimal] =
+    sBigDecimalFromJson.map(_.bigDecimal)
+
+  private def wholeNumberException(number: String) =
+    Failure(
+      new JsonException(
+        s"Expected whole number, got $number (decimal)",
+        new ArithmeticException("Rounding necessary")
+      )
+    )
 
   implicit val jBigIntFromJson: FromJson[BigInteger] = FromJson.fromSome {
     case n: JsonNumber =>
       val preciseValue = n match {
         case JsonDecimal(value) => value
-        case JsonDouble(value) => BigDecimal(value)
-      }
-      
-      if (preciseValue.isWhole) 
-        Try(preciseValue.bigDecimal.toBigIntegerExact)
-      else Failure(
-          new JsonException(
-            s"Expected whole number, got ${preciseValue} (decimal)",
-            new ArithmeticException("Rounding necessary")
+        case JsonDouble(value) =>
+          logger.warn(
+            "Converting JsonDouble to BigInt(eger). Precision loss possible. It is recommended to use Json.parse(string, highPrecision = true) or convert to Long instead of BigInt(eger)"
           )
-        )
+          BigDecimal(value)
+      }
+
+      if (preciseValue.isWhole)
+        Try(preciseValue.bigDecimal.toBigIntegerExact)
+      else
+        wholeNumberException(preciseValue.toString)
 
     case JsonString(value) => Try(new BigInteger(value))
 
-    case json => Failure(new JsonException(s"Expected number or string, got $json"))
+    case json =>
+      Failure(new JsonException(s"Expected number or string, got $json"))
   }
 
-  implicit val sBigIntFromJson: FromJson[BigInt] = jBigIntFromJson.map(BigInt(_))
+  implicit val sBigIntFromJson: FromJson[BigInt] =
+    jBigIntFromJson.map(BigInt(_))
 
   implicit val longFromJson: FromJson[Long] =
-    FromJson.fromSome(_.to[BigInt].flatMap{
-     case d if d > Long.MaxValue =>
+    FromJson.fromSome(_.to[Double].flatMap {
+      case d if !d.isWhole => wholeNumberException(d.toString)
+      case d if d > Long.MaxValue =>
         Failure(
           new JsonException(
             s"Expected long, got $d (too large)",

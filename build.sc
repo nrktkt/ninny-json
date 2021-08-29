@@ -48,7 +48,8 @@ class Ninny(val crossScalaVersion: String)
     Agg(
       ivy"org.typelevel::jawn-parser:1.0.0",
       ivy"com.chuusai::shapeless:2.3.3",
-      ivy"org.scala-lang.modules::scala-collection-compat:2.4.1"
+      ivy"org.scala-lang.modules::scala-collection-compat:2.4.1",
+      ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
     )
 
   override def generatedSources =
@@ -79,7 +80,8 @@ class Ninny(val crossScalaVersion: String)
     def ivyDeps =
       Agg(
         ivy"org.json4s::json4s-native:3.6.9",
-        ivy"org.scalatest::scalatest:3.2.0"
+        ivy"org.scalatest::scalatest:3.2.0",
+        ivy"org.slf4j:slf4j-simple:1.7.32"
       )
   }
 
