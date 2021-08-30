@@ -4,8 +4,11 @@ import java.lang.Character.UnicodeBlock
 import scala.language.dynamics
 import scala.collection.immutable._
 import scala.collection.compat._
+import java.util.Base64
+import scala.collection.compat.immutable.ArraySeq
 
 package object ast {
+
   sealed trait JsonValue extends Dynamic {
     def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
     def apply(i: Int)                      = MaybeJsonSyntax(/(i))
@@ -32,6 +35,11 @@ package object ast {
         case JsonNumber(value)  => value.toString.stripSuffix(".0")
         case s: JsonString      => s.toString
         case JsonArray(values)  => values.mkString("[", ",", "]")
+
+        case JsonBlob(value) =>
+          val array = value.unsafeArray.asInstanceOf[Array[Byte]]
+          s""""${Base64.getUrlEncoder.withoutPadding.encodeToString(array)}""""
+
         case JsonObject(values) =>
           values
             .map { case (k, v) => s"${JsonString.escape(k)}:$v" }
@@ -61,7 +69,8 @@ package object ast {
 
     def renameField(currentName: String, newName: String) = {
       values.get(currentName) match {
-        case Some(value) => JsonObject(values - currentName + (newName -> value))
+        case Some(value) =>
+          JsonObject(values - currentName + (newName -> value))
         case None => this
       }
     }
@@ -90,6 +99,8 @@ package object ast {
     def :++(values: JsonArray): JsonArray = this :++ values.values
     def ++:(values: JsonArray): JsonArray = values.values ++: this
   }
+
+  case class JsonBlob(value: ArraySeq[Byte]) extends JsonValue
 
   sealed trait JsonNumber extends JsonValue {
     def value: Double

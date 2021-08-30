@@ -8,7 +8,7 @@ import mill.define.{Segment, Segments}
 import $file.forProductN
 
 val `2.12` = "2.12.12"
-val `2.13` = "2.13.3"
+val `2.13` = "2.13.6"
 
 trait PublishMod extends PublishModule {
   def artifactName =
