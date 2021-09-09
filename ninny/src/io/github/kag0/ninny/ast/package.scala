@@ -132,8 +132,18 @@ package object ast {
       }
   }
 
-  case class JsonBoolean(value: Boolean) extends JsonValue
-  case object JsonNull                   extends JsonValue
+  sealed trait JsonBoolean extends JsonValue {
+    def value = this == JsonTrue
+  }
+  object JsonBoolean {
+    def apply(value: Boolean)      = if (value) JsonTrue else JsonFalse
+    def unapply(json: JsonBoolean) = Some(json.value)
+  }
+
+  case object JsonTrue  extends JsonBoolean
+  case object JsonFalse extends JsonBoolean
+
+  case object JsonNull extends JsonValue
 
   case class JsonString(value: String) extends JsonValue {
     override def toString = JsonString.escape(value)

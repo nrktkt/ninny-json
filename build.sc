@@ -10,6 +10,8 @@ import $file.forProductN
 val `2.12` = "2.12.12"
 val `2.13` = "2.13.6"
 
+val scalaTest = ivy"org.scalatest::scalatest:3.2.9"
+
 trait PublishMod extends PublishModule {
   def artifactName =
     Segments(
@@ -80,7 +82,7 @@ class Ninny(val crossScalaVersion: String)
     def ivyDeps =
       Agg(
         ivy"org.json4s::json4s-native:3.6.9",
-        ivy"org.scalatest::scalatest:3.2.0",
+        scalaTest,
         ivy"org.slf4j:slf4j-simple:1.7.32"
       )
   }
@@ -100,6 +102,17 @@ class PlayCompat(val crossScalaVersion: String)
 
   object test extends Tests {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
-    def ivyDeps        = Agg(ivy"org.scalatest::scalatest:3.2.0")
+    def ivyDeps        = Agg(scalaTest)
+  }
+}
+
+object ubjson extends ScalaModule with PublishMod {
+  def scalaVersion = `2.13`
+  def artifactName = "ninny-ubjson"
+  def moduleDeps   = List(ninny(`2.13`))
+
+  object test extends Tests {
+    def testFrameworks = Seq("org.scalatest.tools.Framework")
+    def ivyDeps        = Agg(scalaTest)
   }
 }
