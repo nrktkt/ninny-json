@@ -14,9 +14,9 @@ package object ninny {
   type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
 
   trait ToAndFromJson[A] extends ToJson[A] with FromJson[A]
-  object ToAndFromJson {
+  object ToAndFromJson extends ProductToAndFromJson {
 
-    def apply[A: ToJson: FromJson] =
+    implicit def apply[A: ToJson: FromJson] =
       new ToAndFromJson[A] {
         def to(a: A)                           = a.toJson
         def from(maybeJson: Option[JsonValue]) = maybeJson.to[A]

@@ -497,7 +497,7 @@ class JsonSpec
       .failed
       .get
       .getCause shouldBe a[ArithmeticException]
-    JsonNumber(Double.MaxValue)
+    JsonDecimal(Double.MaxValue)
       .to[Long]
       .failed
       .get
@@ -517,7 +517,7 @@ class JsonSpec
       .failed
       .get
       .getCause shouldBe a[ArithmeticException]
-    JsonNumber(Long.MaxValue)
+    JsonDecimal(Long.MaxValue)
       .to[Int]
       .failed
       .get
@@ -529,15 +529,52 @@ class JsonSpec
       .getCause shouldBe a[ArithmeticException]
   }
 
-  it should "parse with high precision when requested" in {
-    val parsed = Json
-      .parse("9.88731224174273635E+308", true)
-      .to[JsonNumber]
-      .success
-      .value
+  it should "parse decimal strings and numbers" in {
+    val big = BigDecimal(Double.MaxValue) + BigDecimal("12.3")
+    val parsedString = Json.parse('"' + big.toString + '"', true).to[BigDecimal].success.value
+    val parsedNumber = Json.parse(s"${big.toString}", true).to[BigDecimal].success.value
 
-    parsed.value shouldEqual Double.PositiveInfinity
-    parsed.asInstanceOf[JsonDecimal].preciseValue shouldEqual BigDecimal("9.88731224174273635E+308")
+    parsedNumber shouldEqual big
+    parsedString shouldEqual big
+  }
+
+  it should "parse integer strings and numbers" in {
+    val big = BigInt(Long.MaxValue) + 1
+    val parsedString = Json.parse('"' + big.toString + '"', true)
+    val parsedNumber = Json.parse(s"${big.toString}", true)
+
+    parsedString.to[BigInt].success.value shouldEqual big
+    parsedNumber.to[BigInt].success.value shouldEqual big
+  }
+
+  it should "parse with high precision when requested" in {
+    val parsed = Json.parse("9.88731224174273635E+308", true)
+
+    parsed.to[Double].success.value shouldEqual Double.PositiveInfinity
+    parsed.to[java.math.BigDecimal].success.value shouldEqual new java.math.BigDecimal(
+      "9.88731224174273635E+308"
+    )
+  }
+
+  it should "write any Numeric" in {
+    val long: Long     = 5
+    val int: Int       = 5
+    val byte: Byte     = 5
+    val double: Double = 5.5
+    val float: Float   = 5.5f
+
+    long.toSomeJson shouldEqual JsonDouble(5)
+    int.toSomeJson shouldEqual JsonDouble(5)
+    byte.toSomeJson shouldEqual JsonDouble(5)
+    double.toSomeJson shouldEqual JsonDouble(double)
+    float.toSomeJson shouldEqual JsonDouble(5.5)
+  }
+
+  it should "write big numbers with high precision" in {
+    val i = BigInt(123)
+    val d = BigDecimal("123.456")
+    i.toSomeJson shouldEqual JsonDecimal(BigDecimal(123))
+    d.toSomeJson shouldEqual JsonDecimal(d)
   }
 
   "Java 8 time" should "work" in {

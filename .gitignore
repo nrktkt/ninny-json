@@ -5,3 +5,4 @@ out/
 .metals
 target/
 .vscode
+.ammonite
