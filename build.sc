@@ -103,3 +103,16 @@ class PlayCompat(val crossScalaVersion: String)
     def ivyDeps        = Agg(ivy"org.scalatest::scalatest:3.2.0")
   }
 }
+
+object `script-kit` extends mill.Cross[ScriptKit](`2.12`, `2.13`)
+class ScriptKit(val crossScalaVersion: String) extends CrossScalaModule with PublishMod {
+
+  def artifactName = "ninny-script-kit"
+
+  def moduleDeps = List(ninny(crossScalaVersion))
+
+  object test extends Tests {
+    def testFrameworks = Seq("org.scalatest.tools.Framework")
+    def ivyDeps = Agg(ivy"org.scalatest::scalatest:3.2.0")
+  }
+}
