@@ -11,6 +11,9 @@ import org.scalatest.matchers._
 
 import scala.util.{Success, Try}
 import java.util.UUID
+import scala.util.Random
+import scala.collection.compat.immutable.ArraySeq
+import java.util.Base64
 
 class JsonSpec
     extends AnyFlatSpec
@@ -531,15 +534,17 @@ class JsonSpec
 
   it should "parse decimal strings and numbers" in {
     val big = BigDecimal(Double.MaxValue) + BigDecimal("12.3")
-    val parsedString = Json.parse('"' + big.toString + '"', true).to[BigDecimal].success.value
-    val parsedNumber = Json.parse(s"${big.toString}", true).to[BigDecimal].success.value
+    val parsedString =
+      Json.parse('"' + big.toString + '"', true).to[BigDecimal].success.value
+    val parsedNumber =
+      Json.parse(s"${big.toString}", true).to[BigDecimal].success.value
 
     parsedNumber shouldEqual big
     parsedString shouldEqual big
   }
 
   it should "parse integer strings and numbers" in {
-    val big = BigInt(Long.MaxValue) + 1
+    val big          = BigInt(Long.MaxValue) + 1
     val parsedString = Json.parse('"' + big.toString + '"', true)
     val parsedNumber = Json.parse(s"${big.toString}", true)
 
@@ -551,7 +556,10 @@ class JsonSpec
     val parsed = Json.parse("9.88731224174273635E+308", true)
 
     parsed.to[Double].success.value shouldEqual Double.PositiveInfinity
-    parsed.to[java.math.BigDecimal].success.value shouldEqual new java.math.BigDecimal(
+    parsed
+      .to[java.math.BigDecimal]
+      .success
+      .value shouldEqual new java.math.BigDecimal(
       "9.88731224174273635E+308"
     )
   }
@@ -575,6 +583,26 @@ class JsonSpec
     val d = BigDecimal("123.456")
     i.toSomeJson shouldEqual JsonDecimal(BigDecimal(123))
     d.toSomeJson shouldEqual JsonDecimal(d)
+  }
+
+  "JsonBlob" should "encode and decode to base64" in {
+    val bytes = new Array[Byte](16)
+    Random.nextBytes(bytes)
+    val byteSeq = ArraySeq.unsafeWrapArray(bytes)
+    val byteString = '"' + Base64.getUrlEncoder.withoutPadding
+      .encodeToString(bytes) + '"'
+
+    Json.render(JsonBlob(byteSeq)) shouldEqual byteString
+
+    Json
+      .parse(
+        Json.render( // render so that it's parsed back as a JsonString
+          byteSeq.toSomeJson
+        )
+      )
+      .to[ArraySeq[Byte]]
+      .success
+      .value shouldEqual byteSeq
   }
 
   "Java 8 time" should "work" in {

@@ -8,6 +8,7 @@ import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 import java.math.MathContext
 import java.util.UUID
 import scala.collection.immutable
+import scala.collection.compat.immutable.ArraySeq
 
 trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val stringToJson: ToSomeJsonValue[String, JsonString] =
@@ -23,6 +24,9 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
 
   implicit val bigIntToJson: ToSomeJsonValue[BigInt, JsonDecimal] = i =>
     JsonDecimal(BigDecimal(i, MathContext.UNLIMITED))
+
+  implicit val arraySeqToJson: ToSomeJsonValue[ArraySeq[Byte], JsonBlob] =
+    JsonBlob(_)
 
   implicit val jsonToJson: ToSomeJson[JsonValue] = identity
 

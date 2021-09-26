@@ -9,6 +9,8 @@ import scala.collection.compat._
 import scala.util.{Failure, Success, Try}
 import java.math.BigInteger
 import com.typesafe.scalalogging.LazyLogging
+import java.util.Base64
+import scala.collection.compat.immutable.ArraySeq
 
 trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
@@ -117,6 +119,14 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
         )
       case l => Try(l.toInt)
     })
+
+  implicit val arraySeqFromJson: FromJson[ArraySeq[Byte]] = FromJson.fromSome {
+    case JsonBlob(value) => Success(value)
+    case JsonString(value) =>
+      Try(ArraySeq.unsafeWrapArray(Base64.getUrlDecoder.decode(value)))
+
+    case json => Failure(new JsonException(s"Expected binary value, got $json"))
+  }
 
   implicit val unitFromJson: FromJson[Unit] = maybeJson =>
     Success(maybeJson.map(_ => ()))
