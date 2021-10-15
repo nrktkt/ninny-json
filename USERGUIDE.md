@@ -19,7 +19,7 @@
 # Reading values from JSON
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala'
     lines='8:63'
@@ -27,7 +27,7 @@
 
 # Writing values to JSON
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
     lines='9:23'
@@ -36,7 +36,7 @@
 `obj` and `arr` build JSON structures
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
     lines='25:47'
@@ -48,7 +48,7 @@ With immutable ASTs it can be a pain to update values deep inside the tree.
 You can use ninny's dynamic update syntax easly to replace values way down in there.
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/Updating.scala'
     lines='5:18'
@@ -57,7 +57,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
 # Converting domain objects to JSON
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/DomainTo.scala'
     lines='7:51'
@@ -66,7 +66,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
 # Converting JSON to domain objects
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/DomainFrom.scala'
     lines='22:49'
@@ -78,7 +78,7 @@ Rather than implementing `ToJson` and `FromJson` by hand, you can generate them
 automatically using
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/SemiAuto.scala'
     lines='10:16'
@@ -90,7 +90,7 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 `AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/FullAuto.scala'
     lines='8:18'
@@ -101,7 +101,7 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 Often you want to have different names in a case class than what's in the JSON, but you don't need to change the types at all. `forProductN` methods are perfect for this, just specify what the JSON field name should be and provide the case class `apply`/`unapply` method to generate a `ToJson`, `FromJson`, or both together.
 
 <sauce-code 
-    repo='kag0/ninny'
+    repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src/io/github/kag0/ninny/userguide/ForProductN.scala'
     lines='8:24'
