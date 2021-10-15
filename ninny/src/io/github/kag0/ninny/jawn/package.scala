@@ -8,8 +8,8 @@ package object jawn {
     def jarray(vs: List[JsonValue])         = JsonArray(vs)
     def jobject(vs: Map[String, JsonValue]) = JsonObject(vs)
     val jnull                               = JsonNull
-    val jfalse                              = JsonBoolean(false)
-    val jtrue                               = JsonBoolean(true)
+    val jfalse                              = JsonFalse
+    val jtrue                               = JsonTrue
     def jstring(s: CharSequence)            = JsonString(s.toString)
   }
 
