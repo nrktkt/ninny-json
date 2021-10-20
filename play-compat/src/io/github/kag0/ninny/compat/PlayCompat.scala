@@ -5,6 +5,7 @@ import io.github.kag0.ninny._
 import play.api.libs.json.JsValue
 import io.github.kag0.ninny.ast._
 import play.api.libs.json._
+import io.github.kag0.ninny
 
 trait NinnyToPlay {
   import PlayToNinny.asNinny
@@ -25,6 +26,7 @@ trait NinnyToPlay {
       case JsonString(value)  => JsString(value)
       case JsonArray(values)  => JsArray(values.map(asPlay))
       case JsonObject(values) => JsObject(values.mapValues(asPlay).toMap)
+      case blob: JsonBlob     => JsString(ninny.Json.render(blob))
     }
 }
 object NinnyToPlay extends NinnyToPlay

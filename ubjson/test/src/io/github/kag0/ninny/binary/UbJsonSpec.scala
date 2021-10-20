@@ -252,13 +252,14 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
   it should "parse high precision numbers" in {
     val binary = ArraySeq[Byte]('H', 'U', 10, '1', '2', '3', '4', '5', '.', '6',
       '7', '8', '9')
-    val parsed = UbJson.parse(binary).success.value
-    parsed shouldEqual BigDecimal("12345.6789")
+    val parsed = UbJson.parse(binary).success.value.asInstanceOf[JsonDecimal]
+    parsed shouldBe a[JsonDecimal]
+    parsed.preciseValue shouldEqual BigDecimal("12345.6789")
 
     UbJson
       .parse(ArraySeq[Byte]('H', 'U', 6, '3', '.', '7', 'e', '-', '5'))
       .success
-      .value shouldEqual BigDecimal("3.7E-5")
+      .value shouldEqual JsonDecimal(BigDecimal("3.7E-5"))
   }
 
   it should "render high precision numbers" in {
