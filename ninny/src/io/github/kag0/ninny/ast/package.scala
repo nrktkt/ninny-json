@@ -9,7 +9,7 @@ import scala.collection.compat.immutable.ArraySeq
 
 package object ast {
 
-  sealed trait JsonValue extends Dynamic {
+  sealed trait JsonValue extends Any with Dynamic {
     def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
     def apply(i: Int)                      = MaybeJsonSyntax(/(i))
     def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
@@ -49,7 +49,9 @@ package object ast {
     def withUpdated = Update(this, Vector())
   }
 
-  case class JsonObject(values: Map[String, JsonValue]) extends JsonValue {
+  case class JsonObject(values: Map[String, JsonValue])
+      extends AnyVal
+      with JsonValue {
 
     def +(entry: (String, JsonMagnet)) =
       entry match {
@@ -76,7 +78,7 @@ package object ast {
     }
   }
 
-  case class JsonArray(values: Seq[JsonValue]) extends JsonValue {
+  case class JsonArray(values: Seq[JsonValue]) extends AnyVal with JsonValue {
 
     def :+(value: JsonMagnet) =
       value.json match {
@@ -100,11 +102,27 @@ package object ast {
     def ++:(values: JsonArray): JsonArray = values.values ++: this
   }
 
-  case class JsonBlob(value: ArraySeq[Byte]) extends JsonValue
+  case class JsonBlob(value: ArraySeq[Byte]) extends AnyVal with JsonValue
 
-  sealed trait JsonNumber extends JsonValue {
+  sealed trait JsonNumber extends Any with JsonValue {
     def value: Double
-    def equals(obj: Any): Boolean
+
+    override def equals(obj: Any) =
+      this match {
+        case JsonDouble(value) =>
+          obj match {
+            case JsonDecimal(v) => value == v
+            case JsonDouble(v)  => value == v
+            case other          => value == other
+          }
+        case JsonDecimal(preciseValue) =>
+          obj match {
+            case JsonDecimal(v) => preciseValue == v
+            case JsonDouble(v)  => preciseValue == v
+            case other          => preciseValue == other
+          }
+      }
+
   }
 
   object JsonNumber {
@@ -113,23 +131,12 @@ package object ast {
     def unapply(json: JsonNumber) = Some(json.value)
   }
 
-  case class JsonDouble(value: Double) extends JsonNumber {
-    override def equals(obj: Any) =
-      obj match {
-        case JsonDecimal(v) => value == v
-        case JsonDouble(v)  => value == v
-        case other          => value == other
-      }
-  }
+  case class JsonDouble(value: Double) extends AnyVal with JsonNumber
 
-  case class JsonDecimal(preciseValue: BigDecimal) extends JsonNumber {
+  case class JsonDecimal(preciseValue: BigDecimal)
+      extends AnyVal
+      with JsonNumber {
     def value = preciseValue.doubleValue
-    override def equals(obj: Any) =
-      obj match {
-        case JsonDecimal(v) => preciseValue == v
-        case JsonDouble(v)  => preciseValue == v
-        case other          => preciseValue == other
-      }
   }
 
   sealed trait JsonBoolean extends JsonValue {
@@ -145,7 +152,7 @@ package object ast {
 
   case object JsonNull extends JsonValue
 
-  case class JsonString(value: String) extends JsonValue {
+  case class JsonString(value: String) extends AnyVal with JsonValue {
     override def toString = JsonString.escape(value)
   }
 
