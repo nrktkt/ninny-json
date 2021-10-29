@@ -45,4 +45,32 @@ json.toString
   "kids":["Jr","Jane"]
 } */
 
+trait GomJabbar
+val gomJabbar = new GomJabbar {}
+
+/*
+
+implicit val gjToJson1: ToJson[GomJabbar] = ???
+implicit val gjToJson2: ToJson[GomJabbar] = ???
+
+obj("gom_jabbar" -> gomJabbar)
+/*
+type mismatch;
+  found   : io.github.kag0.ninny.userguide.Writing.GomJabbar
+  required: io.github.kag0.ninny.magnetic.JsonMagnet
+obj("gom_jabbar" -> gomJabbar)
+                    ^
+*/
+
+obj("gom_jabbar" ~> gomJabbar)
+/*
+ambiguous implicit values:
+  both value gjToJson1 in object Writing of type => io.github.kag0.ninny.ToJson[GomJabbar]
+  and value gjToJson2 in object Writing of type => io.github.kag0.ninny.ToJson[GomJabbar]
+  match expected type io.github.kag0.ninny.package.ToJson[GomJabbar]
+obj("gom_jabbar" ~> gomJabbar)
+                 ^
+*/
+
+*/
 }

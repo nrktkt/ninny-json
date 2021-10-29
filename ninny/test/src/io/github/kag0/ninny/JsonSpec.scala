@@ -14,6 +14,8 @@ import java.util.UUID
 import scala.util.Random
 import scala.collection.compat.immutable.ArraySeq
 import java.util.Base64
+import io.github.kag0.ninny.magnetic.JsonMagnet
+import io.github.kag0.ninny.magnetic.SomeJsonMagnet
 
 class JsonSpec
     extends AnyFlatSpec
@@ -472,6 +474,18 @@ class JsonSpec
   }
 
   it should "prepend correctly" in {
+    val tail = arr(4, 5, 6)
+
+    3 +: tail shouldEqual arr(3, 4, 5, 6)
+  }
+
+  it should "append correctly" in {
+    val head = arr(1, 2, 3)
+
+    head :+ 4 shouldEqual arr(1, 2, 3, 4)
+  }
+
+  it should "precat correctly" in {
     val head = arr(1, 2, 3)
     val tail = arr(4, 5, 6)
 
@@ -480,7 +494,7 @@ class JsonSpec
     head ++: tail shouldEqual arr(1, 2, 3, 4, 5, 6)
   }
 
-  it should "append correctly" in {
+  it should "concat correctly" in {
     val head = arr(1, 2, 3)
     val tail = arr(4, 5, 6)
 
@@ -635,5 +649,35 @@ class JsonSpec
 
   it should "not throw exceptions" in {
     JsonString("asdfajos;o;ohsa").to[UUID].isSuccess shouldBe false
+  }
+
+  "magnet free syntax" should "work" in {
+    val o = obj(
+      "foo" -> 5,
+      "bar" --> 7,
+      "baz" ~> 11
+    )
+
+    o.bar.maybeJson.value shouldEqual JsonNumber(7)
+    o.baz.maybeJson.value shouldEqual JsonNumber(11)
+  }
+
+  it should "give useful compiler errors" in {
+    trait T
+    implicit def t1: ToJson[T] = ???
+    implicit def t2: ToJson[T] = ???
+
+    assertDoesNotCompile(""" obj("t" ~> new T {}) """)
+  }
+
+  "magnets" should "automatically wrap/unwrap" in {
+    val mag: SomeJsonMagnet          = JsonString("foo")
+    val json: JsonValue              = mag
+    val maybeMag: JsonMagnet         = json
+    val maybeJson: Option[JsonValue] = maybeMag
+
+    maybeJson.value shouldEqual JsonString("foo")
+    json shouldEqual mag
+    maybeJson shouldEqual maybeMag
   }
 }

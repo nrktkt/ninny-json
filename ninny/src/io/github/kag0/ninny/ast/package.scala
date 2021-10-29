@@ -53,10 +53,10 @@ package object ast {
       extends AnyVal
       with JsonValue {
 
-    def +(entry: (String, JsonMagnet)) =
-      entry match {
-        case (key, JsonMagnet(value)) =>
-          this.copy(values = values + (key -> value))
+    def +[A: ToJson](entry: (String, A)) =
+      entry._2.toJson match {
+        case Some(value) =>
+          this.copy(values = values + (entry._1 -> value))
         case _ => this
       }
 
@@ -80,14 +80,14 @@ package object ast {
 
   case class JsonArray(values: Seq[JsonValue]) extends AnyVal with JsonValue {
 
-    def :+(value: JsonMagnet) =
-      value.json match {
+    def :+[A: ToJson](value: A) =
+      value.toJson match {
         case Some(v) => this.copy(values = values :+ v)
         case None    => this
       }
 
-    def +:(value: JsonMagnet) =
-      value.json match {
+    def +:[A: ToJson](value: A) =
+      value.toJson match {
         case Some(v) => this.copy(values = v +: values)
         case None    => this
       }

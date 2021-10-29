@@ -42,6 +42,16 @@
     lines='25:47'
 ></sauce-code>
 
+> **note:** The above example uses magnets to produce an object building syntax similar to how you'd build a `scala.collection.Map`. This is intuitive, but can produce unhelpful compiler errors. Instead, you can use a "long arrow" `-->` or "squiggly arrow" `~>` to get better compiler errors for debugging, or just because you don't like magnets. 
+> See below for an example
+
+<sauce-code 
+    repo='kag0/ninny-json'
+    lang='scala'
+    file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
+    lines='52:74'
+></sauce-code>
+
 # Updating nested values
 
 With immutable ASTs it can be a pain to update values deep inside the tree.  

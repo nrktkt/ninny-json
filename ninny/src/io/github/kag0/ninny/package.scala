@@ -1,9 +1,9 @@
 package io.github.kag0
 
 import io.github.kag0.ninny.ast._
+import io.github.kag0.ninny.magnetic.{JsonMagnet, SomeJsonMagnet}
 
-import scala.collection.immutable._
-import scala.language.{dynamics, implicitConversions}
+import scala.language.dynamics
 import scala.util.Try
 
 package object ninny {
@@ -29,50 +29,19 @@ package object ninny {
     }
   }
 
+  //@deprecated(
+  //  message =
+  //    "Use io.github.kag0.ninny.magnetic.obj instead, this may be replaced with a magnet-free signature in the future",
+  //  since = ""
+  //)
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
-    JsonObject(
-      nameValues.toMap.collect {
-        case (name, JsonMagnet(json)) => name -> json
-      }
-    )
+    magnetic.obj(nameValues: _*)
 
-  def arr(values: JsonMagnet*) =
-    JsonArray(Seq(values.flatMap(_.json): _*))
-
-  trait JsonMagnet {
-    def json: Option[JsonValue]
-  }
-
-  object JsonMagnet {
-    def unapply(arg: JsonMagnet): Option[JsonValue] = arg.json
-
-    implicit def fromA[A: ToJson](a: A) =
-      new JsonMagnet {
-        val json = if (a == null) Some(JsonNull) else ToJson[A].to(a)
-      }
-
-    implicit def fromJson(js: JsonValue) =
-      new JsonMagnet {
-        val json = Some(js)
-      }
-  }
-
-  trait SomeJsonMagnet extends JsonMagnet {
-    def someJson: JsonValue
-    def json = Some(someJson)
-  }
-
-  object SomeJsonMagnet {
-    implicit def fromA[A: ToSomeJson](a: A) =
-      new SomeJsonMagnet {
-        val someJson = if (a == null) JsonNull else a.toSomeJson
-      }
-
-    implicit def fromJson(js: JsonValue) =
-      new SomeJsonMagnet {
-        val someJson = js
-      }
-  }
+  //@deprecated(
+  //  message =
+  //    "Use io.github.kag0.ninny.magnetic.arr instead, this may be replaced with a magnet-free signature in the future"
+  //)
+  def arr(values: SomeJsonMagnet*) = magnetic.arr(values: _*)
 
   implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
       extends AnyVal
@@ -128,5 +97,11 @@ package object ninny {
     def toSomeJson[Json <: JsonValue](implicit
         toJson: ToSomeJsonValue[A, Json]
     ) = toJson.toSome(_a)
+  }
+
+  implicit class ArrowSyntax(val s: String) extends AnyVal {
+    def -->[A: ToJson](a: A) = s -> JsonMagnet(a)
+    // I couldn't decide on syntax, so I'll throw both out there
+    def ~>[A: ToJson](a: A) = s -> JsonMagnet(a)
   }
 }
