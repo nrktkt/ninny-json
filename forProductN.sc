@@ -86,12 +86,12 @@ def generateProductToAndFromJson = {
 
     out ++= ") = new ToAndFromJson[Target] {\n"
     val namesCsv = (0 until i).map(j => s"nameA$j").mkString(", ")
-    out ++= s"val _toJson: ToJson[Target] = ToJson.forProduct$i($namesCsv)(fTo)\n"
+    out ++= s"val _toJson: ToSomeJson[Target] = ToJson.forProduct$i($namesCsv)(fTo)\n"
     out ++= s"val _fromJson: FromJson[Target] = FromJson.forProduct$i($namesCsv)(fFrom)\n"
 
     out ++= """
           def from(json: Option[JsonValue]) = _fromJson.from(json)
-          def to(target: Target)            = _toJson.to(target)
+          def toSome(target: Target)        = _toJson.toSome(target)
           """
     out ++= "}\n"
   }
