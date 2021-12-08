@@ -1,25 +1,68 @@
 package io.github.kag0.ninny
 
 import io.github.kag0.ninny.ast._
-import org.typelevel.jawn.Facade.SimpleFacade
+import org.typelevel.jawn.Facade.NoIndexFacade
+import org.typelevel.jawn.FContext
+import scala.collection.mutable
+import scala.collection.immutable.TreeMap
 
 package object jawn {
-  sealed trait Facade extends SimpleFacade[JsonValue] {
-    def jarray(vs: List[JsonValue])         = JsonArray(vs)
-    def jobject(vs: Map[String, JsonValue]) = JsonObject(vs)
-    val jnull                               = JsonNull
-    val jfalse                              = JsonFalse
-    val jtrue                               = JsonTrue
-    def jstring(s: CharSequence)            = JsonString(s.toString)
+  sealed trait Facade extends NoIndexFacade[JsonValue] {
+    val jnull                    = JsonNull
+    val jfalse                   = JsonFalse
+    val jtrue                    = JsonTrue
+    def jstring(s: CharSequence) = JsonString(s.toString)
+
+    def singleContext() =
+      new FContext.NoIndexFContext[JsonValue] {
+        private[this] var value: JsonValue = _
+        def add(s: CharSequence)           = value = jstring(s)
+        def add(v: JsonValue)              = value = v
+        def finish()                       = value
+        val isObj                          = false
+      }
+
+    def arrayContext() =
+      new FContext.NoIndexFContext[JsonValue] {
+        private[this] val vs     = mutable.ListBuffer.empty[JsonValue]
+        def add(s: CharSequence) = vs += jstring(s)
+        def add(v: JsonValue)    = vs += v
+        def finish()             = JsonArray(vs.toList)
+        val isObj                = false
+      }
+
+    def objectContext() =
+      new FContext.NoIndexFContext[JsonValue] {
+        private[this] var key: String = null
+        private[this] var map         = TreeMap.empty[String, JsonValue]
+
+        def add(s: CharSequence) =
+          if (key == null) {
+            key = s.toString
+          } else {
+            map = map.updated(key, jstring(s))
+            key = null
+          }
+
+        def add(v: JsonValue) = {
+          map += (key -> v)
+          key = null
+        }
+
+        def finish() = JsonObject(map)
+        val isObj    = true
+      }
+
   }
 
   object DecimalFacade extends Facade {
+
     def jnum(s: CharSequence, decIndex: Int, expIndex: Int) =
       JsonDecimal(BigDecimal(s.toString))
   }
 
   object DoubleFacade extends Facade {
-    def jnum(s: CharSequence, decIndex: Int, expIndex: Int) = 
-    JsonDouble(s.toString.toDouble)
+    def jnum(s: CharSequence, decIndex: Int, expIndex: Int) =
+      JsonDouble(s.toString.toDouble)
   }
 }

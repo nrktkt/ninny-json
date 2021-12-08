@@ -547,14 +547,12 @@ class JsonSpec
   }
 
   it should "parse decimal strings and numbers" in {
-    val big = BigDecimal(Double.MaxValue) + BigDecimal("12.3")
-    val parsedString =
-      Json.parse('"' + big.toString + '"', true).to[BigDecimal].success.value
-    val parsedNumber =
-      Json.parse(s"${big.toString}", true).to[BigDecimal].success.value
+    val big          = BigDecimal(Double.MaxValue) + BigDecimal("12.3")
+    val parsedString = Json.parse('"' + big.toString + '"', true)
+    val parsedNumber = Json.parse(s"${big.toString}", true)
 
-    parsedNumber shouldEqual big
-    parsedString shouldEqual big
+    parsedNumber.to[BigDecimal].success.value shouldEqual big
+    parsedString.to[BigDecimal].success.value shouldEqual big
   }
 
   it should "parse integer strings and numbers" in {
@@ -597,6 +595,9 @@ class JsonSpec
     val d = BigDecimal("123.456")
     i.toSomeJson shouldEqual JsonDecimal(BigDecimal(123))
     d.toSomeJson shouldEqual JsonDecimal(d)
+    Json.render(
+      (BigDecimal(Double.MaxValue) + Double.MaxValue).toSomeJson
+    ) shouldEqual "3.5953862697246314E+308"
   }
 
   "JsonBlob" should "encode and decode to base64" in {

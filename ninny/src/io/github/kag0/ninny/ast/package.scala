@@ -32,9 +32,11 @@ package object ast {
       this match {
         case JsonNull           => "null"
         case JsonBoolean(value) => value.toString
-        case JsonNumber(value)  => value.toString.stripSuffix(".0")
-        case s: JsonString      => s.toString
-        case JsonArray(values)  => values.mkString("[", ",", "]")
+        case JsonDouble(value)  => value.toString.stripSuffix(".0")
+        case JsonDecimal(preciseValue) =>
+          preciseValue.toString.stripSuffix(".0")
+        case s: JsonString     => s.toString
+        case JsonArray(values) => values.mkString("[", ",", "]")
 
         case JsonBlob(value) =>
           val array = value.unsafeArray.asInstanceOf[Array[Byte]]
