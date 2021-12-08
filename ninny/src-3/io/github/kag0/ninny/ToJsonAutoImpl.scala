@@ -1,28 +1,35 @@
 package io.github.kag0.ninny
 
 import scala.deriving.Mirror
+import scala.deriving.Mirror.ProductOf
 import io.github.kag0.ninny.ast.JsonString
 import scala.compiletime.summonAll
 
 trait ToJsonAutoImpl {
-  /*
-  type Zip[A <: Tuple, B <: Tuple] = (A, B) match {
-    case (a *: as, b *: bs) => (a, b) *: Zip[as, bs]
-    case _ => EmptyTuple
-  }
-   */
 
-  implicit def mirrorToJsonAuto[A <: Product](implicit
+  private def values(t: Tuple): Tuple = t match
+    case (h: ValueOf[_]) *: t1 => h.value *: values(t1)
+    case EmptyTuple => EmptyTuple 
+
+  implicit def mirrorToJsonAuto[A <: Product](using
       mirror: Mirror.ProductOf[A],
       toJson: ToSomeJsonObject[
         Tuple.Zip[mirror.MirroredElemLabels, mirror.MirroredElemTypes]
       ]
-  ): ToJsonAuto[A] =
+  ): ToJsonAuto[A] = {
+    type ValueOfLabels = Tuple.Map[mirror.MirroredElemLabels, ValueOf]
+    val valueOfLabels = summonAll[ValueOfLabels]
+    val labels = values(valueOfLabels).asInstanceOf[mirror.MirroredElemLabels]
+    
     ToJsonAuto(a =>
       toJson.toSome(
-        summonAll[mirror.MirroredElemLabels].zip(Tuple.fromProductTyped(a))
+        labels.zip(Tuple.fromProductTyped(a))
       )
     )
+  }
 
-  val rec = mirrorToJsonAuto[JsonString]
+  
+  given m: Mirror.ProductOf[JsonString] = summon[Mirror.ProductOf[JsonString]]
+  given ToSomeJsonObject[Tuple.Zip[m.MirroredElemLabels, m.MirroredElemTypes]] = ???
+  val rec = summon[ToJsonAuto[JsonString]]
 }
