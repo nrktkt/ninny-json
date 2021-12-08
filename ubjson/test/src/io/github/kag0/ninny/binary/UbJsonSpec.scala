@@ -267,8 +267,12 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
       ArraySeq[Byte]('H', 'i', 10, '1', '2', '3', '4', '5', '.', '6', '7', '8',
         '9')
 
-    UbJson.render(JsonDecimal(BigDecimal("3.7e-5"))) shouldEqual
-      ArraySeq[Byte]('H', 'i', 6, '3', '.', '7', 'E', '-', '5')
+    UbJson.render(JsonDecimal(BigDecimal("3.7e-10"))) shouldEqual
+      ArraySeq[Byte]('H', 'i', 7, '3', '.', '7', 'E', '-', '1', '0')
+
+    UbJson.render(JsonDecimal(BigDecimal(Double.MaxValue))) shouldEqual
+      ArraySeq[Byte]('H', 'i', 23, '1', '.', '7', '9', '7', '6', '9', '3', '1',
+        '3', '4', '8', '6', '2', '3', '1', '5', '7', 'E', '+', '3', '0', '8')
   }
 
   val stringBin            = ArraySeq[Byte]('S', 'i', 3) :++ "foo".getBytes

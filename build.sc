@@ -48,7 +48,7 @@ class Ninny(val crossScalaVersion: String)
 
   def ivyDeps =
     Agg(
-      ivy"org.typelevel::jawn-parser:1.0.0",
+      ivy"org.typelevel::jawn-parser:1.3.0",
       ivy"com.chuusai::shapeless:2.3.3",
       ivy"org.scala-lang.modules::scala-collection-compat:2.4.1",
       ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
@@ -118,7 +118,9 @@ object ubjson extends ScalaModule with PublishMod {
 }
 
 object `script-kit` extends mill.Cross[ScriptKit](`2.12`, `2.13`)
-class ScriptKit(val crossScalaVersion: String) extends CrossScalaModule with PublishMod {
+class ScriptKit(val crossScalaVersion: String)
+    extends CrossScalaModule
+    with PublishMod {
 
   def artifactName = "ninny-script-kit"
 
@@ -126,6 +128,6 @@ class ScriptKit(val crossScalaVersion: String) extends CrossScalaModule with Pub
 
   object test extends Tests {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
-    def ivyDeps = Agg(ivy"org.scalatest::scalatest:3.2.0")
+    def ivyDeps        = Agg(ivy"org.scalatest::scalatest:3.2.0")
   }
 }

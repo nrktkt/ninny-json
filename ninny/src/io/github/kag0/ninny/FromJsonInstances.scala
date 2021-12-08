@@ -20,7 +20,13 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
 
   implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
     case JsonBoolean(value) => Success(value)
-    case json               => Failure(new JsonException(s"Expected boolean, got $json"))
+    case JsonString(value) =>
+      try { Success(value.toBoolean) }
+      catch {
+        case e: IllegalArgumentException =>
+          Failure(new JsonException(e.getMessage, e))
+      }
+    case json => Failure(new JsonException(s"Expected boolean, got $json"))
   }
 
   implicit val nullFromJson: FromJson[Null] = FromJson.fromSome {
@@ -30,6 +36,7 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
 
   implicit val doubleFromJson: FromJson[Double] = FromJson.fromSome {
     case JsonNumber(value) => Success(value)
+    case JsonString(value) => Json.parse(value).flatMap(_.to[Double])
     case json              => Failure(new JsonException(s"Expected number, got $json"))
   }
 
