@@ -11,6 +11,7 @@ import java.math.BigInteger
 import com.typesafe.scalalogging.LazyLogging
 import java.util.Base64
 import scala.collection.compat.immutable.ArraySeq
+import scala.util.control.NonFatal
 
 trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
@@ -21,8 +22,7 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
     case JsonBoolean(value) => Success(value)
     case JsonString(value) =>
-      try { Success(value.toBoolean) }
-      catch {
+      Try(value.toBoolean).recoverWith {
         case e: IllegalArgumentException =>
           Failure(new JsonException(e.getMessage, e))
       }
@@ -36,8 +36,20 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
 
   implicit val doubleFromJson: FromJson[Double] = FromJson.fromSome {
     case JsonNumber(value) => Success(value)
-    case JsonString(value) => Json.parse(value).flatMap(_.to[Double])
-    case json              => Failure(new JsonException(s"Expected number, got $json"))
+    case JsonString(value) =>
+      Json
+        .parse(value, highPrecision = false)
+        .recoverWith {
+          case NonFatal(e) =>
+            Failure(
+              new JsonException(
+                s"Failed to to parse a JSON string ($value) as a number: ${e.getMessage}",
+                e
+              )
+            )
+        }
+        .flatMap(_.to[Double])
+    case json => Failure(new JsonException(s"Expected number, got $json"))
   }
 
   implicit val sBigDecimalFromJson: FromJson[BigDecimal] = FromJson.fromSome {
