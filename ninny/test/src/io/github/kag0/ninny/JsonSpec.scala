@@ -402,8 +402,8 @@ class JsonSpec
     Json.render(true.toSomeJson) shouldEqual "true"
     Json.render(JsonNull) shouldEqual "null"
     Json.render(
-      JsonString("""¯\_(ツ)_/¯""")
-    ) shouldEqual "\"\\u00af\\\\_(\\u30c4)_\\/\\u00af\""
+      JsonString("""¯\_("ツ)_/¯""")
+    ) shouldEqual """"¯\\_(\"ツ)_/¯""""
 
     // misc
 

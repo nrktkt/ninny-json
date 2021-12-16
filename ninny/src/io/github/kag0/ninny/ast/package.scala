@@ -1,10 +1,8 @@
 package io.github.kag0.ninny
 
-import java.lang.Character.UnicodeBlock
 import scala.language.dynamics
 import scala.collection.immutable._
 import scala.collection.compat._
-import java.util.Base64
 import scala.collection.compat.immutable.ArraySeq
 
 package object ast {
@@ -28,25 +26,7 @@ package object ast {
 
     def to[A: FromJson] = FromJson[A].from(this)
 
-    override def toString =
-      this match {
-        case JsonNull           => "null"
-        case JsonBoolean(value) => value.toString
-        case JsonDouble(value)  => value.toString.stripSuffix(".0")
-        case JsonDecimal(preciseValue) =>
-          preciseValue.toString.stripSuffix(".0")
-        case s: JsonString     => s.toString
-        case JsonArray(values) => values.mkString("[", ",", "]")
-
-        case JsonBlob(value) =>
-          val array = value.unsafeArray.asInstanceOf[Array[Byte]]
-          s""""${Base64.getUrlEncoder.withoutPadding.encodeToString(array)}""""
-
-        case JsonObject(values) =>
-          values
-            .map { case (k, v) => s"${JsonString.escape(k)}:$v" }
-            .mkString("{", ",", "}")
-      }
+    override def toString = Json.render(this)
 
     def withUpdated = Update(this, Vector())
   }
@@ -124,7 +104,6 @@ package object ast {
             case other          => preciseValue == other
           }
       }
-
   }
 
   object JsonNumber {
@@ -154,24 +133,5 @@ package object ast {
 
   case object JsonNull extends JsonValue
 
-  case class JsonString(value: String) extends AnyVal with JsonValue {
-    override def toString = JsonString.escape(value)
-  }
-
-  object JsonString {
-    def escape(s: String): String =
-      s"${'"'}${s.map {
-        case '"'  => "\\\""
-        case '\\' => """\\"""
-        case '/'  => """\/"""
-        case '\b' => """\b"""
-        case '\f' => """\f"""
-        case '\n' => """\n"""
-        case '\r' => """\r"""
-        case '\t' => """\t"""
-        case c if UnicodeBlock.of(c) != UnicodeBlock.BASIC_LATIN =>
-          String.format("\\u%04x", Int.box(c))
-        case c => c
-      }.mkString}${'"'}"
-  }
+  case class JsonString(value: String) extends AnyVal with JsonValue
 }

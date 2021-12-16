@@ -49,6 +49,7 @@ class Ninny(val crossScalaVersion: String)
   def ivyDeps =
     Agg(
       ivy"org.typelevel::jawn-parser:1.3.0",
+      ivy"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
       ivy"com.chuusai::shapeless:2.3.3",
       ivy"org.scala-lang.modules::scala-collection-compat:2.4.1",
       ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
