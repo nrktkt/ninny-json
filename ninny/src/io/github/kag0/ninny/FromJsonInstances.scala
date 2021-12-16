@@ -15,14 +15,14 @@ import scala.util.control.NonFatal
 
 trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
-    case JsonString(value) => Success(value)
-    case json              => Failure(new JsonException(s"Expected string, got $json"))
+    case string: JsonString => Success(string.value)
+    case json               => Failure(new JsonException(s"Expected string, got $json"))
   }
 
   implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
-    case JsonBoolean(value) => Success(value)
-    case JsonString(value) =>
-      Try(value.toBoolean).recoverWith {
+    case boolean: JsonBoolean => Success(boolean.value)
+    case string: JsonString =>
+      Try(string.value.toBoolean).recoverWith {
         case e: IllegalArgumentException =>
           Failure(new JsonException(e.getMessage, e))
       }
@@ -35,15 +35,15 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   }
 
   implicit val doubleFromJson: FromJson[Double] = FromJson.fromSome {
-    case JsonNumber(value) => Success(value)
-    case JsonString(value) =>
+    case number: JsonNumber => Success(number.value)
+    case string: JsonString =>
       Json
-        .parse(value, highPrecision = false)
+        .parse(string.value, highPrecision = false)
         .recoverWith {
           case NonFatal(e) =>
             Failure(
               new JsonException(
-                s"Failed to to parse a JSON string ($value) as a number: ${e.getMessage}",
+                s"Failed to to parse a JSON string (${string.value}) as a number: ${e.getMessage}",
                 e
               )
             )
@@ -53,13 +53,13 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   }
 
   implicit val sBigDecimalFromJson: FromJson[BigDecimal] = FromJson.fromSome {
-    case JsonDecimal(value) => Success(value)
-    case JsonDouble(value) =>
+    case decimal: JsonDecimal => Success(decimal.preciseValue)
+    case double: JsonDouble if java.lang.Double.isFinite(double.value) =>
       logger.warn(
         "Converting JsonDouble to BigDecimal. Precision loss possible. It is recommended to use Json.parse(string, highPrecision = true) or convert to Double instead of BigDecimal"
       )
-      Success(value)
-    case JsonString(value) => Try(BigDecimal(value))
+      Success(double.value)
+    case string: JsonString => Try(BigDecimal(string.value))
     case json =>
       Failure(new JsonException(s"Expected number or string, got $json"))
   }
@@ -76,22 +76,18 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
     )
 
   implicit val jBigIntFromJson: FromJson[BigInteger] = FromJson.fromSome {
-    case n: JsonNumber =>
-      val preciseValue = n match {
-        case JsonDecimal(value) => value
-        case JsonDouble(value) =>
-          logger.warn(
-            "Converting JsonDouble to BigInt(eger). Precision loss possible. It is recommended to use Json.parse(string, highPrecision = true) or convert to Long instead of BigInt(eger)"
-          )
-          BigDecimal(value)
-      }
+    case decimal: JsonDecimal if decimal.preciseValue.isWhole =>
+      Success(decimal.preciseValue.bigDecimal.toBigInteger)
 
-      if (preciseValue.isWhole)
-        Try(preciseValue.bigDecimal.toBigIntegerExact)
-      else
-        wholeNumberException(preciseValue.toString)
+    case string: JsonString => Try(new BigInteger(string.value))
 
-    case JsonString(value) => Try(new BigInteger(value))
+    case double: JsonDouble if double.value.isWhole =>
+      logger.warn(
+        "Converting JsonDouble to BigInt(eger). Precision loss possible. It is recommended to use Json.parse(string, highPrecision = true) or convert to Long instead of BigInt(eger)"
+      )
+      Success(new java.math.BigDecimal(double.value).toBigInteger)
+
+    case n: JsonNumber => wholeNumberException(Json.render(n))
 
     case json =>
       Failure(new JsonException(s"Expected number or string, got $json"))
