@@ -28,6 +28,9 @@ trait ToJsonInstances extends LowPriorityToJsonInstances {
   implicit val arraySeqToJson: ToSomeJsonValue[ArraySeq[Byte], JsonBlob] =
     JsonBlob(_)
 
+  implicit def arrayToJson[A: ToSomeJson]
+      : ToSomeJsonValue[Array[A], JsonArray] = _.toIterable.toSomeJson
+
   implicit def jsonToJson[J <: JsonValue]: ToSomeJson[J] = identity
 
   /**

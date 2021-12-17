@@ -34,7 +34,7 @@ val json = obj(
   "age"  -> None
 )
 
-json.toString 
+Json.render(json) 
 /* {
   "lastName":"Doe",
   "firstName":"John",
