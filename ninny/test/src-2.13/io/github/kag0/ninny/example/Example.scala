@@ -34,8 +34,8 @@ case class Profile(name: String, email: Option[String], bio: Option[String]) {
     )
 }
 object Profile {
-  implicit val toJson   = ToJson.auto[Profile]
-  implicit val fromJson = FromJson.auto[Profile]
+  implicit val toJson: ToSomeJsonObject[Profile] = ToJson.auto[Profile]
+  implicit val fromJson: FromJson[Profile]       = FromJson.auto[Profile]
 }
 
 case class UpdateProfile(
@@ -44,7 +44,7 @@ case class UpdateProfile(
     bio: Patch[String]
 )
 object UpdateProfile {
-  implicit val json = FromJson.auto[UpdateProfile]
+  implicit val json: FromJson[UpdateProfile] = FromJson.auto[UpdateProfile]
 }
 
 object Example extends App {

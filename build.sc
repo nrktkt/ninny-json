@@ -7,8 +7,9 @@ import $ivy.`com.lihaoyi::mill-contrib-bloop:$MILL_VERSION`
 import mill.define.{Segment, Segments}
 import $file.forProductN
 
-val `2.12` = "2.12.12"
-val `2.13` = "2.13.6"
+val `2.12` = "2.12.15"
+val `2.13` = "2.13.7"
+val `3`    = "3.1.0"
 
 val scalaTest = ivy"org.scalatest::scalatest:3.2.9"
 
@@ -30,10 +31,9 @@ trait PublishMod extends PublishModule {
     )
 }
 
-object ninny extends mill.Cross[Ninny](`2.12`, `2.13`)
+object ninny extends mill.Cross[Ninny](`2.12`, `2.13`, `3`)
 class Ninny(val crossScalaVersion: String)
     extends CrossScalaModule
-    with ScoverageModule
     with PublishMod { self =>
 
   def scalacOptions =
@@ -41,19 +41,20 @@ class Ninny(val crossScalaVersion: String)
       "-Xfatal-warnings",
       "-feature",
       "-unchecked",
-      "-deprecation",
-      "-Ywarn-macros:after",
-      "-Ywarn-unused"
-    )
+      "-deprecation"
+    ) ++ (if (crossScalaVersion != `3`)
+            Seq("-Ywarn-macros:after", "-Ywarn-unused")
+          else None)
 
   def ivyDeps =
     Agg(
       ivy"org.typelevel::jawn-parser:1.3.0",
       ivy"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
-      ivy"com.chuusai::shapeless:2.3.3",
-      ivy"org.scala-lang.modules::scala-collection-compat:2.4.1",
+      ivy"org.scala-lang.modules::scala-collection-compat:2.6.0",
       ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
-    )
+    ) ++ (if (crossScalaVersion != `3`)
+            Agg(ivy"com.chuusai::shapeless:2.3.3")
+          else None)
 
   override def generatedSources =
     T {
@@ -77,14 +78,13 @@ class Ninny(val crossScalaVersion: String)
       )
     }
 
-  object test extends ScoverageTests {
-    def scalacOptions  = self.scalacOptions().filterNot(_ == "-Xfatal-warnings")
-    def testFrameworks = Seq("org.scalatest.tools.Framework")
+  object test extends Tests with TestModule.ScalaTest {
+    def scalacOptions =
+      T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native:3.6.9",
-        scalaTest,
-        ivy"org.slf4j:slf4j-simple:1.7.32"
+        ivy"org.json4s::json4s-native-core:4.0.1",
+        ivy"org.scalatest::scalatest:3.2.9"
       )
   }
 
@@ -112,7 +112,7 @@ object ubjson extends ScalaModule with PublishMod {
   def artifactName = "ninny-ubjson"
   def moduleDeps   = List(ninny(`2.13`))
 
-  object test extends Tests {
+  object test extends Tests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
@@ -127,7 +127,7 @@ class ScriptKit(val crossScalaVersion: String)
 
   def moduleDeps = List(ninny(crossScalaVersion))
 
-  object test extends Tests {
+  object test extends Tests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(ivy"org.scalatest::scalatest:3.2.0")
   }

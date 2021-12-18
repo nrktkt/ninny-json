@@ -3,8 +3,6 @@ package io.github.kag0.ninny
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 import java.util.UUID
 import io.github.kag0.ninny.ast._
-import shapeless.labelled.{FieldType, field}
-import shapeless.{HList, HNil, LabelledGeneric, Lazy, Witness}
 import scala.collection.compat._
 import scala.util.{Failure, Success, Try}
 import java.math.BigInteger
@@ -13,7 +11,10 @@ import java.util.Base64
 import scala.collection.compat.immutable.ArraySeq
 import scala.util.control.NonFatal
 
-trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
+trait FromJsonInstances
+    extends VersionSpecificFromJsonInstances
+    with LowPriorityFromJsonInstances
+    with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
     case string: JsonString => Success(string.value)
     case json               => Failure(new JsonException(s"Expected string, got $json"))
@@ -172,33 +173,13 @@ trait FromJsonInstances extends LowPriorityFromJsonInstances with LazyLogging {
   implicit val uuidFromJson: FromJson[UUID] = FromJson.fromSome(
     _.to[String].flatMap(s => Try(UUID.fromString(s)))
   )
-
-  implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
-
-  import shapeless.::
-
-  implicit def recordFromJson[Key <: Symbol, Head, Tail <: HList](implicit
-      witness: Witness.Aux[Key],
-      headFromJson: Lazy[FromJson[Head]],
-      tailFromJson: FromJson[Tail]
-  ): FromJson[FieldType[Key, Head] :: Tail] = {
-    val key  = witness.value
-    val name = key.name
-
-    FromJson.fromSome[FieldType[Key, Head] :: Tail] { json =>
-      val maybeHeadJson = json / name
-      for {
-        head <- headFromJson.value.from(maybeHeadJson)
-        tail <- tailFromJson.from(json)
-      } yield field[Key](head) :: tail
-    }
-  }
 }
 object FromJsonInstances extends FromJsonInstances
 
 trait LowPriorityFromJsonInstances {
   // this roundabout way to import compiler flag for higher kinded types avoids a deprecation warning when building for 2.13
-  protected implicit lazy val hkhack = scala.languageFeature.higherKinds
+  protected implicit lazy val hkhack: languageFeature.higherKinds.type =
+    scala.languageFeature.higherKinds
 
   implicit def collectionFromJson[F[_], A](implicit
       factory: Factory[A, F[A]],
@@ -222,10 +203,4 @@ trait LowPriorityFromJsonInstances {
 }
 
 class FromJsonAuto[A](val fromJson: FromJson[A]) extends AnyVal
-object FromJsonAuto {
-
-  implicit def labelledGenericFromJson[A, Head](implicit
-      generic: LabelledGeneric.Aux[A, Head],
-      headFromJson: Lazy[FromJson[Head]]
-  ) = new FromJsonAuto[A](headFromJson.value.from(_).map(generic.from))
-}
+object FromJsonAuto                              extends FromJsonAutoImpl
