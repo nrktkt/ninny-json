@@ -9,18 +9,18 @@ import scala.collection.compat.immutable.ArraySeq
 import scala.util.Try
 
 object Json {
-  def parse(s: String, highPrecision: Boolean = false): Try[JsonValue] = {
-    implicit def facade = if (highPrecision) DecimalFacade else DoubleFacade
-    Parser.parseFromString(s)
-  }
+  def parse(s: String, highPrecision: Boolean = false): Try[JsonValue] =
+    Parser.parseFromString(s)(
+      if (highPrecision) DecimalFacade else DoubleFacade
+    )
 
   def parseArray(
       s: ArraySeq[Byte],
       highPrecision: Boolean = false
-  ): Try[JsonValue] = {
-    implicit def facade = if (highPrecision) DecimalFacade else DoubleFacade
-    Parser.parseFromByteArray(s.unsafeArray.asInstanceOf[Array[Byte]])
-  }
+  ): Try[JsonValue] =
+    Parser.parseFromByteArray(s.unsafeArray.asInstanceOf[Array[Byte]])(
+      if (highPrecision) DecimalFacade else DoubleFacade
+    )
 
   def render(json: JsonValue): String =
     jsoniter_scala.core.writeToString(json)(NinnyJsonValueCodec)

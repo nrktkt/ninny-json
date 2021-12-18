@@ -33,7 +33,7 @@ object Address {
 
 object Person {
   // use FromJson.fromSome for convenience to skip handling absent fields
-  implicit val fromJson = 
+  implicit val fromJson: FromJson[Person] = 
     FromJson.fromSome[Person](json =>
       for {
         first   <- json.firstName.to[String]

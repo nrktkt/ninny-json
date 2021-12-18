@@ -69,9 +69,10 @@ class JsonSpec
 
   object SampleValues {
 
-    implicit val toSomeJson = ToJson.auto[SampleValues]
+    implicit val toSomeJson: ToSomeJsonObject[SampleValues] =
+      ToJson.auto[SampleValues]
 
-    implicit val fromJson = FromJson.fromSome(json =>
+    implicit val fromJson: FromJson[SampleValues] = FromJson.fromSome(json =>
       for {
         string <- json.string.to[String]
         number <- json.number.to[Double]
@@ -256,7 +257,7 @@ class JsonSpec
     val zip, house = Value
   }
 
-  implicit val precisionFromJson =
+  implicit val precisionFromJson: FromJson[Precision.Value] =
     FromJson.fromSome(_.to[String].flatMap(p => Try(Precision.withName(p))))
   implicit val precisionToJson: ToSomeJson[Precision.Value] = a =>
     JsonString(a.toString)
@@ -273,7 +274,7 @@ class JsonSpec
   )
 
   object Address {
-    implicit val fromJson = FromJson.auto[Address]
+    implicit val fromJson: FromJson[Address] = FromJson.auto[Address]
 
     implicit val toJson: ToSomeJson[Address] = a =>
       obj(
