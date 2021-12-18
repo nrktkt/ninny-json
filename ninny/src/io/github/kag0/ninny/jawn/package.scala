@@ -4,7 +4,7 @@ import io.github.kag0.ninny.ast._
 import org.typelevel.jawn.Facade.NoIndexFacade
 import org.typelevel.jawn.FContext
 import scala.collection.mutable
-import scala.collection.immutable.TreeMap
+import scala.jdk.CollectionConverters._
 
 package object jawn {
   sealed trait Facade extends NoIndexFacade[JsonValue] {
@@ -34,22 +34,22 @@ package object jawn {
     def objectContext() =
       new FContext.NoIndexFContext[JsonValue] {
         private[this] var key: String = null
-        private[this] var map         = TreeMap.empty[String, JsonValue]
+        private[this] val map         = new java.util.HashMap[String, JsonValue]
 
         def add(s: CharSequence) =
           if (key == null) {
             key = s.toString
           } else {
-            map = map.updated(key, jstring(s))
+            map.put(key, jstring(s))
             key = null
           }
 
         def add(v: JsonValue) = {
-          map += (key -> v)
+          map.put(key, v)
           key = null
         }
 
-        def finish() = JsonObject(map)
+        def finish() = JsonObject(new RoMap(map.asScala))
         val isObj    = true
       }
 
