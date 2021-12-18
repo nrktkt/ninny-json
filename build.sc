@@ -11,7 +11,7 @@ val `2.12` = "2.12.15"
 val `2.13` = "2.13.7"
 val `3`    = "3.1.0"
 
-val scalaTest = ivy"org.scalatest::scalatest:3.2.9"
+val scalaTest = ivy"org.scalatest::scalatest:3.2.10"
 
 trait PublishMod extends PublishModule {
   def artifactName =
@@ -53,7 +53,7 @@ class Ninny(val crossScalaVersion: String)
       ivy"org.scala-lang.modules::scala-collection-compat:2.6.0",
       ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
     ) ++ (if (crossScalaVersion != `3`)
-            Agg(ivy"com.chuusai::shapeless:2.3.3")
+            Agg(ivy"com.chuusai::shapeless:2.3.7")
           else None)
 
   override def generatedSources =
@@ -83,8 +83,8 @@ class Ninny(val crossScalaVersion: String)
       T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native-core:4.0.1",
-        ivy"org.scalatest::scalatest:3.2.9"
+        ivy"org.json4s::json4s-native-core:4.0.3",
+        scalaTest
       )
   }
 
@@ -99,7 +99,7 @@ class PlayCompat(val crossScalaVersion: String)
   def artifactName = "ninny-play-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(ivy"com.typesafe.play::play-json:2.9.1")
+  def ivyDeps    = Agg(ivy"com.typesafe.play::play-json:2.9.2")
 
   object test extends Tests {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
@@ -129,6 +129,6 @@ class ScriptKit(val crossScalaVersion: String)
 
   object test extends Tests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
-    def ivyDeps        = Agg(ivy"org.scalatest::scalatest:3.2.0")
+    def ivyDeps        = Agg(scalaTest)
   }
 }
