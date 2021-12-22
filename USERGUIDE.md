@@ -21,7 +21,7 @@
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/Reading.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Reading.scala'
     lines='8:63'
 ></sauce-code>
 
@@ -29,7 +29,7 @@
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Writing.scala'
     lines='9:23'
 ></sauce-code>
 
@@ -38,7 +38,7 @@
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Writing.scala'
     lines='25:47'
 ></sauce-code>
 
@@ -48,7 +48,7 @@
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/Writing.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Writing.scala'
     lines='52:74'
 ></sauce-code>
 
@@ -60,7 +60,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/Updating.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Updating.scala'
     lines='5:18'
 ></sauce-code>
 
@@ -69,7 +69,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/DomainTo.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/DomainTo.scala'
     lines='7:51'
 ></sauce-code>
 
@@ -78,7 +78,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/DomainFrom.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/DomainFrom.scala'
     lines='22:49'
 ></sauce-code>
 
@@ -90,7 +90,7 @@ automatically using
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/SemiAuto.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/SemiAuto.scala'
     lines='10:16'
 ></sauce-code>
 
@@ -102,7 +102,7 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/FullAuto.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/FullAuto.scala'
     lines='8:18'
 ></sauce-code>
 
@@ -113,6 +113,6 @@ Often you want to have different names in a case class than what's in the JSON, 
 <sauce-code 
     repo='kag0/ninny-json'
     lang='scala'
-    file='ninny/test/src/io/github/kag0/ninny/userguide/ForProductN.scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/ForProductN.scala'
     lines='8:24'
 ></sauce-code>
