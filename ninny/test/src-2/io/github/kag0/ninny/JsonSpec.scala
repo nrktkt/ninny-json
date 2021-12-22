@@ -16,6 +16,7 @@ import scala.collection.compat.immutable.ArraySeq
 import java.util.Base64
 import io.github.kag0.ninny.magnetic.JsonMagnet
 import io.github.kag0.ninny.magnetic.SomeJsonMagnet
+import scala.annotation.Annotation
 
 class JsonSpec
     extends AnyFlatSpec
@@ -337,10 +338,10 @@ class JsonSpec
   "The giant test case" should "pass" in {
     // from json
 
-    //// obj
+    // // obj
 
     val hopefullyExampleObjectAstParsed = Json.parse(exampleObjectString)
-    val exampleObjectAstParsed          = hopefullyExampleObjectAstParsed.success.value
+    val exampleObjectAstParsed = hopefullyExampleObjectAstParsed.success.value
 
     exampleObjectAstParsed shouldEqual exampleObjectAst
 
@@ -349,14 +350,14 @@ class JsonSpec
 
     exampleObjectFromJson.success.value shouldEqual exampleObject
 
-    //// arr
+    // // arr
 
     val array = Array(1, 2, 3, 4)
     array.toSomeJson shouldEqual arr(1, 2, 3, 4)
     Json.parse("[1, 2, 3, 4]").to[Array[Int]].success.value shouldEqual array
 
     val hopefullyExampleArrayAstParsed = Json.parse(exampleArrayString)
-    val exampleArrayAstParsed          = hopefullyExampleArrayAstParsed.success.value
+    val exampleArrayAstParsed = hopefullyExampleArrayAstParsed.success.value
 
     exampleArrayAstParsed shouldEqual exampleArrayAst
 
@@ -364,7 +365,7 @@ class JsonSpec
 
     exampleArrayFromJson.success.value shouldEqual exampleArray
 
-    //// values
+    // // values
 
     Json.parse(""""Hello world!"""").to[String] shouldEqual Success(
       "Hello world!"
@@ -375,7 +376,7 @@ class JsonSpec
 
     // to json
 
-    //// obj
+    // // obj
 
     val exampleObjectAstGenerated = Map("Image" -> exampleObject).toSomeJson
     exampleObjectAstGenerated shouldEqual exampleObjectAst
@@ -387,7 +388,7 @@ class JsonSpec
       .success
       .value shouldEqual exampleObjectAst
 
-    //// arr
+    // // arr
 
     val exampleArrayAstGenerated = exampleArray.toSomeJson
     exampleArrayAstGenerated shouldEqual exampleArrayAst
@@ -399,7 +400,7 @@ class JsonSpec
       .success
       .value shouldEqual exampleArrayAst
 
-    //// values
+    // // values
 
     Json.render("Hello world!".toSomeJson) shouldEqual """"Hello world!""""
     Json.render(42.toSomeJson) shouldEqual "42"
@@ -686,5 +687,45 @@ class JsonSpec
     maybeJson.value shouldEqual JsonString("foo")
     json shouldEqual mag
     maybeJson shouldEqual maybeMag
+  }
+  Annotation
+
+  "larger than 22 field classes" should "work" in {
+    case class Big(
+        a: Int,
+        b: Int,
+        c: Int,
+        d: Int,
+        e: Int,
+        f: Int,
+        g: Int,
+        h: Int,
+        i: Int,
+        j: Int,
+        k: Int,
+        l: Int,
+        m: Int,
+        n: Int,
+        o: Int,
+        p: Int,
+        q: Int,
+        r: Int,
+        s: Int,
+        t: Int,
+        u: Int,
+        v: Int,
+        w: Int,
+        x: Int,
+        y: Int,
+        z: Int
+    )
+    implicit val json = ToAndFromJson.auto[Big]
+    val big = Big(1, 2, 2, 1234, 1234, 124, 1234, 1234, 1234, 1234, 123, 2134,
+      1324, 1234, 1234, 1, 234, 1234, 14, 23, 132, 13, 431, 31, 3412, 1432)
+    Json
+      .parse(Json.render(big.toSomeJson))
+      .to[Big]
+      .success
+      .value shouldEqual big
   }
 }
