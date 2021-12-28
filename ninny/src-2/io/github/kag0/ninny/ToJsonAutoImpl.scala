@@ -3,6 +3,7 @@ package io.github.kag0.ninny
 import shapeless._
 import shapeless.ops.hlist._
 import shapeless.ops.record._
+import io.github.kag0.ninny.Auto.ZipNewNames
 
 trait ToJsonAutoImpl {
   implicit def labelledGenericToJson[
@@ -25,21 +26,14 @@ trait ToJsonAutoImpl {
       ],
       zipWithNames: Zip.Aux[ReplacedNames :: Values :: HNil, UpdatedRecord],
       toJson: Lazy[ToSomeJsonObject[UpdatedRecord]]
-  ): ToJsonAuto[A] =
+  ): ToJsonAuto[A] = {
+    val replacedNames = replaceNames(fields.keys, annotations())
     new ToJsonAuto[A](a => {
-      val record        = generic.to(a)
-      val replacedNames = replaceNames(fields.keys, annotations())
+      val record = generic.to(a)
       val updatedRecord = zipWithNames(
         replacedNames :: fields.values(record) :: HNil
       )
       toJson.value.toSome(updatedRecord)
     })
-}
-
-object ZipNewNames extends Poly2 {
-  implicit def newName[K <: Symbol]: Case.Aux[K, Some[JsonName], String] =
-    at((_, name) => name.value.name)
-
-  implicit def existingName[K <: Symbol]: Case.Aux[K, None.type, String] =
-    at((field, _) => field.name)
+  }
 }

@@ -4,6 +4,7 @@ import shapeless._
 import shapeless.ops.hlist._
 import shapeless.ops.record._
 import scala.annotation.nowarn
+import io.github.kag0.ninny.Auto.ZipNewNames
 
 trait FromJsonAutoImpl {
 
@@ -16,7 +17,7 @@ trait FromJsonAutoImpl {
       ReplacedNames <: HList,
       Size <: Nat
   ](implicit
-      @nowarn labelledGeneric: LabelledGeneric.Aux[A, Record],
+      @nowarn lgEv: LabelledGeneric.Aux[A, Record],
       fields: UnzipFields.Aux[Record, Keys, Values],
       generic: Generic.Aux[A, Values],
       annotations: Annotations.Aux[JsonName, A, Annotations],
@@ -27,11 +28,10 @@ trait FromJsonAutoImpl {
         ReplacedNames
       ],
       sizeNames: ToSized.Aux[ReplacedNames, List, String, Size],
-      fromJson: Lazy[Sized[List[String], Size] => FromJson[Values]]
-  ) = new FromJsonAuto[A](json =>
-    fromJson
-      .value(sizeNames(replaceNames(fields.keys, annotations())))
-      .from(json)
-      .map(generic.from)
-  )
+      fromJsonForNames: Lazy[Sized[List[String], Size] => FromJson[Values]]
+  ) = {
+    val names    = sizeNames(replaceNames(fields.keys, annotations()))
+    val fromJson = fromJsonForNames.value(names).map(generic.from)
+    new FromJsonAuto[A](fromJson)
+  }
 }

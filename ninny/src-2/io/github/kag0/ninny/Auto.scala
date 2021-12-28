@@ -3,6 +3,7 @@ package io.github.kag0.ninny
 import shapeless._
 import shapeless.ops.record._
 import shapeless.ops.hlist._
+import io.github.kag0.ninny.Auto.ZipNewNames
 
 trait AutoToJson {
   implicit def lgToJson[
@@ -53,4 +54,12 @@ trait AutoFromJson {
   ): FromJson[A] = FromJsonAuto.labelledGenericFromJson.fromJson
 }
 
-object Auto extends AutoToJson with AutoFromJson
+object Auto extends AutoToJson with AutoFromJson {
+  object ZipNewNames extends Poly2 {
+    implicit def newName[K <: Symbol]: Case.Aux[K, Some[JsonName], String] =
+      at((_, name) => name.value.name)
+
+    implicit def existingName[K <: Symbol]: Case.Aux[K, None.type, String] =
+      at((field, _) => field.name)
+  }
+}
