@@ -32,18 +32,18 @@ package object ninny {
     }
   }
 
-  //@deprecated(
+  // @deprecated(
   //  message =
   //    "Use io.github.kag0.ninny.magnetic.obj instead, this may be replaced with a magnet-free signature in the future",
   //  since = ""
-  //)
+  // )
   def obj(nameValues: (String, JsonMagnet)*): JsonObject =
     magnetic.obj(nameValues: _*)
 
-  //@deprecated(
+  // @deprecated(
   //  message =
   //    "Use io.github.kag0.ninny.magnetic.arr instead, this may be replaced with a magnet-free signature in the future"
-  //)
+  // )
   def arr(values: SomeJsonMagnet*) = magnetic.arr(values: _*)
 
   implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
