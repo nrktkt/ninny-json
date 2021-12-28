@@ -91,7 +91,7 @@ automatically using
     repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src-2/io/github/kag0/ninny/userguide/SemiAuto.scala'
-    lines='10:16'
+    lines='11:16'
 ></sauce-code>
 
 ## Full-auto derivation for `ToJson` and `FromJson`
@@ -103,10 +103,21 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
     repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src-2/io/github/kag0/ninny/userguide/FullAuto.scala'
-    lines='8:18'
+    lines='9:18'
 ></sauce-code>
 
-## `forProductN` derivation for `toJson` and `FromJson`
+## Modifying field names with annotations
+
+You can change the name of a field being read to/from JSON using the `@JsonName` annotation.
+
+<sauce-code 
+    repo='kag0/ninny-json'
+    lang='scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Annotations.scala'
+    lines='10:19'
+></sauce-code>
+
+## `forProductN` derivation for `ToJson` and `FromJson`
 
 Often you want to have different names in a case class than what's in the JSON, but you don't need to change the types at all. `forProductN` methods are perfect for this, just specify what the JSON field name should be and provide the case class `apply`/`unapply` method to generate a `ToJson`, `FromJson`, or both together.
 

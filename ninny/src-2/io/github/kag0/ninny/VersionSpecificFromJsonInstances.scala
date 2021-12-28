@@ -1,28 +1,34 @@
 package io.github.kag0.ninny
 
-import shapeless.::
-import shapeless.labelled.{FieldType, field}
-import shapeless.{HList, HNil, Lazy, Witness}
 import scala.util.Success
+import scala.annotation.nowarn
+
+import shapeless.::
+import shapeless.{HList, HNil, Lazy, Nat, Sized, Succ}
+import shapeless.Nat._0
+import shapeless.ops.hlist._
 
 trait VersionSpecificFromJsonInstances {
 
-  implicit def recordFromJson[Key <: Symbol, Head, Tail <: HList](implicit
-      witness: Witness.Aux[Key],
+  /** provides a FromJson for a HList provided a list of field names of the same
+    * length
+    */
+  implicit def recordFromJson[
+      Head,
+      Tail <: HList,
+      TailLen <: Nat
+  ](implicit
       headFromJson: Lazy[FromJson[Head]],
-      tailFromJson: FromJson[Tail]
-  ): FromJson[FieldType[Key, Head] :: Tail] = {
-    val key  = witness.value
-    val name = key.name
-
-    FromJson.fromSome[FieldType[Key, Head] :: Tail] { json =>
-      val maybeHeadJson = json / name
+      @nowarn tailLenEv: Length.Aux[Tail, TailLen],
+      tailFromJson: Sized[List[String], TailLen] => FromJson[Tail]
+  ): Sized[List[String], Succ[TailLen]] => FromJson[Head :: Tail] = names =>
+    FromJson.fromSome { json =>
       for {
-        head <- headFromJson.value.from(maybeHeadJson)
-        tail <- tailFromJson.from(json)
-      } yield field[Key](head) :: tail
+        head <- headFromJson.value.from(json / names.head)
+        tail <- tailFromJson(names.tail).from(json)
+      } yield head :: tail
     }
-  }
 
-  implicit val hNilFromJson: FromJson[HNil] = _ => Success(HNil)
+  implicit val hNilFromJson: Sized[List[String], _0] => FromJson[HNil] = _ =>
+    _ => Success(HNil)
 }

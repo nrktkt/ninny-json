@@ -16,7 +16,7 @@ import scala.collection.compat.immutable.ArraySeq
 import java.util.Base64
 import io.github.kag0.ninny.magnetic.JsonMagnet
 import io.github.kag0.ninny.magnetic.SomeJsonMagnet
-import scala.annotation.Annotation
+import io.github.kag0.ninny.ToAndFromJson
 
 class JsonSpec
     extends AnyFlatSpec
@@ -688,7 +688,6 @@ class JsonSpec
     json shouldEqual mag
     maybeJson shouldEqual maybeMag
   }
-  Annotation
 
   "larger than 22 field classes" should "work" in {
     case class Big(
@@ -727,5 +726,16 @@ class JsonSpec
       .to[Big]
       .success
       .value shouldEqual big
+  }
+
+  "annotations" should "work" in {
+    case class Example(@JsonName("baz") foo: String, bop: Int)
+    implicit val toFromJson = ToAndFromJson.auto[Example]
+
+    val example = Example("bar", 1)
+    val js      = example.toSomeJson
+    val fromJs  = js.to[Example].success.value
+    js shouldEqual obj("baz" -> "bar", "bop" -> 1)
+    fromJs shouldEqual example
   }
 }
