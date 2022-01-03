@@ -82,7 +82,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
     lines='22:49'
 ></sauce-code>
 
-## Semi-auto derivation for `ToJson` and `FromJson`
+# [Automatic derivation for `ToJson` and `FromJson`](AUTOCONFIG.md)
 
 Rather than implementing `ToJson` and `FromJson` by hand, you can generate them 
 automatically using
@@ -94,28 +94,7 @@ automatically using
     lines='11:16'
 ></sauce-code>
 
-## Full-auto derivation for `ToJson` and `FromJson`
-
-If you like you can even skip the declaration by mixing in `AutoToJson` or 
-`AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
-
-<sauce-code 
-    repo='kag0/ninny-json'
-    lang='scala'
-    file='ninny/test/src-2/io/github/kag0/ninny/userguide/FullAuto.scala'
-    lines='9:18'
-></sauce-code>
-
-## Modifying field names with annotations
-
-You can change the name of a field being read to/from JSON using the `@JsonName` annotation.
-
-<sauce-code 
-    repo='kag0/ninny-json'
-    lang='scala'
-    file='ninny/test/src-2/io/github/kag0/ninny/userguide/Annotations.scala'
-    lines='10:19'
-></sauce-code>
+See more on configuring automatic derivation [here](AUTOCONFIG.md).
 
 ## `forProductN` derivation for `ToJson` and `FromJson`
 
