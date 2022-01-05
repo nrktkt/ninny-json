@@ -765,4 +765,30 @@ class JsonSpec
         .value shouldEqual Example(1, "baz")
     }
   }
+
+  "this shit" should "work" in {
+    type TreatAsString[A] = A with TreatAsString.T
+    object TreatAsString {
+      type T
+      def apply[A](a: A): TreatAsString[A] = a.asInstanceOf[TreatAsString[A]]
+      implicit def toJson[A: ToJson]: ToJson[TreatAsString[A]] =
+        (_: A).toJson.map(Json.render).map(JsonString)
+      implicit def fromJson[A: FromJson]: FromJson[TreatAsString[A]] = {
+        case Some(JsonString(value)) =>
+          Json.parse(value, highPrecision = true).to[A].map(TreatAsString(_))
+        case other => other.to[A].map(TreatAsString(_))
+      }
+    }
+
+    case class Example(
+        qix: TreatAsString[Int],
+        foo: String = "bar"
+    )
+
+    implicit val toJson =
+      implicitly[ToJson[TreatAsString[Int]]] // doesn't work without this line
+
+    val v: ToJsonAuto[Example] = ToJsonAuto.labelledGenericToJson
+    val vv                     = ToJson.auto[Example]
+  }
 }
