@@ -17,7 +17,7 @@ trait FromJsonInstances
     with LazyLogging {
   implicit val stringFromJson: FromJson[String] = FromJson.fromSome {
     case string: JsonString => Success(string.value)
-    case json               => Failure(new JsonException(s"Expected string, got $json"))
+    case json => Failure(new JsonException(s"Expected string, got $json"))
   }
 
   implicit val booleanFromJson: FromJson[Boolean] = FromJson.fromSome {
@@ -40,18 +40,36 @@ trait FromJsonInstances
     case string: JsonString =>
       Json
         .parse(string.value, highPrecision = false)
-        .recoverWith {
-          case NonFatal(e) =>
-            Failure(
-              new JsonException(
-                s"Failed to to parse a JSON string (${string.value}) as a number: ${e.getMessage}",
-                e
-              )
+        .recoverWith { case NonFatal(e) =>
+          Failure(
+            new JsonException(
+              s"Failed to to parse a JSON string (${string.value}) as a number: ${e.getMessage}",
+              e
             )
+          )
         }
         .flatMap(_.to[Double])
     case json => Failure(new JsonException(s"Expected number, got $json"))
   }
+
+  implicit val floatFromJson: FromJson[Float] =
+    FromJson.fromSome(_.to[Double].flatMap {
+      case d if d > Float.MaxValue =>
+        Failure(
+          new JsonException(
+            s"Expected float, got $d (too large)",
+            new ArithmeticException("Overflow")
+          )
+        )
+      case d if d < Float.MinValue =>
+        Failure(
+          new JsonException(
+            s"Expected float, got $d (too small)",
+            new ArithmeticException("Underflow")
+          )
+        )
+      case d => Try(d.toFloat)
+    })
 
   implicit val sBigDecimalFromJson: FromJson[BigDecimal] = FromJson.fromSome {
     case decimal: JsonDecimal => Success(decimal.preciseValue)
@@ -134,6 +152,44 @@ trait FromJsonInstances
           )
         )
       case l => Try(l.toInt)
+    })
+
+  implicit val shortFromJson: FromJson[Short] =
+    FromJson.fromSome(_.to[Int].flatMap {
+      case l if l > Short.MaxValue =>
+        Failure(
+          new JsonException(
+            s"Expected short, got $l (too large)",
+            new ArithmeticException("Overflow")
+          )
+        )
+      case l if l < Short.MinValue =>
+        Failure(
+          new JsonException(
+            s"Expected short, got $l (too small)",
+            new ArithmeticException("Underflow")
+          )
+        )
+      case l => Try(l.toShort)
+    })
+
+  implicit val byteFromJson: FromJson[Byte] =
+    FromJson.fromSome(_.to[Short].flatMap {
+      case l if l > Byte.MaxValue =>
+        Failure(
+          new JsonException(
+            s"Expected byte, got $l (too large)",
+            new ArithmeticException("Overflow")
+          )
+        )
+      case l if l < Byte.MinValue =>
+        Failure(
+          new JsonException(
+            s"Expected byte, got $l (too small)",
+            new ArithmeticException("Underflow")
+          )
+        )
+      case l => Try(l.toByte)
     })
 
   implicit val arraySeqFromJson: FromJson[ArraySeq[Byte]] = FromJson.fromSome {
