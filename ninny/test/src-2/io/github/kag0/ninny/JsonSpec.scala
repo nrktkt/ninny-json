@@ -17,6 +17,7 @@ import java.util.Base64
 import io.github.kag0.ninny.magnetic.JsonMagnet
 import io.github.kag0.ninny.magnetic.SomeJsonMagnet
 import io.github.kag0.ninny.ToAndFromJson
+import scala.util.Failure
 
 class JsonSpec
     extends AnyFlatSpec
@@ -758,5 +759,31 @@ class JsonSpec
     val fromJs  = js.to[Example].success.value
     js shouldEqual obj("baz" -> "bar", "bop" -> 1)
     fromJs shouldEqual example
+  }
+  {
+    case class Example(qix: Int, foo: String = "bar")
+
+    "auto from json" should "read defaults for absent fields" in {
+      implicit val toFromJson = {
+        import FromJsonAuto.useDefaults
+        ToAndFromJson.auto[Example]
+      }
+
+      obj("qix" -> 1).to[Example].success.value shouldEqual Example(1)
+      obj("qix" -> 1, "foo" -> "baz")
+        .to[Example]
+        .success
+        .value shouldEqual Example(1, "baz")
+    }
+
+    it should "ignore defaults if the default import isn't available" in {
+      import Auto._
+
+      obj("qix" -> 1).to[Example] shouldBe a[Failure[_]]
+      obj("qix" -> 1, "foo" -> "baz")
+        .to[Example]
+        .success
+        .value shouldEqual Example(1, "baz")
+    }
   }
 }

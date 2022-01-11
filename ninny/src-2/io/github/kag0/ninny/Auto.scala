@@ -35,12 +35,14 @@ trait AutoFromJson {
       Record <: HList,
       Keys <: HList,
       Values <: HList,
+      Defaults <: HList,
       Annotations <: HList,
       ReplacedNames <: HList,
       Size <: Nat
   ](implicit
       labelledGeneric: LabelledGeneric.Aux[A, Record],
       fields: UnzipFields.Aux[Record, Keys, Values],
+      defaults: Defaults.Aux[A, Defaults],
       generic: Generic.Aux[A, Values],
       annotations: Annotations.Aux[JsonName, A, Annotations],
       replaceNames: ZipWith.Aux[
@@ -50,12 +52,12 @@ trait AutoFromJson {
         ReplacedNames
       ],
       sizeNames: ToSized.Aux[ReplacedNames, List, String, Size],
-      fromJson: Lazy[Sized[List[String], Size] => FromJson[Values]]
+      fromJson: Lazy[(Sized[List[String], Size], Defaults) => FromJson[Values]]
   ): FromJson[A] = FromJsonAuto.labelledGenericFromJson.fromJson
 }
 
 object Auto extends AutoToJson with AutoFromJson {
-  object ZipNewNames extends Poly2 {
+  private[ninny] object ZipNewNames extends Poly2 {
     implicit def newName[K <: Symbol]: Case.Aux[K, Some[JsonName], String] =
       at((_, name) => name.value.name)
 

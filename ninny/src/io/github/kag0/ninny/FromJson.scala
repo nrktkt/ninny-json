@@ -15,7 +15,6 @@ trait FromJson[A] {
   def preprocess(
       f: PartialFunction[Option[JsonValue], JsonValue]
   ): FromJson[A] = json => from(f.lift(json).orElse(json))
-
 }
 
 object FromJson extends FromJsonInstances with ProductFromJson {
@@ -36,8 +35,12 @@ object FromJson extends FromJsonInstances with ProductFromJson {
   ): FromJson[A] =
     read.applyOrElse(
       _,
-      (_: Option[JsonValue]) =>
-        Failure(new JsonException("Provided JSON did not match expectations"))
+      (json: Option[JsonValue]) =>
+        Failure(new JsonException(json match {
+          case Some(value) =>
+            s"Provided JSON ($value) did not match expectations"
+          case None => "Required JSON field was missing"
+        }))
     )
 
   def auto[A: FromJsonAuto] = implicitly[FromJsonAuto[A]].fromJson
