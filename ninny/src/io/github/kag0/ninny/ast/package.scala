@@ -4,6 +4,7 @@ import scala.language.dynamics
 import scala.collection.immutable._
 import scala.collection.compat._
 import scala.collection.compat.immutable.ArraySeq
+import scala.reflect.runtime.universe._
 
 package object ast {
 
@@ -87,7 +88,9 @@ package object ast {
   case class JsonBlob(value: ArraySeq[Byte]) extends AnyVal with JsonValue
 
   sealed trait JsonNumber extends Any with JsonValue {
-    def value: Double
+    // def value: Double
+    // def preciseValue: BigDecimal
+    // def as[N: Numeric]: N
 
     override def equals(obj: Any) =
       this match {
@@ -112,12 +115,44 @@ package object ast {
     def unapply(json: JsonNumber) = Some(json.value)
   }
 
-  case class JsonDouble(value: Double) extends AnyVal with JsonNumber
+  private[ninny] case class JsonNumberString(stringValue: String)
+      extends JsonDecimal
+      with JsonDouble {
+    lazy val value: Double            = stringValue.toDouble
+    lazy val preciseValue: BigDecimal = BigDecimal(stringValue)
+    def as[N: Numeric]                = ???
+    def as[N: Numeric: TypeTag] = if (typeTag[N] == typeTag[Double]) value
+    else if (typeTag[N] == typeTag[BigDecimal]) preciseValue
+    else implicitly[Numeric[N]].parseString(stringValue)
+    /*
+      if (N =:= Double) value
+      else if (N =:= BigDecimal) preciseValue
+      else if (N =:= java.math.BigDecimal) preciseValue.java
+      else implicitly[Numeric[N]].parseString(stringValue)
+     */
 
-  case class JsonDecimal(preciseValue: BigDecimal)
-      extends AnyVal
-      with JsonNumber {
-    def value = preciseValue.doubleValue
+  }
+
+  trait JsonDouble extends Any with JsonNumber {
+    def value: Double
+  }
+  object JsonDouble {
+    def apply(value: Double): JsonDouble = JsonDoubleWrapper(value)
+    def unapply(value: JsonDouble)       = Some(value.value)
+    private case class JsonDoubleWrapper(value: Double)
+        extends AnyVal
+        with JsonDouble
+  }
+
+  trait JsonDecimal extends Any with JsonNumber {
+    def preciseValue: BigDecimal
+  }
+  object JsonDecimal {
+    def apply(value: BigDecimal): JsonDecimal = JsonDecimalWrapper(value)
+    def unapply(value: JsonDecimal)           = Some(value.preciseValue)
+    private case class JsonDecimalWrapper(preciseValue: BigDecimal)
+        extends AnyVal
+        with JsonDecimal
   }
 
   sealed trait JsonBoolean extends JsonValue {

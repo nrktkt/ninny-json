@@ -6,6 +6,7 @@ import com.github.plokhotnyuk.jsoniter_scala.core.{
   JsonReader,
   JsonWriter
 }
+import java.nio.charset.StandardCharsets
 
 object NinnyJsonValueCodec extends JsonValueCodec[JsonValue] {
   def decodeValue(in: JsonReader, default: JsonValue) = ???
@@ -14,6 +15,8 @@ object NinnyJsonValueCodec extends JsonValueCodec[JsonValue] {
       case string: JsonString => out.writeVal(string.value)
       case JsonFalse          => out.writeVal(false)
       case JsonTrue           => out.writeVal(true)
+      case string: JsonNumberString =>
+        out.writeRawVal(string.stringValue.getBytes(StandardCharsets.UTF_8))
       case decimal: JsonDecimal =>
         if (decimal.preciseValue.precision == 0)
           out.writeVal(decimal.preciseValue.toBigInt)
@@ -29,10 +32,9 @@ object NinnyJsonValueCodec extends JsonValueCodec[JsonValue] {
           out.writeNonEscapedAsciiVal(double.value.toString)
       case obj: JsonObject =>
         out.writeObjectStart()
-        obj.values.foreach {
-          case (k, v) =>
-            out.writeKey(k)
-            encodeValue(v, out)
+        obj.values.foreach { case (k, v) =>
+          out.writeKey(k)
+          encodeValue(v, out)
         }
         out.writeObjectEnd()
       case array: JsonArray =>

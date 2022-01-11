@@ -1,9 +1,10 @@
-package io.github.kag0.ninny
+package io.github.kag0.test.ninny
 
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 import java.util.NoSuchElementException
 
+import io.github.kag0.ninny._
 import io.github.kag0.ninny.ast._
 import org.scalatest._
 import org.scalatest.flatspec._
@@ -758,5 +759,11 @@ class JsonSpec
     val fromJs  = js.to[Example].success.value
     js shouldEqual obj("baz" -> "bar", "bop" -> 1)
     fromJs shouldEqual example
+  }
+
+  val v: JsonValue = ???
+  v match {
+    case JsonString(s) => s
+    // case JsonNumber(s) => s
   }
 }
