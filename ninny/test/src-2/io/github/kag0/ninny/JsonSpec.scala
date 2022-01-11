@@ -597,6 +597,27 @@ class JsonSpec
     float.toSomeJson shouldEqual JsonDouble(5.5)
   }
 
+  it should "read any primitive number" in {
+    val long: Long     = 5
+    val int: Int       = 5
+    val byte: Byte     = 5
+    val double: Double = 5.5
+    val float: Float   = 5.5f
+
+    long.toSomeJson shouldEqual JsonDouble(5)
+    int.toSomeJson shouldEqual JsonDouble(5)
+    byte.toSomeJson shouldEqual JsonDouble(5)
+    double.toSomeJson shouldEqual JsonDouble(double)
+    float.toSomeJson shouldEqual JsonDouble(5.5)
+
+    JsonDouble(1).to[Long].success.value shouldEqual 1
+    JsonDouble(1).to[Int].success.value shouldEqual 1
+    JsonDouble(1).to[Byte].success.value shouldEqual 1
+    JsonDouble(1).to[Short].success.value shouldEqual 1
+    JsonDouble(1.5).to[Double].success.value shouldEqual 1.5
+    JsonDouble(1.5).to[Float].success.value shouldEqual 1.5
+  }
+
   it should "write big numbers with high precision" in {
     val i = BigInt(123)
     val d = BigDecimal("123.456")
