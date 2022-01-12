@@ -20,7 +20,7 @@ than the AST. When the AST doesn't match the JSON output, testability issues
 can open up.
 
 ## [Jump to proposal](#what-are-we-proposing)
-## [User Guide / Getting Started](https://kag0.github.io/ninny-json/USERGUIDE)
+## [User Guide / Getting Started](https://nrktkt.github.io/ninny-json/USERGUIDE)
 
 ## What do libraries do today? 
 
