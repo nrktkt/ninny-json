@@ -35,6 +35,10 @@ package object ast {
       extends AnyVal
       with JsonValue {
 
+    def mapNames(f: String => String) = JsonObject(values.map { case (k, v) =>
+      f(k) -> v
+    })
+
     def +[A: ToJson](entry: (String, A)) =
       entry._2.toJson match {
         case Some(value) =>

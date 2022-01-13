@@ -24,6 +24,9 @@ trait ToJsonInstances
   implicit val bigIntToJson: ToSomeJsonValue[BigInt, JsonDecimal] = i =>
     JsonDecimal(BigDecimal(i, MathContext.UNLIMITED))
 
+  implicit val longToJson: ToSomeJsonValue[Long, JsonDecimal] = l =>
+    JsonDecimal(BigDecimal(l))
+
   implicit val arraySeqToJson: ToSomeJsonValue[ArraySeq[Byte], JsonBlob] =
     JsonBlob(_)
 
@@ -38,17 +41,15 @@ trait ToJsonInstances
 
   implicit def jsonToJson[J <: JsonValue]: ToSomeJson[J] = j => j
 
-  /**
-    * represents unit as an empty JSON array.
-    * because a tuple is a heterogeneous list; (5, "foo") => [5, "foo"]
-    * and unit is an empty tuple; () => []
+  /** represents unit as an empty JSON array. because a tuple is a heterogeneous
+    * list; (5, "foo") => [5, "foo"] and unit is an empty tuple; () => []
     */
   implicit val unitToJson: ToSomeJson[Unit] = _ => JsonArray(Nil)
 
   implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
     m =>
-      JsonObject(m.collect(Function.unlift {
-        case (k, v) => v.toJson.map(k -> _)
+      JsonObject(m.collect(Function.unlift { case (k, v) =>
+        v.toJson.map(k -> _)
       }))
 
   implicit def optionToJson[A: ToJson]: ToJson[Option[A]] =
