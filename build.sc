@@ -8,7 +8,7 @@ import mill.define.{Segment, Segments}
 import $file.forProductN
 
 val `2.12` = "2.12.15"
-val `2.13` = "2.13.7"
+val `2.13` = "2.13.8"
 val `3`    = "3.1.0"
 
 val scalaTest = ivy"org.scalatest::scalatest:3.2.10"
@@ -24,10 +24,10 @@ trait PublishMod extends PublishModule {
     PomSettings(
       description = "NoneIsNotNullY",
       organization = "io.github.kag0",
-      url = "https://github.com/kag0/ninny-json",
+      url = "https://nrktkt.github.io/ninny-json/USERGUIDE",
       Seq(License.Unlicense),
-      VersionControl.github("kag0", "ninny-json"),
-      Seq(Developer("kag0", "Nathan Fischer", "https://github.com/kag0"))
+      VersionControl.github("nrktkt", "ninny-json"),
+      Seq(Developer("nrktkt", "Nathan Fischer", "https://github.com/nrktkt"))
     )
 }
 
@@ -84,6 +84,7 @@ class Ninny(val crossScalaVersion: String)
     def ivyDeps =
       Agg(
         ivy"org.json4s::json4s-native-core:4.0.3",
+        ivy"org.slf4j:slf4j-simple:1.7.32",
         scalaTest
       )
   }

@@ -12,7 +12,7 @@ Rather than implementing `ToJson` and `FromJson` by hand, you can generate them 
 ## Full-auto derivation for `ToJson` and `FromJson`
 
 If you like you can even skip the declaration by mixing in `AutoToJson` or 
-`AutoFromJson`, or importing `io.github.kag0.ninny.Auto._`.
+`AutoFromJson`, or importing `nrktkt.ninny.Auto._`.
 
 <sauce-code 
     repo='kag0/ninny-json'

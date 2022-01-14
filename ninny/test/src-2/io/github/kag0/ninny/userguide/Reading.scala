@@ -6,7 +6,7 @@ import io.github.kag0.ninny.ast.JsonValue
 object Reading {
 // format: off
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 val hopefullyJson: Try[JsonValue] = Json.parse("""
 {

@@ -1,6 +1,6 @@
 def generateProductToJson = {
   val out = new StringBuilder()
-  out ++= "package io.github.kag0.ninny\n"
+  out ++= "package nrktkt.ninny\n"
   out ++= "trait ProductToJson {\n"
   for (i <- 1 to 22) {
 
@@ -32,7 +32,7 @@ def generateProductToJson = {
 
 def generateProductFromJson = {
   val out = new StringBuilder()
-  out ++= "package io.github.kag0.ninny\n"
+  out ++= "package nrktkt.ninny\n"
   out ++= "trait ProductFromJson {\n"
   for (i <- 1 to 22) {
 
@@ -64,8 +64,8 @@ def generateProductFromJson = {
 
 def generateProductToAndFromJson = {
   val out = new StringBuilder()
-  out ++= "package io.github.kag0.ninny\n"
-  out ++= "import io.github.kag0.ninny.ast._\n"
+  out ++= "package nrktkt.ninny\n"
+  out ++= "import nrktkt.ninny.ast._\n"
   out ++= "trait ProductToAndFromJson {\n"
   for (i <- 1 to 22) {
 

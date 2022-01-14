@@ -1,110 +1,47 @@
 package io.github.kag0
 
-import io.github.kag0.ninny.ast._
-import io.github.kag0.ninny.magnetic.{JsonMagnet, SomeJsonMagnet}
-
-import scala.language.dynamics
+import nrktkt.ninny.ast._
+import nrktkt.ninny.MaybeJsonSyntax
+import scala.language.implicitConversions
 import scala.util.Try
+import nrktkt.ninny.HopefullyJsonSyntax
+import nrktkt.ninny.HopefullyMaybeJsonSyntax
+import nrktkt.ninny.AnySyntax
+import nrktkt.ninny.ArrowSyntax
 
-package object ninny {
+package object ninny
+    extends VersionSpecificPackage
+    with nrktkt.ninny.MagneticMethods {
+  val Json = nrktkt.ninny.Json
+  type ToJson[A] = nrktkt.ninny.ToJsonValue[A, JsonValue]
+  val ToJson = nrktkt.ninny.ToJson
+  type ToJsonValue[A, J <: JsonValue] = nrktkt.ninny.ToJsonValue[A, J]
+  val ToJsonValue = nrktkt.ninny.ToJsonValue
+  type ToJsonObject[A]     = nrktkt.ninny.ToJsonValue[A, JsonObject]
+  type ToSomeJson[A]       = nrktkt.ninny.ToSomeJsonValue[A, JsonValue]
+  type ToSomeJsonObject[A] = nrktkt.ninny.ToSomeJsonValue[A, JsonObject]
+  type FromJson[A]         = nrktkt.ninny.FromJson[A]
+  val FromJson = nrktkt.ninny.FromJson
+  type ToAndFromJson[A] = nrktkt.ninny.ToAndFromJson[A]
+  val ToAndFromJson = nrktkt.ninny.ToAndFromJson
 
-  type ToJson[A]           = ToJsonValue[A, JsonValue]
-  type ToJsonObject[A]     = ToJsonValue[A, JsonObject]
-  type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
-  type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
+  type JsonException      = nrktkt.ninny.JsonException
+  type JsonFieldException = nrktkt.ninny.JsonFieldException
 
-  trait ToAndFromJson[A] extends ToSomeJson[A] with FromJson[A]
-  object ToAndFromJson extends ProductToAndFromJson {
+  val FromJsonInstances = nrktkt.ninny.FromJsonInstances
 
-    implicit def apply[A](implicit
-        toJson: ToSomeJson[A],
-        fromJson: FromJson[A]
-    ): ToAndFromJson[A] =
-      new ToAndFromJson[A] {
-        def toSome(a: A)                       = toJson.toSome(a)
-        def from(maybeJson: Option[JsonValue]) = fromJson.from(maybeJson)
-      }
+  implicit def maybeJsonSyntax(maybeJson: Option[JsonValue]): MaybeJsonSyntax =
+    new MaybeJsonSyntax(maybeJson)
 
-    def auto[A: ToJsonAuto: FromJsonAuto]: ToAndFromJson[A] = {
-      val toJson   = implicitly[ToJsonAuto[A]].toJson
-      val fromJson = implicitly[FromJsonAuto[A]].fromJson
-      ToAndFromJson[A](toJson, fromJson)
-    }
-  }
+  implicit def hopefullyJsonSyntax(
+      hopefullyJson: Try[JsonValue]
+  ): HopefullyJsonSyntax =
+    new HopefullyJsonSyntax(hopefullyJson)
 
-  // @deprecated(
-  //  message =
-  //    "Use io.github.kag0.ninny.magnetic.obj instead, this may be replaced with a magnet-free signature in the future",
-  //  since = ""
-  // )
-  def obj(nameValues: (String, JsonMagnet)*): JsonObject =
-    magnetic.obj(nameValues: _*)
+  implicit def hopefullyMaybeJsonSyntax(
+      hopefullyMaybeJson: Try[Option[JsonValue]]
+  ): HopefullyMaybeJsonSyntax = new HopefullyMaybeJsonSyntax(hopefullyMaybeJson)
 
-  // @deprecated(
-  //  message =
-  //    "Use io.github.kag0.ninny.magnetic.arr instead, this may be replaced with a magnet-free signature in the future"
-  // )
-  def arr(values: SomeJsonMagnet*) = magnetic.arr(values: _*)
-
-  implicit class MaybeJsonSyntax(val maybeJson: Option[JsonValue])
-      extends AnyVal
-      with Dynamic {
-
-    def to[A: FromJson] = FromJson[A].from(maybeJson)
-
-    def selectDynamic(name: String)        = MaybeJsonSyntax(/(name))
-    def apply(i: Int)                      = MaybeJsonSyntax(/(i))
-    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
-
-    def /(name: String) = maybeJson.flatMap(_ / name)
-    def /(i: Int)       = maybeJson.flatMap(_ / i)
-
-    def * = this
-  }
-
-  implicit class HopefullyJsonSyntax(val hopefullyJson: Try[JsonValue])
-      extends AnyVal
-      with Dynamic {
-    def to[A: FromJson] = hopefullyJson.flatMap(_.to[A])
-
-    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
-    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
-    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
-
-    def /(name: String) = hopefullyJson.map(_ / name)
-    def /(i: Int)       = hopefullyJson.map(_ / i)
-
-    def * = this
-  }
-
-  implicit class HopefullyMaybeJsonSyntax(
-      val maybeHopefullyJson: Try[Option[JsonValue]]
-  ) extends AnyVal
-      with Dynamic {
-    def to[A: FromJson] = maybeHopefullyJson.flatMap(_.to[A])
-
-    def selectDynamic(name: String)        = HopefullyMaybeJsonSyntax(/(name))
-    def apply(i: Int)                      = HopefullyMaybeJsonSyntax(/(i))
-    def applyDynamic(name: String)(i: Int) = selectDynamic(name)(i)
-
-    def /(name: String) = maybeHopefullyJson.map(_ / name)
-    def /(i: Int)       = maybeHopefullyJson.map(_ / i)
-
-    def * = this
-  }
-
-  implicit class AnySyntax[A](val _a: A) extends AnyVal {
-    def toJson[Json <: JsonValue](implicit toJson: ToJsonValue[A, Json]) =
-      toJson.to(_a)
-
-    def toSomeJson[Json <: JsonValue](implicit
-        toJson: ToSomeJsonValue[A, Json]
-    ) = toJson.toSome(_a)
-  }
-
-  implicit class ArrowSyntax(val s: String) extends AnyVal {
-    def -->[A: ToJson](a: A) = s -> JsonMagnet(a)
-    // I couldn't decide on syntax, so I'll throw both out there
-    def ~>[A: ToJson](a: A) = s -> JsonMagnet(a)
-  }
+  implicit def anySyntax[A](a: A): AnySyntax[A]    = new AnySyntax(a)
+  implicit def arrowSyntax(s: String): ArrowSyntax = new ArrowSyntax(s)
 }

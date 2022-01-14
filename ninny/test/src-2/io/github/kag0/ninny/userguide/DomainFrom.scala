@@ -8,7 +8,7 @@ object DomainFrom {
 
 val personString = """{"lastName":"Doe","firstName":"John","address":{"street":"710 Ashbury St","zip":"94117"},"kids":["Jr","Jane"]}"""
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 case class Person(
     firstName: String,

@@ -3,7 +3,7 @@ package io.github.kag0.ninny.userguide
 object Updating {
 // format: off
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 val json = obj(
   "one" -> obj(

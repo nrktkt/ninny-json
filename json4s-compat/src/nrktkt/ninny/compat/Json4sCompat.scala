@@ -1,14 +1,14 @@
 package nrktkt.ninny.compat
 
-import io.github.kag0.ninny.ast.JsonValue
+import nrktkt.ninny.ast.JsonValue
 
-import io.github.kag0.ninny._
-import io.github.kag0.ninny.ast.JsonObject
+import nrktkt.ninny._
+import nrktkt.ninny.ast.JsonObject
 import scala.util.Try
-import io.github.kag0.ninny.ast.JsonArray
-import io.github.kag0.ninny.ast.JsonString
-import io.github.kag0.ninny.ast.JsonDouble
-import io.github.kag0.ninny.ast.JsonBoolean
+import nrktkt.ninny.ast.JsonArray
+import nrktkt.ninny.ast.JsonString
+import nrktkt.ninny.ast.JsonDouble
+import nrktkt.ninny.ast.JsonBoolean
 
 object Json4sCompat {
   implicit class TildeTupleSyntax[A](val pair: (String, A)) extends AnyVal {

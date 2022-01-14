@@ -2,14 +2,14 @@
 
 Have a third party library that you'd like to use that has support for Play but 
 not ninny, or the other way around?  
-No problem, `import io.github.kag0.ninny.compat.PlayToNinny._` or 
-`io.github.kag0.ninny.compat.NinnyToPlay._` to convert one way or the other, 
-or `import io.github.kag0.ninny.compat.PlayCompat._` to get both. 
+No problem, `import nrktkt.ninny.compat.PlayToNinny._` or 
+`nrktkt.ninny.compat.NinnyToPlay._` to convert one way or the other, 
+or `import nrktkt.ninny.compat.PlayCompat._` to get both. 
 
 > **note**: you need an instance of `ToSomeJson` to get a `Writes`
 
 ```scala
-import io.github.kag0.ninny.compat.PlayCompat._
+import nrktkt.ninny.compat.PlayCompat._
 
 implicit val format: Format[MyType] = ???
 myType.toSomeJson // 👍
