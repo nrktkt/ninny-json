@@ -116,42 +116,42 @@ trait FromJsonInstances
     jBigIntFromJson.map(BigInt(_))
 
   implicit val longFromJson: FromJson[Long] =
-    FromJson.fromSome(_.to[Double].flatMap {
-      case d if !d.isWhole => wholeNumberException(d.toString)
-      case d if d > Long.MaxValue =>
+    FromJson.fromSome(_.to[BigInt].flatMap {
+      case i if i > Long.MaxValue =>
         Failure(
           new JsonException(
-            s"Expected long, got $d (too large)",
+            s"Expected long, got $i (too large)",
             new ArithmeticException("Overflow")
           )
         )
-      case d if d < Long.MinValue =>
+      case i if i < Long.MinValue =>
         Failure(
           new JsonException(
-            s"Expected long, got $d (too small)",
+            s"Expected long, got $i (too small)",
             new ArithmeticException("Underflow")
           )
         )
-      case d => Try(d.toLong)
+      case i => Try(i.toLong)
     })
 
   implicit val intFromJson: FromJson[Int] =
-    FromJson.fromSome(_.to[Long].flatMap {
-      case l if l > Int.MaxValue =>
+    FromJson.fromSome(_.to[Double].flatMap {
+      case d if !d.isWhole => wholeNumberException(d.toString)
+      case d if d > Int.MaxValue =>
         Failure(
           new JsonException(
-            s"Expected int, got $l (too large)",
+            s"Expected int, got $d (too large)",
             new ArithmeticException("Overflow")
           )
         )
-      case l if l < Int.MinValue =>
+      case d if d < Int.MinValue =>
         Failure(
           new JsonException(
-            s"Expected int, got $l (too small)",
+            s"Expected int, got $d (too small)",
             new ArithmeticException("Underflow")
           )
         )
-      case l => Try(l.toInt)
+      case d => Try(d.toInt)
     })
 
   implicit val shortFromJson: FromJson[Short] =

@@ -48,7 +48,7 @@ trait VersionSpecificFromJsonInstances {
             case e: JsonFieldException =>
               Failure(
                 new JsonFieldException(
-                  e.getMessage,
+                  e.message,
                   s"${names.head}.${e.field}",
                   e
                 )

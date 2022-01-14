@@ -107,6 +107,21 @@ class PlayCompat(val crossScalaVersion: String)
   }
 }
 
+object `json4s-compat` extends mill.Cross[Json4sCompat](`2.12`, `2.13`)
+class Json4sCompat(val crossScalaVersion: String)
+    extends CrossScalaModule
+    with PublishMod {
+
+  def artifactName = "ninny-json4s-compat"
+
+  def moduleDeps = List(ninny(crossScalaVersion))
+
+  object test extends Tests {
+    def testFrameworks = Seq("org.scalatest.tools.Framework")
+    def ivyDeps        = Agg(scalaTest)
+  }
+}
+
 object ubjson extends ScalaModule with PublishMod {
   def scalaVersion = `2.13`
   def artifactName = "ninny-ubjson"
