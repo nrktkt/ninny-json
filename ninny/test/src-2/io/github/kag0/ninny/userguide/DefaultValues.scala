@@ -9,7 +9,7 @@ object DefaultValues extends App {
 case class User(name: String, admin: Boolean = false)
 
 implicit val userFromJson = {
-  import io.github.kag0.ninny.FromJsonAuto.useDefaults
+  import nrktkt.ninny.FromJsonAuto.useDefaults
   FromJson.auto[User]
 }
 

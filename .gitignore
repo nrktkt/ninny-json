@@ -6,3 +6,4 @@ out/
 target/
 .vscode
 .ammonite
+.bsp

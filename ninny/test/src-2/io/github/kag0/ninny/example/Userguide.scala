@@ -187,7 +187,7 @@ Json.parse("").to[Person]: Try[Person]
 
 // full auto
 {
-  import io.github.kag0.ninny.Auto._
+  import nrktkt.ninny.Auto._
 
   Person(
     "John",

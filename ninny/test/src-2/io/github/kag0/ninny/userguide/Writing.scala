@@ -7,7 +7,7 @@ object Writing {
 
 private implicit def noneToSomeJson: ToSomeJson[None.type] = ???
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 // convert values to json with .toJson
 42.toJson     // Some(JsonNumber(42))

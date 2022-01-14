@@ -5,7 +5,7 @@ import io.github.kag0.ninny.ast.JsonValue
 object DomainTo extends App {
 // format: off
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 case class Person(
   firstName: String,
