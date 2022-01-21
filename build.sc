@@ -14,6 +14,10 @@ val `3`    = "3.1.0"
 val scalaTest = ivy"org.scalatest::scalatest:3.2.10"
 
 trait PublishMod extends PublishModule {
+  def sonatypeUri: String = "https://s01.oss.sonatype.org/service/local"
+  def sonatypeSnapshotUri =
+    "https://s01.oss.sonatype.org/content/repositories/snapshots"
+
   def artifactName =
     Segments(
       millModuleSegments.value.filterNot(_.isInstanceOf[Segment.Cross]): _*
