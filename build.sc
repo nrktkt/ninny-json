@@ -23,7 +23,7 @@ trait PublishMod extends PublishModule {
   def pomSettings =
     PomSettings(
       description = "NoneIsNotNullY",
-      organization = "io.github.kag0",
+      organization = "tk.nrktkt",
       url = "https://nrktkt.github.io/ninny-json/USERGUIDE",
       Seq(License.Unlicense),
       VersionControl.github("nrktkt", "ninny-json"),
