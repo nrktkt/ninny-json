@@ -10,6 +10,11 @@ class NumberSpec
     with TryValues
     with OptionValues {
 
+  "floats" should "write NaN" in {
+    val string = Json.render(Float.NaN.toSomeJson)
+    string shouldEqual "\"NaN\""
+  }
+
   "longs" should "convert without precision loss" in {
     Long.MaxValue.toSomeJson.to[Long].success.value shouldEqual Long.MaxValue
     Long.MinValue.toSomeJson.to[Long].success.value shouldEqual Long.MinValue
