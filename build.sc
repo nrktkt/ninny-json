@@ -11,7 +11,8 @@ val `2.12` = "2.12.15"
 val `2.13` = "2.13.8"
 val `3`    = "3.1.0"
 
-val scalaTest = ivy"org.scalatest::scalatest:3.2.10"
+val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
+val json4sVersion = "4.0.3"
 
 trait PublishMod extends PublishModule {
   def sonatypeUri = "https://s01.oss.sonatype.org/service/local"
@@ -87,7 +88,7 @@ class Ninny(val crossScalaVersion: String)
       T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native-core:4.0.3",
+        ivy"org.json4s::json4s-native-core:$json4sVersion",
         ivy"org.slf4j:slf4j-simple:1.7.32",
         scalaTest
       )
@@ -120,8 +121,9 @@ class Json4sCompat(val crossScalaVersion: String)
   def artifactName = "ninny-json4s-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
+  def ivyDeps    = Agg(ivy"org.json4s::json4s-ast:$json4sVersion")
 
-  object test extends Tests {
+  object test extends Tests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
