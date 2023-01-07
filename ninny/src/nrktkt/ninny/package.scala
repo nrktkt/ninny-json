@@ -56,12 +56,13 @@ package object ninny {
   }
 
   implicit class AnySyntax[A](val _a: A) extends AnyVal {
-    def toJson[Json <: JsonValue](implicit toJson: ToJsonValue[A, Json]) =
+    def toJson(implicit toJson: ToJson[A]): Option[toJson.Json] =
       toJson.to(_a)
 
-    def toSomeJson[Json <: JsonValue](implicit
-        toJson: ToSomeJsonValue[A, Json]
-    ) = toJson.toSome(_a)
+    def toSomeJson(implicit
+        toJson: ToSomeJson[A]
+    ): toJson.Json = toJson.toSome(_a)
+
   }
 
   implicit class ArrowSyntax(val s: String) extends AnyVal {
@@ -70,10 +71,10 @@ package object ninny {
     def ~>[A: ToJson](a: A) = s -> JsonMagnet(a)
   }
 
-  type ToJson[A]           = ToJsonValue[A, JsonValue]
-  type ToJsonObject[A]     = ToJsonValue[A, JsonObject]
-  type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
-  type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
+  type ToJsonValue[A, +J <: JsonValue]     = ToJson[A] { type Json <: J }
+  type ToSomeJsonValue[A, +J <: JsonValue] = ToSomeJson[A] { type Json <: J }
+  type ToJsonObject[A]                     = ToJsonValue[A, JsonObject]
+  type ToSomeJsonObject[A]                 = ToSomeJsonValue[A, JsonObject]
 
   // @deprecated(
   //  message =

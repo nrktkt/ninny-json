@@ -13,13 +13,11 @@ package object ninny
     extends VersionSpecificPackage
     with nrktkt.ninny.MagneticMethods {
   val Json = nrktkt.ninny.Json
-  type ToJson[A] = nrktkt.ninny.ToJsonValue[A, JsonValue]
+  type ToJson[A] = nrktkt.ninny.ToJson[A]
   val ToJson = nrktkt.ninny.ToJson
-  type ToJsonValue[A, J <: JsonValue] = nrktkt.ninny.ToJsonValue[A, J]
-  val ToJsonValue = nrktkt.ninny.ToJsonValue
-  type ToJsonObject[A]     = nrktkt.ninny.ToJsonValue[A, JsonObject]
-  type ToSomeJson[A]       = nrktkt.ninny.ToSomeJsonValue[A, JsonValue]
-  type ToSomeJsonObject[A] = nrktkt.ninny.ToSomeJsonValue[A, JsonObject]
+  type ToJsonValue[A]      = nrktkt.ninny.ToJson[A]
+  type ToSomeJson[A]       = nrktkt.ninny.ToSomeJson[A]
+  type ToSomeJsonObject[A] = nrktkt.ninny.ToSomeJsonObject[A]
   type FromJson[A]         = nrktkt.ninny.FromJson[A]
   val FromJson = nrktkt.ninny.FromJson
   type ToAndFromJson[A] = nrktkt.ninny.ToAndFromJson[A]

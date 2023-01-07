@@ -117,11 +117,12 @@ case class Address(street: String, zip: String)
   implement ToSomeJson instead of ToJson if your object always produces
   some kind of JSON. this is a common case.
   */
-implicit val addressToJson: ToSomeJson[Address] = a =>
-  obj(
+implicit val addressToJson: ToSomeJson[Address] = ToJson(
+  a => obj(
     "street" -> a.street,
     "zip"    -> a.zip
   )
+)
 
 implicit val addressFromJson: FromJson[Address] = {
   case None => Failure(new NoSuchElementException())
@@ -132,14 +133,15 @@ implicit val addressFromJson: FromJson[Address] = {
     } yield Address(first, last)
 }
 
-implicit val personToJson: ToSomeJson[Person] = p =>
-  obj(
+implicit val personToJson: ToSomeJson[Person] = ToJson(
+  p => obj(
     "firstName" -> p.firstName,
     "lastName"  -> p.lastName,
     "address"   -> p.address,
     "kids"      -> p.kids,
     "age"       -> p.age
   )
+)
 
 implicit val personFromJson = FromJson.fromSome[Person](json =>
   for {

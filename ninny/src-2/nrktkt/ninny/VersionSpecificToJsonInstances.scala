@@ -20,5 +20,6 @@ trait VersionSpecificToJsonInstances {
     }
   }
 
-  implicit val hNilToJson: ToSomeJsonObject[HNil] = _ => JsonObject(Map.empty)
+  implicit val hNilToJson: ToSomeJsonObject[HNil] =
+    ToJson(_ => JsonObject(Map.empty))
 }

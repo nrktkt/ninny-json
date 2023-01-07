@@ -70,7 +70,25 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
     repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src-2/io/github/kag0/ninny/userguide/DomainTo.scala'
-    lines='7:51'
+    lines='7:53'
+></sauce-code>
+
+Sometimes it's valuable to ensure that a specific JSON type is generated.
+For example if we had a money type, we would want to guarantee it uses a high
+precision number format. 
+To do this we can use `ToJsonValue` and `ToSomeJsonValue` type annotations so that the compiler will enforce that for us.
+
+<sauce-code 
+    repo='kag0/ninny-json'
+    lang='scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/JsonTypes.scala'
+    lines='8:13'
+></sauce-code>
+<sauce-code 
+    repo='kag0/ninny-json'
+    lang='scala'
+    file='ninny/test/src-2/io/github/kag0/ninny/userguide/JsonTypes.scala'
+    lines='15:22'
 ></sauce-code>
 
 # Converting JSON to domain objects

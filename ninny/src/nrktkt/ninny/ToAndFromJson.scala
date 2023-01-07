@@ -9,6 +9,7 @@ object ToAndFromJson extends ProductToAndFromJson {
       fromJson: FromJson[A]
   ): ToAndFromJson[A] =
     new ToAndFromJson[A] {
+      type Json = toJson.Json
       def toSome(a: A)                       = toJson.toSome(a)
       def from(maybeJson: Option[JsonValue]) = fromJson.from(maybeJson)
     }
