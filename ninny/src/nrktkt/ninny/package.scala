@@ -71,8 +71,10 @@ package object ninny {
     def ~>[A: ToJson](a: A) = s -> JsonMagnet(a)
   }
 
-  type ToJsonObject[A]     = ToJson.Aux[A, JsonObject]
-  type ToSomeJsonObject[A] = ToSomeJson.Aux[A, JsonObject]
+  type ToJsonValue[A, +J <: JsonValue]     = ToJson[A] { type Json <: J }
+  type ToSomeJsonValue[A, +J <: JsonValue] = ToSomeJson[A] { type Json <: J }
+  type ToJsonObject[A]                     = ToJsonValue[A, JsonObject]
+  type ToSomeJsonObject[A]                 = ToSomeJsonValue[A, JsonObject]
 
   // @deprecated(
   //  message =

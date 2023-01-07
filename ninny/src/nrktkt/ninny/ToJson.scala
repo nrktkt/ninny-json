@@ -16,15 +16,11 @@ object ToJson
     with ProductToJson
     with ToSomeJsonConstructor {
 
-  type Aux[A, +J <: JsonValue] = ToJson[A] {
-    type Json <: J
-  }
-
   def apply[A: ToJson]: ToJson[A] = implicitly[ToJson[A]]
 
   def apply[A, J <: JsonValue](
       fn: A => Option[J]
-  ): ToJson.Aux[A, J] = new ToJson[A] {
+  ): ToJsonValue[A, J] = new ToJson[A] {
     type Json = J
     def to(a: A): Option[Json] = fn(a)
   }
@@ -37,11 +33,7 @@ trait ToSomeJson[A] extends ToJson[A] {
   override def to(a: A) = Some(toSome(a))
 }
 
-object ToSomeJson extends ToSomeJsonConstructor {
-  type Aux[A, +J <: JsonValue] = ToSomeJson[A] {
-    type Json <: J
-  }
-}
+object ToSomeJson extends ToSomeJsonConstructor
 
 private[ninny] trait ToSomeJsonConstructor {
   def apply[A, J <: JsonValue](

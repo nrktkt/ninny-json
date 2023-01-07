@@ -21,16 +21,17 @@ trait ToJsonInstances
   implicit val bigDecimalToJson: ToSomeJson[BigDecimal] =
     ToJson(JsonDecimal(_))
 
-  implicit val bigIntToJson: ToSomeJson.Aux[BigInt, JsonDecimal] =
+  implicit val bigIntToJson: ToSomeJsonValue[BigInt, JsonDecimal] =
     ToJson(i => JsonDecimal(BigDecimal(i, MathContext.UNLIMITED)))
 
-  implicit val longToJson: ToSomeJson.Aux[Long, JsonDecimal] =
+  implicit val longToJson: ToSomeJsonValue[Long, JsonDecimal] =
     ToJson(l => JsonDecimal(BigDecimal(l)))
 
-  implicit val arraySeqToJson: ToSomeJson.Aux[ArraySeq[Byte], JsonBlob] =
+  implicit val arraySeqToJson: ToSomeJsonValue[ArraySeq[Byte], JsonBlob] =
     ToJson(JsonBlob(_))
 
-  implicit def arrayToJson[A: ToSomeJson]: ToSomeJson.Aux[Array[A], JsonArray] =
+  implicit def arrayToJson[A: ToSomeJson]
+      : ToSomeJsonValue[Array[A], JsonArray] =
     ToJson(arr => {
       val builder = immutable.Seq.newBuilder[JsonValue]
       builder.sizeHint(arr.length)
@@ -61,10 +62,14 @@ trait ToJsonInstances
   implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] =
     ToJson(_.value.toSomeJson)
 
-  implicit def leftToJson[L: ToJson, R]: ToJson[Left[L, R]] = _.value.toJson
-  implicit def rightToJson[L, R: ToJson]: ToJson[Right[L, R]] = _.value.toJson
-  implicit def eitherToJson[L: ToJson, R: ToJson]: ToJson[Either[L, R]] = 
-    _.fold(_.toJson, _.toJson)
+  implicit def leftToJson[L: ToJson, R]: ToJson[Left[L, R]] = ToJson(
+    (_: Left[L, R]).value.toJson
+  )
+  implicit def rightToJson[L, R: ToJson]: ToJson[Right[L, R]] = ToJson(
+    (_: Right[L, R]).value.toJson
+  )
+  implicit def eitherToJson[L: ToJson, R: ToJson]: ToJson[Either[L, R]] =
+    ToJson((_: Either[L, R]).fold(_.toJson, _.toJson))
 
   implicit val instantToJson: ToSomeJson[Instant] =
     ToJson(i => JsonNumber(i.getEpochSecond.toDouble))
@@ -75,7 +80,7 @@ trait ToJsonInstances
   implicit val zonedDateTimeToJson: ToSomeJson[ZonedDateTime] =
     ToJson(time => JsonString(time.toString))
 
-  implicit val uuidToJson: ToSomeJson.Aux[UUID, JsonString] =
+  implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] =
     ToJson(uuid => JsonString(uuid.toString))
 
 }
@@ -85,14 +90,14 @@ trait LowPriorityToJsonInstances {
   implicit def iterableToJson[I, A](implicit
       ev: I <:< Iterable[A],
       toJson: ToSomeJson[A]
-  ): ToSomeJson.Aux[I, JsonArray] =
+  ): ToSomeJsonValue[I, JsonArray] =
     ToJson(xs => {
       val builder = immutable.Seq.newBuilder[JsonValue]
       xs.foreach(builder += _.toSomeJson)
       JsonArray(builder.result())
     })
 
-  implicit def numericToJson[A: Numeric]: ToSomeJson.Aux[A, JsonDouble] =
+  implicit def numericToJson[A: Numeric]: ToSomeJsonValue[A, JsonDouble] =
     ToJson(a => JsonDouble(implicitly[Numeric[A]].toDouble(a)))
 }
 
