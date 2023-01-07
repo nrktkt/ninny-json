@@ -12,7 +12,7 @@ val fromJson: FromJson[Address] =
 
 implicit 
 val toJson: ToSomeJson[Address] =
-  ToJson.forProduct2("street", "zip_code")(Address.unapply(_).get)
+  ToJson.forProduct2("street", "zip_code")(Address.unapply(_:Address).get)
 
 val toAndFromJson: ToAndFromJson[Address] =
   ToAndFromJson.forProduct2("street", "zip_code")(

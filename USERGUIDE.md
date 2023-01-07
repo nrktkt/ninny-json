@@ -70,7 +70,7 @@ You can use ninny's dynamic update syntax easly to replace values way down in th
     repo='kag0/ninny-json'
     lang='scala'
     file='ninny/test/src-2/io/github/kag0/ninny/userguide/DomainTo.scala'
-    lines='7:51'
+    lines='7:53'
 ></sauce-code>
 
 # Converting JSON to domain objects

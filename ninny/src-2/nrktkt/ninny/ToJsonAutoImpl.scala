@@ -28,12 +28,12 @@ trait ToJsonAutoImpl {
       toJson: Lazy[ToSomeJsonObject[UpdatedRecord]]
   ): ToJsonAuto[A] = {
     val replacedNames = replaceNames(fields.keys, annotations())
-    new ToJsonAuto[A](a => {
+    new ToJsonAuto[A](ToJson(a => {
       val record = generic.to(a)
       val updatedRecord = zipWithNames(
         replacedNames :: fields.values(record) :: HNil
       )
       toJson.value.toSome(updatedRecord)
-    })
+    }))
   }
 }

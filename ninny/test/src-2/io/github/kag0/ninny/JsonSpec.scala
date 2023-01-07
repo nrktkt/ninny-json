@@ -27,13 +27,13 @@ class JsonSpec
 
   it should "work" in {
     val sampleValues = obj(
-      "string" -> """¯\_(ツ)_/¯""",
+      "string" --> """¯\_(ツ)_/¯""",
       "number" -> 1.79e308,
-      "bool"   -> true,
-      "false"  -> false,
-      "null"   -> JsonNull,
-      "unit"   -> ((): Unit),
-      "some"   -> "str"
+      "bool" ~> true,
+      "false" -> false,
+      "null"  -> JsonNull,
+      "unit"  -> ((): Unit),
+      "some"  -> "str"
     )
 
     val sampleArray =
@@ -54,7 +54,7 @@ class JsonSpec
     println(parsed == sampleObject)
     println(parsed.array.to[Seq[JsonValue]].get == sampleArray.values)
 
-    5.toSomeJson[JsonNumber] shouldEqual JsonNumber(5d)
+    (5.toSomeJson: JsonNumber) shouldEqual JsonNumber(5d)
     5.toJson shouldEqual Some(JsonNumber(5d))
   }
 
@@ -242,7 +242,7 @@ class JsonSpec
       } yield Image(w, h, title, thumb, url, animated, ids)
     )
 
-    implicit val toJson: ToSomeJson[Image] = a =>
+    implicit val toJson: ToSomeJson[Image] = ToJson(a =>
       obj(
         "Width"     -> a.Width,
         "Height"    -> a.Height,
@@ -252,6 +252,7 @@ class JsonSpec
         "Animated"  -> a.Animated,
         "IDs"       -> (if (a.IDs.isEmpty) None else a.IDs)
       )
+    )
   }
 
   object Precision extends Enumeration {
@@ -261,8 +262,8 @@ class JsonSpec
 
   implicit val precisionFromJson: FromJson[Precision.Value] =
     FromJson.fromSome(_.to[String].flatMap(p => Try(Precision.withName(p))))
-  implicit val precisionToJson: ToSomeJson[Precision.Value] = a =>
-    JsonString(a.toString)
+  implicit val precisionToJson: ToSomeJson[Precision.Value] =
+    ToJson(a => JsonString(a.toString))
 
   case class Address(
       precision: Precision.Value,
@@ -278,7 +279,7 @@ class JsonSpec
   object Address {
     implicit val fromJson: FromJson[Address] = FromJson.auto[Address]
 
-    implicit val toJson: ToSomeJson[Address] = a =>
+    implicit val toJson: ToSomeJson[Address] = ToJson(a =>
       obj(
         "precision" -> a.precision,
         "Latitude"  -> a.Latitude,
@@ -289,6 +290,7 @@ class JsonSpec
         "Zip"       -> a.Zip,
         "Country"   -> a.Country
       )
+    )
   }
 
   val exampleObject =
@@ -510,7 +512,6 @@ class JsonSpec
 
     head :++ tail shouldEqual arr(1, 2, 3, 4, 5, 6)
   }
-
 
   "JsonBlob" should "encode and decode to base64" in {
     val bytes = new Array[Byte](16)

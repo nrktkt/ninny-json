@@ -7,8 +7,8 @@ import $ivy.`com.lihaoyi::mill-contrib-bloop:$MILL_VERSION`
 import mill.define.{Segment, Segments}
 import $file.forProductN
 
-val `2.12` = "2.12.15"
-val `2.13` = "2.13.8"
+val `2.12` = "2.12.17"
+val `2.13` = "2.13.10"
 val `3`    = "3.1.0"
 
 val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"

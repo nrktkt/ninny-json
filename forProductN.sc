@@ -17,13 +17,13 @@ def generateProductToJson = {
         .map(j => s"a${j}ToJson: ToJson[A$j]")
         .mkString(", ")
 
-    out ++= "): ToSomeJsonObject[Target] = target => {\n"
+    out ++= "): ToSomeJsonObject[Target] = ToJson(target => {\n"
     out ++= "val ("
     out ++= (0 until i).map(j => s"a$j").mkString(", ")
     out ++= ") = f(target)\n"
     out ++= "obj("
     out ++= (0 until i).map(j => s"(nameA$j, a$j)").mkString(", ")
-    out ++= ")\n}\n"
+    out ++= ")\n})\n"
   }
 
   out += '}'
@@ -65,6 +65,7 @@ def generateProductFromJson = {
 def generateProductToAndFromJson = {
   val out = new StringBuilder()
   out ++= "package nrktkt.ninny\n"
+  out ++= "import scala.language.existentials\n"
   out ++= "import nrktkt.ninny.ast._\n"
   out ++= "trait ProductToAndFromJson {\n"
   for (i <- 1 to 22) {
@@ -84,16 +85,19 @@ def generateProductToAndFromJson = {
         .map(j => s"a${j}ToAndFromJson: ToAndFromJson[A$j]")
         .mkString(", ")
 
-    out ++= ") = new ToAndFromJson[Target] {\n"
+    out ++= ") = {\n"
+
     val namesCsv = (0 until i).map(j => s"nameA$j").mkString(", ")
     out ++= s"val _toJson: ToSomeJson[Target] = ToJson.forProduct$i($namesCsv)(fTo)\n"
     out ++= s"val _fromJson: FromJson[Target] = FromJson.forProduct$i($namesCsv)(fFrom)\n"
 
+    out ++= "new ToAndFromJson[Target] {\n"
+    out ++= "type Json = _toJson.Json\n"
     out ++= """
           def from(json: Option[JsonValue]) = _fromJson.from(json)
           def toSome(target: Target)        = _toJson.toSome(target)
           """
-    out ++= "}\n"
+    out ++= "}}\n"
   }
 
   out += '}'
