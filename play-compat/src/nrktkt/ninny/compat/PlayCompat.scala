@@ -35,12 +35,12 @@ trait PlayToNinny {
   import NinnyToPlay.asPlay
 
   implicit def writesToJson[A](implicit writes: Writes[A]): ToSomeJson[A] =
-    writes.writes
+    ToJson(a => asNinny(writes.writes(a)))
 
   implicit def oWritesToJson[A](implicit
       writes: OWrites[A]
   ): ToSomeJsonObject[A] =
-    a => (writes.writes(a): JsonValue).asInstanceOf[JsonObject]
+    ToJson(a => (writes.writes(a): JsonValue).asInstanceOf[JsonObject])
 
   implicit def readsFromJson[A](implicit reads: Reads[A]): FromJson[A] =
     FromJson.fromSome(js => JsResult.toTry(reads.reads(js)))
