@@ -8,11 +8,11 @@ import mill.define.{Segment, Segments}
 import $file.forProductN
 
 val `2.12` = "2.12.15"
-val `2.13` = "2.13.8"
+val `2.13` = "2.13.10"
 val `3`    = "3.1.0"
 
 val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
-val json4sVersion = "4.0.3"
+val json4sVersion = Map(4 -> "4.0.6", 3 -> "3.6.12")
 
 trait PublishMod extends PublishModule {
   def sonatypeUri = "https://s01.oss.sonatype.org/service/local"
@@ -88,7 +88,7 @@ class Ninny(val crossScalaVersion: String)
       T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native-core:$json4sVersion",
+        ivy"org.json4s::json4s-native-core:${json4sVersion(4)}",
         ivy"org.slf4j:slf4j-simple:1.7.32",
         scalaTest
       )
@@ -113,15 +113,22 @@ class PlayCompat(val crossScalaVersion: String)
   }
 }
 
-object `json4s-compat` extends mill.Cross[Json4sCompat](`2.12`, `2.13`)
-class Json4sCompat(val crossScalaVersion: String)
+val json4sCrossMatrix = for {
+  json4sVersion <- Seq(4, 3)
+  scalaVersion <- Seq(`2.12`, `2.13`) ++ (if (json4sVersion >= 4) Seq(`3`)
+                                          else Nil)
+} yield (scalaVersion, json4sVersion)
+object `json4s-compat` extends mill.Cross[Json4sCompat](json4sCrossMatrix: _*)
+class Json4sCompat(val crossScalaVersion: String, val json4sMajor: Int)
     extends CrossScalaModule
     with PublishMod {
 
-  def artifactName = "ninny-json4s-compat"
+  def millSourcePath = super.millSourcePath / os.up
+
+  def artifactName = s"ninny-json4s$json4sMajor-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(ivy"org.json4s::json4s-ast:$json4sVersion")
+  def ivyDeps = Agg(ivy"org.json4s::json4s-ast:${json4sVersion(json4sMajor)}")
 
   object test extends Tests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
