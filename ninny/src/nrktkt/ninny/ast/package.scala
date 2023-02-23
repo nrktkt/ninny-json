@@ -92,22 +92,6 @@ package object ast {
 
   sealed trait JsonNumber extends Any with JsonValue {
     def value: Double
-
-    override def equals(obj: Any) =
-      this match {
-        case JsonDouble(value) =>
-          obj match {
-            case JsonDecimal(v) => value == v
-            case JsonDouble(v)  => value == v
-            case other          => value == other
-          }
-        case JsonDecimal(preciseValue) =>
-          obj match {
-            case JsonDecimal(v) => preciseValue == v
-            case JsonDouble(v)  => preciseValue == v
-            case other          => preciseValue == other
-          }
-      }
   }
 
   object JsonNumber {
@@ -116,12 +100,25 @@ package object ast {
     def unapply(json: JsonNumber) = Some(json.value)
   }
 
-  case class JsonDouble(value: Double) extends AnyVal with JsonNumber
+  case class JsonDouble(value: Double) extends JsonNumber {
 
-  case class JsonDecimal(preciseValue: BigDecimal)
-      extends AnyVal
-      with JsonNumber {
+    override def equals(obj: Any) =
+      obj match {
+        case JsonDecimal(v) => v == value
+        case JsonDouble(v)  => value == v
+        case other          => value == other
+      }
+  }
+
+  case class JsonDecimal(preciseValue: BigDecimal) extends JsonNumber {
     def value = preciseValue.doubleValue
+
+    override def equals(obj: Any) =
+      obj match {
+        case JsonDecimal(v) => preciseValue == v
+        case JsonDouble(v)  => preciseValue == v
+        case other          => preciseValue == other
+      }
   }
 
   sealed trait JsonBoolean extends JsonValue {

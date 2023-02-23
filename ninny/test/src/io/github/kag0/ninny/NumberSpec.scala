@@ -132,4 +132,8 @@ class NumberSpec
       (BigDecimal(Double.MaxValue) + Double.MaxValue).toSomeJson
     ) shouldEqual "3.5953862697246314E+308"
   }
+
+  it should "have equality for exact numbers regardless of ast type" in {
+    JsonDecimal(1) shouldEqual JsonDouble(1)
+  }
 }
