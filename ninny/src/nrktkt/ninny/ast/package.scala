@@ -62,6 +62,33 @@ package object ast {
         case None => this
       }
     }
+
+    /** Deep merge another object into this one.
+      *
+      * @return
+      *   This object plus all the fields on that object. If a field is an
+      *   object in both this and that, the objects will be merged recursively.
+      *   If a field is present on both, and the values are not both objects,
+      *   then that value will overwrite this one.
+      */
+    def +++(that: JsonObject): JsonObject = {
+      val sharedKeys = this.values.keySet.intersect(that.values.keySet)
+      val merged = sharedKeys.view
+        .map(key =>
+          key -> (that.values(key) match {
+            case thatObject: JsonObject =>
+              this.values(key) match {
+                case thisObject: JsonObject => thisObject +++ thatObject
+                case _                      => thatObject
+              }
+            case thatValue => thatValue
+          })
+        )
+
+      JsonObject(
+        (this.values -- sharedKeys) ++ (that.values -- sharedKeys) ++ merged
+      )
+    }
   }
 
   case class JsonArray(values: Seq[JsonValue]) extends AnyVal with JsonValue {
