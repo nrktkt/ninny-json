@@ -69,7 +69,7 @@ package object ast {
       *   This object plus all the fields on that object. If a field is an
       *   object in both this and that, the objects will be merged recursively.
       *   If a field is present on both, and the values are not both objects,
-      *   then that value will overwrite this one.
+      *   then that field will overwrite this one.
       */
     def +++(that: JsonObject): JsonObject = {
       val sharedKeys = this.values.keySet.intersect(that.values.keySet)
