@@ -7,3 +7,4 @@ target/
 .vscode
 .ammonite
 .bsp
+*.iml

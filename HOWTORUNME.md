@@ -5,5 +5,5 @@
 
 # Run Example
 ```shell script
-./mill ninny.test.run
+./mill  __.test
 ```

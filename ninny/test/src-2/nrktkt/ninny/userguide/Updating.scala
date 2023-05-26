@@ -1,4 +1,4 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
 object Updating {
 // format: off

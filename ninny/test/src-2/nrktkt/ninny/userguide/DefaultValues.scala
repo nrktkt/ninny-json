@@ -1,7 +1,7 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny.FromJson
-import io.github.kag0.ninny._
+import nrktkt.ninny.FromJson
+import nrktkt.ninny._
 
 object DefaultValues extends App {
 // format: Off

@@ -1,7 +1,7 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
 import scala.util.Try
-import io.github.kag0.ninny.ast.JsonValue
+import nrktkt.ninny.ast.JsonValue
 
 object Reading {
 // format: off
@@ -51,7 +51,7 @@ hopefullyJson.*.firstName.to[String] // Success(John)
 
 // type conversion failures work as you'd expect
 json.firstName.to[Boolean]
-// Failure(io.github.kag0.ninny.JsonException: Expected boolean, got "John")
+// Failure(nrktkt.ninny.JsonException: Expected boolean, got "John")
 
 // dynamic array syntax works predictably 
 json.kids(1).to[String]     // Success(Jane)

@@ -1,6 +1,6 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 object ForProductN extends App {
 // format: Off

@@ -1,7 +1,7 @@
-package io.github.kag0.ninny.example
+package nrktkt.ninny.example
 
-import io.github.kag0.ninny.ast._
-import io.github.kag0.ninny._
+import nrktkt.ninny.ast._
+import nrktkt.ninny._
 
 import scala.util.Success
 

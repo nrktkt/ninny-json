@@ -1,8 +1,8 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny.ToAndFromJson
+import nrktkt.ninny.ToAndFromJson
 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 object Annotations extends App {
 // format: Off
