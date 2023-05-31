@@ -1,12 +1,12 @@
-package io.github.kag0.ninny.example
+package nrktkt.ninny.example
 
-import io.github.kag0.ninny.ast.JsonValue
+import nrktkt.ninny.ast.JsonValue
 
 import scala.util.{Failure, Try}
 import scala.collection.immutable._
 // format: off
 object Userguide extends App { 
-import io.github.kag0.ninny._
+import nrktkt.ninny._
 
 val hopefullyJson: Try[JsonValue] = Json.parse("""
 {
@@ -51,7 +51,7 @@ hopefullyJson.*.firstName.to[String] // Success(John)
 
 // type conversion failures work as you'd expect
 json.firstName.to[Boolean]
-// Failure(io.github.kag0.ninny.JsonException: Expected boolean, got "John")
+// Failure(nrktkt.ninny.JsonException: Expected boolean, got "John")
 
 // dynamic array syntax works predictably
 json.kids(1).to[String] // Success(Jane)
@@ -70,7 +70,7 @@ json.age.to[Option[String]] // Success(None)
 42.toSomeJson // JsonNumber(42)
 
 // .toSomeJson doesn't work unless the type definitely produces a JSON value
-//None.toSomeJson // could not find implicit value for parameter toJson: io.github.kag0.ninny.ToSomeJson[None.type]
+//None.toSomeJson // could not find implicit value for parameter toJson: nrktkt.ninny.ToSomeJson[None.type]
 
 ////////////////////////
 

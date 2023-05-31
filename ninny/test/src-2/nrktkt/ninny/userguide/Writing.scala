@@ -1,6 +1,6 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny.ToSomeJson
+import nrktkt.ninny.ToSomeJson
 
 object Writing {
 // format: off
@@ -19,7 +19,7 @@ import nrktkt.ninny._
 // definitely produces a JSON value
 None.toSomeJson 
 //   ^
-// could not find implicit value for parameter toJson: io.github.kag0.ninny.ToSomeJson[None.type]
+// could not find implicit value for parameter toJson: nrktkt.ninny.ToSomeJson[None.type]
 
 //---
 
@@ -56,8 +56,8 @@ implicit val gjToJson2: ToJson[GomJabbar] = ???
 obj("gom_jabbar" -> gomJabbar)
 /*
 type mismatch;
-  found   : io.github.kag0.ninny.userguide.Writing.GomJabbar
-  required: io.github.kag0.ninny.magnetic.JsonMagnet
+  found   : nrktkt.ninny.userguide.Writing.GomJabbar
+  required: nrktkt.ninny.magnetic.JsonMagnet
 obj("gom_jabbar" -> gomJabbar)
                     ^
 */
@@ -65,9 +65,9 @@ obj("gom_jabbar" -> gomJabbar)
 obj("gom_jabbar" ~> gomJabbar)
 /*
 ambiguous implicit values:
-  both value gjToJson1 in object Writing of type => io.github.kag0.ninny.ToJson[GomJabbar]
-  and value gjToJson2 in object Writing of type => io.github.kag0.ninny.ToJson[GomJabbar]
-  match expected type io.github.kag0.ninny.package.ToJson[GomJabbar]
+  both value gjToJson1 in object Writing of type => nrktkt.ninny.ToJson[GomJabbar]
+  and value gjToJson2 in object Writing of type => nrktkt.ninny.ToJson[GomJabbar]
+  match expected type nrktkt.ninny.package.ToJson[GomJabbar]
 obj("gom_jabbar" ~> gomJabbar)
                  ^
 */

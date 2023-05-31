@@ -1,6 +1,6 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny.ast.JsonValue
+import nrktkt.ninny.ast.JsonValue
 
 object DomainTo extends App {
 // format: off

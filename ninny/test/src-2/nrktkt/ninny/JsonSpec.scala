@@ -1,10 +1,10 @@
-package io.github.kag0.ninny
+package nrktkt.ninny
 
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, OffsetDateTime, ZonedDateTime}
 import java.util.NoSuchElementException
 
-import io.github.kag0.ninny.ast._
+import nrktkt.ninny.ast._
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
@@ -14,9 +14,9 @@ import java.util.UUID
 import scala.util.Random
 import scala.collection.compat.immutable.ArraySeq
 import java.util.Base64
-import io.github.kag0.ninny.magnetic.JsonMagnet
-import io.github.kag0.ninny.magnetic.SomeJsonMagnet
-import io.github.kag0.ninny.ToAndFromJson
+import nrktkt.ninny.magnetic.JsonMagnet
+import nrktkt.ninny.magnetic.SomeJsonMagnet
+import nrktkt.ninny.ToAndFromJson
 import scala.util.Failure
 
 class JsonSpec

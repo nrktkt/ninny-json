@@ -1,7 +1,7 @@
-package io.github.kag0.ninny.userguide
+package nrktkt.ninny.userguide
 
-import io.github.kag0.ninny.userguide.DomainFrom.Address
-import io.github.kag0.ninny.userguide.DomainFrom.Person
+import nrktkt.ninny.userguide.DomainFrom.Address
+import nrktkt.ninny.userguide.DomainFrom.Person
 
 object SemiAuto {
 // format: off
