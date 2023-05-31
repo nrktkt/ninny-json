@@ -1,8 +1,8 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/tk.nrktkt/ninny_2.13?style=for-the-badge&logo=apache-maven)](https://mvnrepository.com/artifact/tk.nrktkt/ninny)
-[![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://kag0.github.io/ninny-json/coverage)  
-[![Gitter](https://img.shields.io/gitter/room/nrktkt/ninny-json?style=for-the-badge&logo=gitter)](https://gitter.im/nrktkt/ninny-json?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
-[![Matrix](https://img.shields.io/badge/chat-on%20matrix-%230dbd8b?style=for-the-badge&logo=matrix)](https://matrix.to/#/#kag0_ninny-json:gitter.im?via=gitter.im&via=matrix.org)
+[![coverage](https://img.shields.io/badge/test%20coverage-%3E%2090%25-brightgreen?style=for-the-badge)](https://nrktkt.github.io/ninny-json/coverage)  
+[![Gitter](https://img.shields.io/gitter/room/nrktkt/ninny-json?style=for-the-badge&logo=gitter)](https://gitter.im/kag0/ninny-json?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+[![Matrix](https://img.shields.io/badge/chat-on%20matrix-%230dbd8b?style=for-the-badge&logo=matrix)](https://matrix.to/#/#nrktkt_ninny-json:gitter.im?via=gitter.im&via=matrix.org)
 
 
 # Integrations
@@ -12,7 +12,7 @@
 * [mercury JSON-RPC](https://github.com/lightform-oss/mercury/tree/master/ninny)
 * [Play JSON](play-compat) (if you find something with Play support, it will work with ninny too!)
 
-<script type='module' src="https://cdn.jsdelivr.net/gh/kag0/sauce@11.1.0/sauce.js">
+<script type='module' src="https://cdn.jsdelivr.net/gh/nrktkt/sauce@11.1.0/sauce.js">
   <h1>If you're reading this, you should go to the userguide website at https://nrktkt.github.io/ninny-json/USERGUIDE </h1>
 </script>
 
