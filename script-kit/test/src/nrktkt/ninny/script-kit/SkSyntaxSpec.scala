@@ -11,7 +11,7 @@ import org.scalatest.OptionValues
 
 class SkSyntaxSpec extends AnyFlatSpec with should.Matchers {
 
-  val o = obj("obj" -> obj("present" -> 5))
+  val o = obj("obj" ~> obj("present" ~> 5))
 
   "lookup finalization syntax" should "return present values" in {
     o.obj.present.! shouldEqual JsonNumber(5)

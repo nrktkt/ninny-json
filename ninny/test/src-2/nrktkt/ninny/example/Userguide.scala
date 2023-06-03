@@ -75,14 +75,14 @@ json.age.to[Option[String]] // Success(None)
 ////////////////////////
 
 val json1 = obj(
-  "firstName" -> "John",
-  "lastName"  -> "Doe",
-  "address" -> obj(
-    "street" -> "710 Ashbury St",
-    "zip"    -> "94117"
+  "firstName" ~> "John",
+  "lastName"  ~> "Doe",
+  "address" ~> obj(
+    "street" ~> "710 Ashbury St",
+    "zip"    ~> "94117"
   ),
-  "kids" -> arr("Jr", "Jane"),
-  "age"  -> None
+  "kids" ~> arr("Jr", "Jane"),
+  "age"  ~> None
 )
 
 Json.render(json1) // {"lastName":"Doe","firstName":"John","address":{"street":"710 Ashbury St","zip":"94117"},"kids":["Jr","Jane"]}
@@ -90,9 +90,9 @@ Json.render(json1) // {"lastName":"Doe","firstName":"John","address":{"street":"
 ////////////////////////////////////////////
 
 val deep = obj(
-  "one" -> obj(
-    "two" -> obj(
-      "three" -> "value!"
+  "one" ~> obj(
+    "two" ~> obj(
+      "three" ~> "value!"
     )
   )
 )
@@ -119,8 +119,8 @@ case class Address(street: String, zip: String)
   */
 implicit val addressToJson: ToSomeJson[Address] = a =>
   obj(
-    "street" -> a.street,
-    "zip"    -> a.zip
+    "street" ~> a.street,
+    "zip"    ~> a.zip
   )
 
 implicit val addressFromJson: FromJson[Address] = {
@@ -134,11 +134,11 @@ implicit val addressFromJson: FromJson[Address] = {
 
 implicit val personToJson: ToSomeJson[Person] = p =>
   obj(
-    "firstName" -> p.firstName,
-    "lastName"  -> p.lastName,
-    "address"   -> p.address,
-    "kids"      -> p.kids,
-    "age"       -> p.age
+    "firstName" ~> p.firstName,
+    "lastName"  ~> p.lastName,
+    "address"   ~> p.address,
+    "kids"      ~> p.kids,
+    "age"       ~> p.age
   )
 
 implicit val personFromJson = FromJson.fromSome[Person](json =>

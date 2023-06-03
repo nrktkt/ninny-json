@@ -1,6 +1,7 @@
 package nrktkt.ninny.compat
 
 import nrktkt.ninny.ast._
+import nrktkt.ninny._
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
@@ -31,13 +32,13 @@ class Json4sCompatSpec
       )
 
       val ninny = nrktkt.ninny.obj(
-        "long"        -> JsonDouble(1),
-        "bigInt"      -> BigDecimal(1),
-        "exactNumber" -> BigDecimal("1.23"),
-        "bool"        -> true,
-        "string"      -> "value",
-        "null"        -> JsonNull,
-        "array"       -> Seq(JsonNull)
+        "long"        ~> JsonDouble(1),
+        "bigInt"      ~> BigDecimal(1),
+        "exactNumber" ~> BigDecimal("1.23"),
+        "bool"        ~> true,
+        "string"      ~> "value",
+        "null"        ~> JsonNull,
+        "array"       ~> Seq(JsonNull)
       )
 
       Json4sCompat.toNinnyJson(json4s).value shouldEqual ninny
@@ -45,13 +46,13 @@ class Json4sCompatSpec
 
     "Conversion from ninny to json4s" should "convert all types" in {
       val ninny = nrktkt.ninny.obj(
-        "long"        -> JsonDouble(1),
-        "bigInt"      -> BigDecimal(1),
-        "exactNumber" -> BigDecimal("1.23"),
-        "bool"        -> true,
-        "string"      -> "value",
-        "null"        -> JsonNull,
-        "array"       -> Seq(JsonNull)
+        "long"        ~> JsonDouble(1),
+        "bigInt"      ~> BigDecimal(1),
+        "exactNumber" ~> BigDecimal("1.23"),
+        "bool"        ~> true,
+        "string"      ~> "value",
+        "null"        ~> JsonNull,
+        "array"       ~> Seq(JsonNull)
       )
 
       val json4s = JObject(

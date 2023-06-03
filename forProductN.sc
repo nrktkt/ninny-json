@@ -22,7 +22,7 @@ def generateProductToJson = {
     out ++= (0 until i).map(j => s"a$j").mkString(", ")
     out ++= ") = f(target)\n"
     out ++= "obj("
-    out ++= (0 until i).map(j => s"(nameA$j, a$j)").mkString(", ")
+    out ++= (0 until i).map(j => s"(nameA$j ~> a$j)").mkString(", ")
     out ++= ")\n}\n"
   }
 

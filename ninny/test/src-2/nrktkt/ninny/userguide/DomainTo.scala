@@ -25,19 +25,19 @@ object Address {
    */
   implicit val toJson: ToSomeJson[Address] = a =>
     obj(
-      "street" -> a.street,
-      "zip"    -> a.zip
+      "street" ~> a.street,
+      "zip"    ~> a.zip
     )
 }
 
 object Person {
   implicit val toJson: ToSomeJson[Person] = p =>
     obj(
-      "firstName" -> p.firstName,
-      "lastName"  -> p.lastName,
-      "address"   -> p.address,
-      "kids"      -> p.kids,
-      "age"       -> p.age
+      "firstName" ~> p.firstName,
+      "lastName"  ~> p.lastName,
+      "address"   ~> p.address,
+      "kids"      ~> p.kids,
+      "age"       ~> p.age
     )
 }
 

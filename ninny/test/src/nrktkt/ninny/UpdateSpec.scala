@@ -1,9 +1,9 @@
-package io.github.kag0.ninny
+package nrktkt.ninny
 
 import org.scalatest._
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
-import io.github.kag0.ninny.ast._
+import nrktkt.ninny.ast._
 
 class UpdateSpec
     extends AnyFlatSpec
@@ -12,19 +12,19 @@ class UpdateSpec
     with OptionValues {
 
   val sampleObject = obj(
-    "a" -> arr(
+    "a" ~> arr(
       obj(
-        "b" -> obj(
-          "c" -> arr(
+        "b" ~> obj(
+          "c" ~> arr(
             0,
             1,
             2,
-            obj("d" -> "foo")
+            obj("d" ~> "foo")
           )
         )
       )
     ),
-    "z" -> "baz"
+    "z" ~> "baz"
   )
 
   "Updating nested objects" should "work with dynamic syntax" in {

@@ -6,9 +6,9 @@ object Updating {
 import nrktkt.ninny._
 
 val json = obj(
-  "one" -> obj(
-    "two" -> obj(
-      "three" -> "value!"
+  "one" ~> obj(
+    "two" ~> obj(
+      "three" ~> "value!"
     )
   )
 )

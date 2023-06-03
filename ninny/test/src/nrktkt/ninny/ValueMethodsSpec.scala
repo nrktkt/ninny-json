@@ -12,8 +12,8 @@ class ValueMethodsSpec
     with TryValues {
 
   "JsonObject deep merge" should "merge object fields" in {
-    val left   = obj("inner" -> obj("field" -> "value"))
-    val right  = obj("inner" -> obj("field2" -> "value2"))
+    val left   = obj("inner" ~> obj("field" ~> "value"))
+    val right  = obj("inner" ~> obj("field2" ~> "value2"))
     val merged = left +++ right
     merged.inner.field.to[String].success.value shouldEqual "value"
     merged.inner.field2.to[String].success.value shouldEqual "value2"
@@ -22,17 +22,17 @@ class ValueMethodsSpec
   it should "overwrite with the new value" in {
     val left =
       obj(
-        "inner" -> obj(
-          "field"  -> "value",
-          "field2" -> obj("x" -> "y"),
-          "field3" -> 2
+        "inner" ~> obj(
+          "field"  ~> "value",
+          "field2" ~> obj("x" ~> "y"),
+          "field3" ~> 2
         )
       )
     val right = obj(
-      "inner" -> obj(
-        "field"  -> "value2",
-        "field2" -> 1,
-        "field3" -> obj("x" -> "y")
+      "inner" ~> obj(
+        "field"  ~> "value2",
+        "field2" ~> 1,
+        "field3" ~> obj("x" ~> "y")
       )
     )
     val merged = left +++ right

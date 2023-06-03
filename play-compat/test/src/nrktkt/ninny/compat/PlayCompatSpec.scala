@@ -27,7 +27,7 @@ class PlayCompatSpec
 
   val ex1 = Example1("baz", Seq(1, 2, 3))
   val ex2 = Example2("baz", Seq(1, 2, 3))
-  val ex1json = obj("foo" -> "baz", "bar" -> Seq(1, 2, 3))
+  val ex1json = obj("foo" ~> "baz", "bar" ~> Seq(1, 2, 3))
   val ex2json = PlayJson.obj("foo" -> "baz", "bar" -> PlayJson.arr(1, 2, 3))
 
   "Play typeclasses" should "write ninny json" in {
