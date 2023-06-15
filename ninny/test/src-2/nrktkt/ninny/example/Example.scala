@@ -62,7 +62,7 @@ object Example extends App {
   println()
 
   val profileUpdateJson =
-    obj("email" -> JsonNull, "bio" -> "Just a zombie looking for his Jane")
+    obj("email" ~> JsonNull, "bio" ~> "Just a zombie looking for his Jane")
 
   val profileUpdate = profileUpdateJson.to[UpdateProfile].get
   println("Parsed profile update")

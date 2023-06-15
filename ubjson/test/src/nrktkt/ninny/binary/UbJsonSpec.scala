@@ -307,11 +307,11 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
 
     val parsed = UbJson.parse(binary).success.value
     parsed shouldEqual obj(
-      "null"   -> JsonNull,
-      "string" -> "foo",
-      "bool"   -> true,
-      "num"    -> float,
-      "char"   -> "!"
+      "null"   ~> JsonNull,
+      "string" ~> "foo",
+      "bool"   ~> true,
+      "num"    ~> float,
+      "char"   ~> "!"
     )
   }
 
@@ -325,11 +325,11 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
 
     val parsed = UbJson.parse(binary).success.value
     parsed shouldEqual obj(
-      "null"   -> JsonNull,
-      "string" -> "foo",
-      "bool"   -> true,
-      "num"    -> float,
-      "char"   -> "!"
+      "null"   ~> JsonNull,
+      "string" ~> "foo",
+      "bool"   ~> true,
+      "num"    ~> float,
+      "char"   ~> "!"
     )
   }
 
@@ -343,21 +343,21 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
 
     val parsed = UbJson.parse(binary).success.value
     parsed shouldEqual obj(
-      "a" -> a,
-      "b" -> b,
-      "c" -> c,
-      "d" -> d
+      "a" ~> a,
+      "b" ~> b,
+      "c" ~> c,
+      "d" ~> d
     )
   }
 
   it should "render objects" in {
     UbJson.render(
       obj(
-        "null"   -> JsonNull,
-        "string" -> "foo",
-        "bool"   -> true,
-        "num"    -> float,
-        "char"   -> "!"
+        "null"   ~> JsonNull,
+        "string" ~> "foo",
+        "bool"   ~> true,
+        "num"    ~> float,
+        "char"   ~> "!"
       )
     ) shouldEqual ArraySeq[Byte]('{') :++
       stringField :++
@@ -431,20 +431,20 @@ class UbJsonSpec extends AnyFlatSpec with should.Matchers with TryValues {
 
   "UBJSON" should "satisfy identity" in {
     val o = obj(
-      "foo"    -> "bar",
-      "num"    -> 5,
-      "bool"   -> true,
-      "bignum" -> BigDecimal("12.3e7"),
-      "float"  -> 12.3,
-      "null"   -> JsonNull,
-      "bin"    -> JsonBlob(ArraySeq[Byte](1, 2, 3)),
-      "arr" -> arr(
+      "foo"    ~> "bar",
+      "num"    ~> 5,
+      "bool"   ~> true,
+      "bignum" ~> BigDecimal("12.3e7"),
+      "float"  ~> 12.3,
+      "null"   ~> JsonNull,
+      "bin"    ~> JsonBlob(ArraySeq[Byte](1, 2, 3)),
+      "arr" ~> arr(
         1,
         true,
         12.3,
         obj(
-          "nested" -> "!",
-          "again!" -> arr(1, 2, 3)
+          "nested" ~> "!",
+          "again!" ~> arr(1, 2, 3)
         )
       )
     )

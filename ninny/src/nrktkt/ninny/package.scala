@@ -1,8 +1,7 @@
 package nrktkt
 
 import nrktkt.ninny.ast._
-import nrktkt.ninny.magnetic.{JsonMagnet, SomeJsonMagnet}
-
+import nrktkt.ninny.magnetic.{SomeJsonMagnet}
 import scala.language.dynamics
 import scala.util.Try
 
@@ -65,9 +64,9 @@ package object ninny {
   }
 
   implicit class ArrowSyntax(val s: String) extends AnyVal {
-    def -->[A: ToJson](a: A) = s -> JsonMagnet(a)
+    def -->[A: ToJson](a: A): (String, Option[JsonValue]) = s -> a.toJson
     // I couldn't decide on syntax, so I'll throw both out there
-    def ~>[A: ToJson](a: A) = s -> JsonMagnet(a)
+    def ~>[A: ToJson](a: A): (String, Option[JsonValue]) = s -> a.toJson
   }
 
   type ToJson[A]           = ToJsonValue[A, JsonValue]
@@ -75,13 +74,13 @@ package object ninny {
   type ToSomeJson[A]       = ToSomeJsonValue[A, JsonValue]
   type ToSomeJsonObject[A] = ToSomeJsonValue[A, JsonObject]
 
-  // @deprecated(
-  //  message =
-  //    "Use nrktkt.ninny.magnetic.obj instead, this may be replaced with a magnet-free signature in the future",
-  //  since = ""
-  // )
-  def obj(nameValues: (String, JsonMagnet)*): JsonObject =
-    magnetic.obj(nameValues: _*)
+  // Import nrktkt.ninny.magnetic.obj if the magnet pattern is preferrable
+  def obj(fields: (String, Option[JsonValue])*): JsonObject =
+    JsonObject(
+      fields.collect { case (name, Some(json)) =>
+        name -> json
+      }.toMap
+    )
 
   // @deprecated(
   //  message =

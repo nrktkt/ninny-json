@@ -24,14 +24,14 @@ None.toSomeJson
 //---
 
 val json = obj(
-  "firstName" -> "John",
-  "lastName"  -> "Doe",
-  "address" -> obj(
-    "street" -> "710 Ashbury St",
-    "zip"    -> "94117"
+  "firstName" ~> "John",
+  "lastName"  ~> "Doe",
+  "address" ~> obj(
+    "street" ~> "710 Ashbury St",
+    "zip"    ~> "94117"
   ),
-  "kids" -> arr("Jr", "Jane"),
-  "age"  -> None
+  "kids" ~> arr("Jr", "Jane"),
+  "age"  ~> None
 )
 
 Json.render(json) 

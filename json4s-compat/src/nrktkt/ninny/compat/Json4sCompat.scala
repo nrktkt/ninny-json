@@ -13,7 +13,7 @@ object Json4sCompat {
     def ~[B: ToJson](newPair: (String, B))(implicit
         aToJson: ToJson[A]
     ): JsonObject =
-      obj(pair._1 -> pair._2, newPair._1 -> newPair._2)
+      obj(pair._1 ~> pair._2, newPair._1 ~> newPair._2)
   }
 
   implicit class JsonObjectSyntax(json: JsonObject) {

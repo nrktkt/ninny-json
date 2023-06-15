@@ -2,7 +2,7 @@
 
 This module supports converting the AST to and from Universal Binary JSON.
 
-Usage is idential to standard JSON, with the exception that `nrktkt.ninny.Json` is replaced with `nrktkt.ninny.binary.UbJson`.
+Usage is identical to standard JSON, with the exception that `nrktkt.ninny.Json` is replaced with `nrktkt.ninny.binary.UbJson`.
 
 For example
 

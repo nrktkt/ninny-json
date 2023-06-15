@@ -14,10 +14,10 @@ import java.util.UUID
 import scala.util.Random
 import scala.collection.compat.immutable.ArraySeq
 import java.util.Base64
-import nrktkt.ninny.magnetic.JsonMagnet
-import nrktkt.ninny.magnetic.SomeJsonMagnet
 import nrktkt.ninny.ToAndFromJson
 import scala.util.Failure
+import nrktkt.ninny.magnetic.JsonMagnet
+import nrktkt.ninny.magnetic.SomeJsonMagnet
 
 class JsonSpec
     extends AnyFlatSpec
@@ -27,13 +27,13 @@ class JsonSpec
 
   it should "work" in {
     val sampleValues = obj(
-      "string" -> """¯\_(ツ)_/¯""",
-      "number" -> 1.79e308,
-      "bool"   -> true,
-      "false"  -> false,
-      "null"   -> JsonNull,
-      "unit"   -> ((): Unit),
-      "some"   -> "str"
+      "string" ~> """¯\_(ツ)_/¯""",
+      "number" ~> 1.79e308,
+      "bool"   ~> true,
+      "false"  ~> false,
+      "null"   ~> JsonNull,
+      "unit"   ~> ((): Unit),
+      "some"   ~> "str"
     )
 
     val sampleArray =
@@ -42,8 +42,8 @@ class JsonSpec
     val sampleObject =
       JsonObject(
         sampleValues.values ++ obj(
-          "object" -> sampleValues,
-          "array"  -> sampleArray
+          "object" ~> sampleValues,
+          "array"  ~> sampleArray
         ).values
       )
 
@@ -92,13 +92,13 @@ class JsonSpec
   }
 
   val sampleValuesAst = obj(
-    "string" -> """¯\_(ツ)_/¯""",
-    "number" -> 1.79e308,
-    "bool"   -> true,
-    "false"  -> false,
-    "null"   -> JsonNull,
-    "unit"   -> ((): Unit),
-    "some"   -> Some("str")
+    "string" ~> """¯\_(ツ)_/¯""",
+    "number" ~> 1.79e308,
+    "bool"   ~> true,
+    "false"  ~> false,
+    "null"   ~> JsonNull,
+    "unit"   ~> ((): Unit),
+    "some"   ~> Some("str")
   )
 
   val sampleValuesObj = SampleValues(
@@ -182,40 +182,40 @@ class JsonSpec
       |""".stripMargin
 
   val exampleObjectAst = obj(
-    "Image" -> obj(
-      "Width"  -> 800,
-      "Height" -> 600,
-      "Title"  -> "View from 15th Floor",
-      "Thumbnail" -> obj(
-        "Url"    -> "http://www.example.com/image/481989943",
-        "Height" -> 125,
-        "Width"  -> 100
+    "Image" ~> obj(
+      "Width"  ~> 800,
+      "Height" ~> 600,
+      "Title"  ~> "View from 15th Floor",
+      "Thumbnail" ~> obj(
+        "Url"    ~> "http://www.example.com/image/481989943",
+        "Height" ~> 125,
+        "Width"  ~> 100
       ),
-      "Animated" -> false,
-      "IDs"      -> arr(116, 943, 234, 38793)
+      "Animated" ~> false,
+      "IDs"      ~> arr(116, 943, 234, 38793)
     )
   )
 
   val exampleArrayAst = arr(
     obj(
-      "precision" -> "zip",
-      "Latitude"  -> 37.7668,
-      "Longitude" -> -122.3959,
-      "Address"   -> "",
-      "City"      -> "SAN FRANCISCO",
-      "State"     -> "CA",
-      "Zip"       -> "94107",
-      "Country"   -> "US"
+      "precision" ~> "zip",
+      "Latitude"  ~> 37.7668,
+      "Longitude" ~> -122.3959,
+      "Address"   ~> "",
+      "City"      ~> "SAN FRANCISCO",
+      "State"     ~> "CA",
+      "Zip"       ~> "94107",
+      "Country"   ~> "US"
     ),
     obj(
-      "precision" -> "zip",
-      "Latitude"  -> 37.371991,
-      "Longitude" -> -122.026020,
-      "Address"   -> "",
-      "City"      -> "SUNNYVALE",
-      "State"     -> "CA",
-      "Zip"       -> "94085",
-      "Country"   -> "US"
+      "precision" ~> "zip",
+      "Latitude"  ~> 37.371991,
+      "Longitude" ~> -122.026020,
+      "Address"   ~> "",
+      "City"      ~> "SUNNYVALE",
+      "State"     ~> "CA",
+      "Zip"       ~> "94085",
+      "Country"   ~> "US"
     )
   )
 
@@ -244,13 +244,13 @@ class JsonSpec
 
     implicit val toJson: ToSomeJson[Image] = a =>
       obj(
-        "Width"     -> a.Width,
-        "Height"    -> a.Height,
-        "Title"     -> a.Title,
-        "Thumbnail" -> a.Thumbnail,
-        "Url"       -> a.Url,
-        "Animated"  -> a.Animated,
-        "IDs"       -> (if (a.IDs.isEmpty) None else a.IDs)
+        "Width"     ~> a.Width,
+        "Height"    ~> a.Height,
+        "Title"     ~> a.Title,
+        "Thumbnail" ~> a.Thumbnail,
+        "Url"       ~> a.Url,
+        "Animated"  ~> a.Animated,
+        "IDs"       ~> (if (a.IDs.isEmpty) None else Some(a.IDs))
       )
   }
 
@@ -280,14 +280,14 @@ class JsonSpec
 
     implicit val toJson: ToSomeJson[Address] = a =>
       obj(
-        "precision" -> a.precision,
-        "Latitude"  -> a.Latitude,
-        "Longitude" -> a.Longitude,
-        "Address"   -> a.Address,
-        "City"      -> a.City,
-        "State"     -> a.State,
-        "Zip"       -> a.Zip,
-        "Country"   -> a.Country
+        "precision" ~> a.precision,
+        "Latitude"  ~> a.Latitude,
+        "Longitude" ~> a.Longitude,
+        "Address"   ~> a.Address,
+        "City"      ~> a.City,
+        "State"     ~> a.State,
+        "Zip"       ~> a.Zip,
+        "Country"   ~> a.Country
       )
   }
 
@@ -461,7 +461,7 @@ class JsonSpec
   }
 
   "JsonObjects" should "rename fields" in {
-    val json    = obj("foo" -> "bar")
+    val json    = obj("foo" ~> "bar")
     val renamed = json.renameField("foo", "baz")
     (renamed / "baz").value shouldEqual JsonString("bar")
     (renamed / "foo") shouldEqual None
@@ -566,7 +566,7 @@ class JsonSpec
 
   "magnet free syntax" should "work" in {
     val o = obj(
-      "foo" -> 5,
+      "foo" ~> 5,
       "bar" --> 7,
       "baz" ~> 11
     )
@@ -640,7 +640,7 @@ class JsonSpec
     val example = Example("bar", 1)
     val js      = example.toSomeJson
     val fromJs  = js.to[Example].success.value
-    js shouldEqual obj("baz" -> "bar", "bop" -> 1)
+    js shouldEqual obj("baz" ~> "bar", "bop" ~> 1)
     fromJs shouldEqual example
   }
   {
@@ -652,8 +652,8 @@ class JsonSpec
         ToAndFromJson.auto[Example]
       }
 
-      obj("qix" -> 1).to[Example].success.value shouldEqual Example(1)
-      obj("qix" -> 1, "foo" -> "baz")
+      obj("qix" ~> 1).to[Example].success.value shouldEqual Example(1)
+      obj("qix" ~> 1, "foo" ~> "baz")
         .to[Example]
         .success
         .value shouldEqual Example(1, "baz")
@@ -662,8 +662,8 @@ class JsonSpec
     it should "ignore defaults if the default import isn't available" in {
       import Auto._
 
-      obj("qix" -> 1).to[Example] shouldBe a[Failure[_]]
-      obj("qix" -> 1, "foo" -> "baz")
+      obj("qix" ~> 1).to[Example] shouldBe a[Failure[_]]
+      obj("qix" ~> 1, "foo" ~> "baz")
         .to[Example]
         .success
         .value shouldEqual Example(1, "baz")
