@@ -26,4 +26,6 @@ object ToJson extends ProductToJson {
 trait ToSomeJsonValue[A, +Json <: JsonValue] extends ToJsonValue[A, Json] {
   def toSome(a: A): Json
   override def to(a: A) = Some(toSome(a))
+  override def contramap[B](f: B => A): ToSomeJsonValue[B, Json] = b =>
+    toSome(f(b))
 }
