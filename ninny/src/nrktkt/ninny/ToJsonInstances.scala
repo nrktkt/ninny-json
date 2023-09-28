@@ -57,13 +57,19 @@ trait ToJsonInstances
 
   implicit val noneToJson: ToJson[None.type]          = _ => None
   implicit def someToJson[A: ToJson]: ToJson[Some[A]] = optionToJson[A].to(_)
-  implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] = 
+  implicit def someToSomeJson[A: ToSomeJson]: ToSomeJson[Some[A]] =
     _.value.toSomeJson
 
-  implicit def leftToJson[L: ToJson, R]: ToJson[Left[L, R]] = _.value.toJson
-  implicit def rightToJson[L, R: ToJson]: ToJson[Right[L, R]] = _.value.toJson
-  implicit def eitherToJson[L: ToJson, R: ToJson]: ToJson[Either[L, R]] = 
-    _.fold(_.toJson, _.toJson)
+  implicit def leftToSomeJson[L, R, Json <: JsonValue](implicit
+      toJson: ToSomeJsonValue[L, Json]
+  ): ToSomeJsonValue[Left[L, R], Json] = _.value.toSomeJson
+
+  implicit def rightToSomeJson[L, R, Json <: JsonValue](implicit
+      toJson: ToSomeJsonValue[R, Json]
+  ): ToSomeJsonValue[Right[L, R], Json] = _.value.toSomeJson
+
+  implicit def eitherToSomeJson[L: ToSomeJson, R: ToSomeJson]
+      : ToSomeJson[Either[L, R]] = _.fold(_.toSomeJson, _.toSomeJson)
 
   implicit val instantToJson: ToSomeJson[Instant] =
     i => JsonNumber(i.getEpochSecond.toDouble)
@@ -93,6 +99,11 @@ trait LowPriorityToJsonInstances {
 
   implicit def numericToJson[A: Numeric]: ToSomeJsonValue[A, JsonDouble] =
     a => JsonDouble(implicitly[Numeric[A]].toDouble(a))
+
+  implicit def leftToJson[L: ToJson, R]: ToJson[Left[L, R]]   = _.value.toJson
+  implicit def rightToJson[L, R: ToJson]: ToJson[Right[L, R]] = _.value.toJson
+  implicit def eitherToJson[L: ToJson, R: ToJson]: ToJson[Either[L, R]] =
+    _.fold(_.toJson, _.toJson)
 }
 
 class ToJsonAuto[A](val toJson: ToSomeJsonObject[A]) extends AnyVal
