@@ -18,6 +18,7 @@ import nrktkt.ninny.ToAndFromJson
 import scala.util.Failure
 import nrktkt.ninny.magnetic.JsonMagnet
 import nrktkt.ninny.magnetic.SomeJsonMagnet
+import nrktkt.ninny.ToSomeJson
 
 class JsonSpec
     extends AnyFlatSpec
@@ -667,6 +668,26 @@ class JsonSpec
         .to[Example]
         .success
         .value shouldEqual Example(1, "baz")
+    }
+  }
+  {
+    case class Example(i: Integer)
+    implicit val javaIntToJson: ToSomeJson[Integer] = i =>
+      if (i == null) JsonNumber(0) else JsonDouble(i.toDouble)
+
+    "NullPointerBehavior" should "pass null pointers to typeclass instances by default" in {
+      val example                = Example(null)
+      implicit val exampleToJson = ToJson.auto[Example]
+      val json                   = example.toSomeJson
+      (json / "i").value shouldEqual JsonNumber(0)
+    }
+
+    it should "use behavior when in scope" in {
+      val example                      = Example(null)
+      implicit val nullPointerBehavior = NullPointerBehavior.WriteNull
+      implicit val exampleToJson       = ToJson.auto[Example]
+      val json                         = example.toSomeJson
+      (json / "i").value shouldEqual JsonNull
     }
   }
 }
