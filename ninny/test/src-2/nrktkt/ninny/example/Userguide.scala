@@ -4,6 +4,8 @@ import nrktkt.ninny.ast.JsonValue
 
 import scala.util.{Failure, Try}
 import scala.collection.immutable._
+import nrktkt.ninny.ast.JsonNull
+import nrktkt.ninny.ast.JsonString
 // format: off
 object Userguide extends App { 
 import nrktkt.ninny._
@@ -164,39 +166,51 @@ Json.parse("").to[Person]: Try[Person]
 
 // semi auto
 {
-  /*
-    implement ToSomeJson instead of ToJson if your object always produces
-    some kind of JSON. this is a common case.
-    */
-  implicit val addressToJson = ToAndFromJson.auto[Address]
+/*
+  implement ToSomeJson instead of ToJson if your object always produces
+  some kind of JSON. this is a common case.
+  */
+implicit val addressToJson = ToAndFromJson.auto[Address]
 
-  implicit val personToJson = ToJson.auto[Person]
+implicit val personToJson = ToJson.auto[Person]
 
-  implicit val personFromJson = FromJson.auto[Person]
+implicit val personFromJson = FromJson.auto[Person]
 
-  Person(
-    "John",
-    "Doe",
-    Address("710 Ashbury St", "94117"),
-    Seq("Jr", "Jane"),
-    age = None
-  ).toSomeJson: JsonValue
+Person(
+  "John",
+  "Doe",
+  Address("710 Ashbury St", "94117"),
+  Seq("Jr", "Jane"),
+  age = None
+).toSomeJson: JsonValue
 
-  Json.parse("").to[Person]: Try[Person]
+Json.parse("").to[Person]: Try[Person]
 }
 
 // full auto
 {
-  import nrktkt.ninny.Auto._
+import nrktkt.ninny.Auto._
 
-  Person(
-    "John",
-    "Doe",
-    Address("710 Ashbury St", "94117"),
-    Seq("Jr", "Jane"),
-    age = None
-  ).toSomeJson: JsonValue
+Person(
+  "John",
+  "Doe",
+  Address("710 Ashbury St", "94117"),
+  Seq("Jr", "Jane"),
+  age = None
+).toSomeJson: JsonValue
 
-  Json.parse("").to[Person]: Try[Person]
+Json.parse("").to[Person]: Try[Person]
 }
+
+// null pointer handling
+{
+implicit val nullPointerBehavior = 
+  NullPointerBehavior.Handle(() => Some(JsonString("unknown")))
+
+implicit val addressToJson = ToJson.auto[Address]
+
+val address = Address(zip = "94117", street = null)
+address.toSomeJson // {"zip": "94117", "street":"unknown"}
+}
+
 }
