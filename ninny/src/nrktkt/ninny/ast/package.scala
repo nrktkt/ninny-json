@@ -26,6 +26,9 @@ package object ast {
 
     def to[A: FromJson] = FromJson[A].from(this)
 
+    /** Do not use this. Use [[Json.render]] instead. This method may return a
+      * human-readable representation of the AST in the future.
+      */
     override def toString = Json.render(this)
 
     def withUpdated = Update(this, Vector())
