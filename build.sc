@@ -97,6 +97,14 @@ class Ninny(val crossScalaVersion: String)
   def scoverageVersion = "1.4.1"
 }
 
+object `old-namespace` extends mill.Cross[OldNamespace](`2.12`, `2.13`, `3`)
+class OldNamespace(val crossScalaVersion: String)
+    extends CrossScalaModule
+    with PublishMod {
+  def artifactName = "ninny-old-namespace"
+  def moduleDeps   = List(ninny(crossScalaVersion))
+}
+
 object `play-compat` extends mill.Cross[PlayCompat](`2.12`, `2.13`)
 class PlayCompat(val crossScalaVersion: String)
     extends CrossScalaModule
