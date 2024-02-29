@@ -39,4 +39,11 @@ class ToJsonInstancesSpec extends AnyFlatSpec with should.Matchers {
       either.toSomeJson shouldEqual expected
     }
   }
+
+  "MaybeJsonSyntax" should "be usable as JSON" in {
+    val objxt = obj("nested" ~> obj("name" ~> "value"))
+    val syntax: MaybeJsonSyntax = objxt.nested
+    val newObject = obj("outer" ~> syntax)
+    newObject shouldBe obj("outer" ~> obj("name" ~> "value"))
+  }
 }
