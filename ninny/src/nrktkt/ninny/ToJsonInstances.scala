@@ -83,6 +83,7 @@ trait ToJsonInstances
   implicit val uuidToJson: ToSomeJsonValue[UUID, JsonString] =
     uuid => JsonString(uuid.toString)
 
+  implicit val syntaxToJson: ToJson[MaybeJsonSyntax] = _.maybeJson
 }
 object ToJsonInstances extends ToJsonInstances
 
