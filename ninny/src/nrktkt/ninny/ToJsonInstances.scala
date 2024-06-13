@@ -46,7 +46,7 @@ trait ToJsonInstances
     */
   implicit val unitToJson: ToSomeJson[Unit] = _ => JsonArray(Nil)
 
-  implicit def mapToJson[A: ToJson]: ToSomeJson[Map[String, A]] =
+  implicit def mapToJson[A: ToJson]: ToSomeJsonObject[Map[String, A]] =
     m =>
       JsonObject(m.collect(Function.unlift { case (k, v) =>
         v.toJson.map(k -> _)
