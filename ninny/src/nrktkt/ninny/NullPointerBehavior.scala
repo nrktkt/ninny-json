@@ -14,5 +14,5 @@ object NullPointerBehavior {
     val someNull = Some(JsonNull)
     () => someNull
   }
-  implicit def default = PassThrough
+  implicit def default: NullPointerBehavior = PassThrough
 }
