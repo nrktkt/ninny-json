@@ -9,7 +9,7 @@ import $file.forProductN
 
 val `2.12` = "2.12.15"
 val `2.13` = "2.13.10"
-val `3`    = "3.1.0"
+val `3`    = "3.3.4"
 
 val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
 val json4sVersion = Map(4 -> "4.0.6", 3 -> "3.6.12")
