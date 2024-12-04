@@ -144,6 +144,23 @@ class Json4sCompat(val crossScalaVersion: String, val json4sMajor: Int)
   }
 }
 
+object `circe-compat` extends mill.Cross[CirceCompat](`2.12`, `2.13`)
+class CirceCompat(val crossScalaVersion: String) extends CrossScalaModule with PublishMod {
+  def artifactName = "ninny-circe-compat"
+
+  def moduleDeps = List(ninny(crossScalaVersion))
+  def ivyDeps    = Agg(
+    ivy"io.circe::circe-core:0.14.3",
+    ivy"io.circe::circe-generic:0.14.3",
+    ivy"io.circe::circe-generic-extras:0.14.3",
+  )
+
+  object test extends Tests {
+    def testFrameworks = Seq("org.scalatest.tools.Framework")
+    def ivyDeps        = Agg(scalaTest)
+  }
+}
+
 object ubjson extends ScalaModule with PublishMod {
   def scalaVersion = `2.13`
   def artifactName = "ninny-ubjson"
