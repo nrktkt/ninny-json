@@ -47,9 +47,13 @@ class Ninny(val crossScalaVersion: String)
       "-feature",
       "-unchecked",
       "-deprecation"
-    ) ++ (if (crossScalaVersion != `3`)
-            Seq("-Ywarn-macros:after", "-Ywarn-unused")
-          else None)
+    ) ++ (
+      if (crossScalaVersion != `3`) Seq("-Ywarn-macros:after", "-Ywarn-unused")
+      else None
+    ) ++ (
+      if (crossScalaVersion == `2.12`) Seq("-language:higherKinds")
+      else None
+    )
 
   def ivyDeps =
     Agg(

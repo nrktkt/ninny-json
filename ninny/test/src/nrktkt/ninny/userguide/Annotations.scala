@@ -13,7 +13,7 @@ case class Example(
   int: Int
 )
 
-implicit val toFromJson = ToAndFromJson.auto[Example]
+implicit val toFromJson: ToAndFromJson[Example] = ToAndFromJson.auto
 
 Example("foo", 1).toSomeJson
 // {"string_field":"foo", "int":1}

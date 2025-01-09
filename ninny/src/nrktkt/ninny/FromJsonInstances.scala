@@ -10,7 +10,6 @@ import com.typesafe.scalalogging.LazyLogging
 import java.util.Base64
 import scala.collection.compat.immutable.ArraySeq
 import scala.util.control.NonFatal
-import scala.annotation.nowarn
 
 trait FromJsonInstances
     extends VersionSpecificFromJsonInstances
@@ -234,9 +233,6 @@ trait FromJsonInstances
 object FromJsonInstances extends FromJsonInstances
 
 trait LowPriorityFromJsonInstances {
-  // this roundabout way to import compiler flag for higher kinded types avoids a deprecation warning when building for 2.13
-  @nowarn protected implicit lazy val hkhack: languageFeature.higherKinds.type =
-    scala.languageFeature.higherKinds
 
   implicit def collectionFromJson[F[_], A](implicit
       factory: Factory[A, F[A]],

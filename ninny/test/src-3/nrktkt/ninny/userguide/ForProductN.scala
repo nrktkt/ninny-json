@@ -12,17 +12,11 @@ val fromJson: FromJson[Address] =
 
 implicit 
 val toJson: ToSomeJson[Address] =
-  ToJson.forProduct2("street", "zip_code")({ address =>
-    val Address(street, zip) = Address.unapply(address)
-    (street, zip)
-  })
+  ToJson.forProduct2("street", "zip_code")(Tuple.fromProductTyped)
 
 val toAndFromJson: ToAndFromJson[Address] =
-  ToAndFromJson.forProduct2[Address, String, String]("street", "zip_code")(
-    Address.apply, { address =>
-      val Address(street, zip) = Address.unapply(address)
-      (street, zip)
-    }
+  ToAndFromJson.forProduct2("street", "zip_code")(
+    Address.apply, Tuple.fromProductTyped
   )
 
 Address(street = "710 Ashbury St", zip = "94117").toSomeJson
