@@ -2,6 +2,7 @@ package nrktkt.ninny.userguide
 
 import nrktkt.ninny.userguide.DomainFrom.Person
 import nrktkt.ninny.userguide.DomainFrom.Address
+import nrktkt.ninny.AnySyntax
 
 object FullAuto {
 // format: off

@@ -8,3 +8,4 @@ target/
 .ammonite
 .bsp
 *.iml
+.DS_Store

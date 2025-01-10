@@ -5,7 +5,7 @@ Rather than implementing `ToJson` and `FromJson` by hand, you can generate them 
 <sauce-code 
     repo='nrktkt/ninny-json'
     lang='scala'
-    file='ninny/test/src-2/nrktkt/ninny/userguide/SemiAuto.scala'
+    file='ninny/test/src/nrktkt/ninny/userguide/SemiAuto.scala'
     lines='11:16'
 ></sauce-code>
 
@@ -17,8 +17,8 @@ If you like you can even skip the declaration by mixing in `AutoToJson` or
 <sauce-code 
     repo='nrktkt/ninny-json'
     lang='scala'
-    file='ninny/test/src-2/nrktkt/ninny/userguide/FullAuto.scala'
-    lines='9:18'
+    file='ninny/test/src/nrktkt/ninny/userguide/FullAuto.scala'
+    lines='10:19'
 ></sauce-code>
 
 ## Modifying field names with annotations
@@ -28,7 +28,7 @@ You can change the name of a field being read to/from JSON using the `@JsonName`
 <sauce-code 
     repo='nrktkt/ninny-json'
     lang='scala'
-    file='ninny/test/src-2/nrktkt/ninny/userguide/Annotations.scala'
+    file='ninny/test/src/nrktkt/ninny/userguide/Annotations.scala'
     lines='10:19'
 ></sauce-code>
 
@@ -39,7 +39,7 @@ If your case class has optional parameters then you can use their default values
 <sauce-code 
     repo='nrktkt/ninny-json'
     lang='scala'
-    file='ninny/test/src-2/nrktkt/ninny/userguide/DefaultValues.scala'
+    file='ninny/test/src/nrktkt/ninny/userguide/DefaultValues.scala'
     lines='9:17'
 ></sauce-code>
 
@@ -52,6 +52,6 @@ By providing an instance of `NullPointerBehavior` in the scope of your `ToJson` 
 <sauce-code 
     repo='nrktkt/ninny-json'
     lang='scala'
-    file='ninny/test/src-2/nrktkt/ninny/example/Userguide.scala'
+    file='ninny/test/src/nrktkt/ninny/example/Userguide.scala'
     lines='207:214'
 ></sauce-code>

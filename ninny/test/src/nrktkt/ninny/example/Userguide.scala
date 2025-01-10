@@ -143,7 +143,7 @@ implicit val personToJson: ToSomeJson[Person] = p =>
     "age"       ~> p.age
   )
 
-implicit val personFromJson = FromJson.fromSome[Person](json =>
+implicit val personFromJson: FromJson[Person] = FromJson.fromSome(json =>
   for {
     first   <- json.firstName.to[String]
     last    <- json.lastName.to[String]
@@ -170,11 +170,11 @@ Json.parse("").to[Person]: Try[Person]
   implement ToSomeJson instead of ToJson if your object always produces
   some kind of JSON. this is a common case.
   */
-implicit val addressToJson = ToAndFromJson.auto[Address]
+implicit val addressToJson: ToAndFromJson[Address] = ToAndFromJson.auto
 
-implicit val personToJson = ToJson.auto[Person]
+implicit val personToJson: ToSomeJsonObject[Person] = ToJson.auto
 
-implicit val personFromJson = FromJson.auto[Person]
+implicit val personFromJson: FromJson[Person] = FromJson.auto
 
 Person(
   "John",
@@ -207,7 +207,7 @@ Json.parse("").to[Person]: Try[Person]
 implicit val nullPointerBehavior = 
   NullPointerBehavior.Handle(() => Some(JsonString("unknown")))
 
-implicit val addressToJson = ToJson.auto[Address]
+implicit val addressToJson: ToSomeJsonObject[Address] = ToJson.auto
 
 val address = Address(zip = "94117", street = null)
 address.toSomeJson // {"zip": "94117", "street":"unknown"}
