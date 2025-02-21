@@ -41,7 +41,7 @@ trait FromJsonAutoImpl {
       fromJsonForNames: Lazy[
         (Sized[List[String], Size], Defaults) => FromJson[Values]
       ]
-  ) = {
+  ): FromJsonAuto[A] = {
     val names    = sizeNames(replaceNames(fields.keys, annotations()))
     val fromJson = fromJsonForNames.value(names, defaults()).map(generic.from)
     new FromJsonAuto[A](fromJson)

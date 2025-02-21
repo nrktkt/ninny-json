@@ -7,8 +7,8 @@ import $ivy.`com.lihaoyi::mill-contrib-bloop:$MILL_VERSION`
 import mill.define.{Segment, Segments}
 import $file.forProductN
 
-val `2.12` = "2.12.15"
-val `2.13` = "2.13.10"
+val `2.12` = "2.12.20"
+val `2.13` = "2.13.16"
 val `3`    = "3.3.4"
 
 val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
@@ -94,6 +94,7 @@ class Ninny(val crossScalaVersion: String)
       Agg(
         ivy"org.json4s::json4s-native-core:${json4sVersion(4)}",
         ivy"org.slf4j:slf4j-simple:1.7.32",
+        ivy"com.google.guava:guava:33.4.0-jre",
         scalaTest
       )
   }
@@ -149,14 +150,16 @@ class Json4sCompat(val crossScalaVersion: String, val json4sMajor: Int)
 }
 
 object `circe-compat` extends mill.Cross[CirceCompat](`2.12`, `2.13`)
-class CirceCompat(val crossScalaVersion: String) extends CrossScalaModule with PublishMod {
+class CirceCompat(val crossScalaVersion: String)
+    extends CrossScalaModule
+    with PublishMod {
   def artifactName = "ninny-circe-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(
+  def ivyDeps = Agg(
     ivy"io.circe::circe-core:0.14.3",
     ivy"io.circe::circe-generic:0.14.3",
-    ivy"io.circe::circe-generic-extras:0.14.3",
+    ivy"io.circe::circe-generic-extras:0.14.3"
   )
 
   object test extends Tests {
