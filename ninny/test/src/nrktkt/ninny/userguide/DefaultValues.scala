@@ -8,9 +8,9 @@ object DefaultValues extends App {
 
 case class User(name: String, admin: Boolean = false)
 
-implicit val userFromJson = {
+implicit val userFromJson: FromJson[User] = {
   import nrktkt.ninny.FromJsonAuto.useDefaults
-  FromJson.auto[User]
+  FromJson.auto
 }
 
 obj("name" --> "Alice").to[User]

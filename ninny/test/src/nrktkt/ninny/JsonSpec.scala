@@ -30,11 +30,11 @@ class JsonSpec
     val sampleValues = obj(
       "string" ~> """¯\_(ツ)_/¯""",
       "number" ~> 1.79e308,
-      "bool"   ~> true,
-      "false"  ~> false,
-      "null"   ~> JsonNull,
-      "unit"   ~> ((): Unit),
-      "some"   ~> "str"
+      "bool" ~> true,
+      "false" ~> false,
+      "null" ~> JsonNull,
+      "unit" ~> ((): Unit),
+      "some" ~> "str"
     )
 
     val sampleArray =
@@ -44,7 +44,7 @@ class JsonSpec
       JsonObject(
         sampleValues.values ++ obj(
           "object" ~> sampleValues,
-          "array"  ~> sampleArray
+          "array" ~> sampleArray
         ).values
       )
 
@@ -95,11 +95,11 @@ class JsonSpec
   val sampleValuesAst = obj(
     "string" ~> """¯\_(ツ)_/¯""",
     "number" ~> 1.79e308,
-    "bool"   ~> true,
-    "false"  ~> false,
-    "null"   ~> JsonNull,
-    "unit"   ~> ((): Unit),
-    "some"   ~> Some("str")
+    "bool" ~> true,
+    "false" ~> false,
+    "null" ~> JsonNull,
+    "unit" ~> ((): Unit),
+    "some" ~> Some("str")
   )
 
   val sampleValuesObj = SampleValues(
@@ -184,39 +184,39 @@ class JsonSpec
 
   val exampleObjectAst = obj(
     "Image" ~> obj(
-      "Width"  ~> 800,
+      "Width" ~> 800,
       "Height" ~> 600,
-      "Title"  ~> "View from 15th Floor",
+      "Title" ~> "View from 15th Floor",
       "Thumbnail" ~> obj(
-        "Url"    ~> "http://www.example.com/image/481989943",
+        "Url" ~> "http://www.example.com/image/481989943",
         "Height" ~> 125,
-        "Width"  ~> 100
+        "Width" ~> 100
       ),
       "Animated" ~> false,
-      "IDs"      ~> arr(116, 943, 234, 38793)
+      "IDs" ~> arr(116, 943, 234, 38793)
     )
   )
 
   val exampleArrayAst = arr(
     obj(
       "precision" ~> "zip",
-      "Latitude"  ~> 37.7668,
+      "Latitude" ~> 37.7668,
       "Longitude" ~> -122.3959,
-      "Address"   ~> "",
-      "City"      ~> "SAN FRANCISCO",
-      "State"     ~> "CA",
-      "Zip"       ~> "94107",
-      "Country"   ~> "US"
+      "Address" ~> "",
+      "City" ~> "SAN FRANCISCO",
+      "State" ~> "CA",
+      "Zip" ~> "94107",
+      "Country" ~> "US"
     ),
     obj(
       "precision" ~> "zip",
-      "Latitude"  ~> 37.371991,
+      "Latitude" ~> 37.371991,
       "Longitude" ~> -122.026020,
-      "Address"   ~> "",
-      "City"      ~> "SUNNYVALE",
-      "State"     ~> "CA",
-      "Zip"       ~> "94085",
-      "Country"   ~> "US"
+      "Address" ~> "",
+      "City" ~> "SUNNYVALE",
+      "State" ~> "CA",
+      "Zip" ~> "94085",
+      "Country" ~> "US"
     )
   )
 
@@ -245,13 +245,13 @@ class JsonSpec
 
     implicit val toJson: ToSomeJson[Image] = a =>
       obj(
-        "Width"     ~> a.Width,
-        "Height"    ~> a.Height,
-        "Title"     ~> a.Title,
+        "Width" ~> a.Width,
+        "Height" ~> a.Height,
+        "Title" ~> a.Title,
         "Thumbnail" ~> a.Thumbnail,
-        "Url"       ~> a.Url,
-        "Animated"  ~> a.Animated,
-        "IDs"       ~> (if (a.IDs.isEmpty) None else Some(a.IDs))
+        "Url" ~> a.Url,
+        "Animated" ~> a.Animated,
+        "IDs" ~> (if (a.IDs.isEmpty) None else Some(a.IDs))
       )
   }
 
@@ -282,13 +282,13 @@ class JsonSpec
     implicit val toJson: ToSomeJson[Address] = a =>
       obj(
         "precision" ~> a.precision,
-        "Latitude"  ~> a.Latitude,
+        "Latitude" ~> a.Latitude,
         "Longitude" ~> a.Longitude,
-        "Address"   ~> a.Address,
-        "City"      ~> a.City,
-        "State"     ~> a.State,
-        "Zip"       ~> a.Zip,
-        "Country"   ~> a.Country
+        "Address" ~> a.Address,
+        "City" ~> a.City,
+        "State" ~> a.State,
+        "Zip" ~> a.Zip,
+        "Country" ~> a.Country
       )
   }
 
@@ -512,7 +512,6 @@ class JsonSpec
     head :++ tail shouldEqual arr(1, 2, 3, 4, 5, 6)
   }
 
-
   "JsonBlob" should "encode and decode to base64" in {
     val bytes = new Array[Byte](16)
     Random.nextBytes(bytes)
@@ -624,7 +623,7 @@ class JsonSpec
         y: Int,
         z: Int
     )
-    implicit val json = ToAndFromJson.auto[Big]
+    implicit val json: ToAndFromJson[Big] = ToAndFromJson.auto
     val big = Big(1, 2, 2, 1234, 1234, 124, 1234, 1234, 1234, 1234, 123, 2134,
       1324, 1234, 1234, 1, 234, 1234, 14, 23, 132, 13, 431, 31, 3412, 1432)
     Json
@@ -636,7 +635,7 @@ class JsonSpec
 
   "annotations" should "work" in {
     case class Example(@JsonName("baz") foo: String, bop: Int)
-    implicit val toFromJson = ToAndFromJson.auto[Example]
+    implicit val toFromJson: ToAndFromJson[Example] = ToAndFromJson.auto
 
     val example = Example("bar", 1)
     val js      = example.toSomeJson
@@ -648,9 +647,9 @@ class JsonSpec
     case class Example(qix: Int, foo: String = "bar")
 
     "auto from json" should "read defaults for absent fields" in {
-      implicit val toFromJson = {
+      implicit val toFromJson: ToAndFromJson[Example] = {
         import FromJsonAuto.useDefaults
-        ToAndFromJson.auto[Example]
+        ToAndFromJson.auto
       }
 
       obj("qix" ~> 1).to[Example].success.value shouldEqual Example(1)
@@ -676,17 +675,17 @@ class JsonSpec
       if (i == null) JsonNumber(0) else JsonDouble(i.toDouble)
 
     "NullPointerBehavior" should "pass null pointers to typeclass instances by default" in {
-      val example                = Example(null)
-      implicit val exampleToJson = ToJson.auto[Example]
-      val json                   = example.toSomeJson
+      val example                                           = Example(null)
+      implicit val exampleToJson: ToSomeJsonObject[Example] = ToJson.auto
+      val json                                              = example.toSomeJson
       (json / "i").value shouldEqual JsonNumber(0)
     }
 
     it should "use behavior when in scope" in {
       val example                      = Example(null)
       implicit val nullPointerBehavior = NullPointerBehavior.WriteNull
-      implicit val exampleToJson       = ToJson.auto[Example]
-      val json                         = example.toSomeJson
+      implicit val exampleToJson: ToSomeJsonObject[Example] = ToJson.auto
+      val json                                              = example.toSomeJson
       (json / "i").value shouldEqual JsonNull
     }
   }
