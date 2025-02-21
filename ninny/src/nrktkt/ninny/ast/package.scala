@@ -42,6 +42,22 @@ package object ast {
       f(k) -> v
     })
 
+    def mapNamesR(f: String => String): JsonObject = {
+      val renamedFields = values.map {
+        case (name: String, value: JsonValue) =>
+          val updatedName = f(name)
+
+          val updatedValue = value match {
+            case obj: JsonObject => obj.mapNamesR(f)
+            case _               => value
+          }
+
+          updatedName -> updatedValue
+      }
+
+      JsonObject(renamedFields)
+    }
+
     def +[A: ToJson](entry: (String, A)) =
       entry._2.toJson match {
         case Some(value) =>
