@@ -22,7 +22,9 @@ import com.google.common.base.CaseFormat._
 
 implicit val personToJson: ToJson[Person] = 
     ToJson.auto[Person].postprocess(
-      (_: JsonObject).mapNames(LOWER_CAMEL.to(LOWER_UNDERSCORE, _))
+      (_: JsonObject).mapNames(
+        LOWER_CAMEL.to(LOWER_UNDERSCORE, _)
+      )
     )
 
 // format: on
