@@ -41,7 +41,7 @@ Below is an example of converting a camel cased case class to snake case using g
     repo='nrktkt/ninny-json'
     lang='scala'
     file='ninny/test/src/nrktkt/ninny/userguide/Renaming.scala'
-    lines='21:27'
+    lines='21:29'
 ></sauce-code>
 
 Note that if the renamed typeclass derives from another, like `ToJson[Person]` does from `ToJson[Address]`, then that dependency type class will still dictate its own naming. 
