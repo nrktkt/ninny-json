@@ -32,6 +32,44 @@ You can change the name of a field being read to/from JSON using the `@JsonName`
     lines='10:19'
 ></sauce-code>
 
+## Modifying field names with rules
+
+You can change the name of all fields being considered by a typeclass using the `preprocess` and `postprocess` methods.  
+Below is an example of converting a camel cased case class to snake case using guava `CaseFormat`.
+
+<sauce-code 
+    repo='nrktkt/ninny-json'
+    lang='scala'
+    file='ninny/test/src/nrktkt/ninny/userguide/Renaming.scala'
+    lines='21:29'
+></sauce-code>
+
+Note that if the renamed typeclass derives from another, like `ToJson[Person]` does from `ToJson[Address]`, then that dependency type class will still dictate its own naming. 
+
+<sauce-code 
+    repo='nrktkt/ninny-json'
+    lang='scala'
+    file='ninny/test/src/nrktkt/ninny/userguide/Renaming.scala'
+    lines='9:18'
+></sauce-code>
+
+And therefore in this case we can see the address is still camel cased.
+
+```
+{
+  "first_name": "Jim",
+  "last_name": "Bob",
+  "kids": [],
+  "address": {
+    "houseNumber": 718,
+    "street": "Ashbury St."
+    "zip": "94117",
+  }
+}
+```
+
+To make both use snake case, apply the renaming process to the `Address` typeclass as well.
+
 ## Using default values for optional fields
 
 If your case class has optional parameters then you can use their default values when a field is absent by importing the feature flag `FromJsonAuto.useDefaults` in the scope of the derivation for your `FromJson`.
