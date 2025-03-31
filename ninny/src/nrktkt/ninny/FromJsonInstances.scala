@@ -203,8 +203,12 @@ trait FromJsonInstances
   implicit val unitFromJson: FromJson[Unit] = maybeJson =>
     Success(maybeJson.map(_ => ()))
 
-  implicit def jsonFromJson[J <: JsonValue]: FromJson[J] =
-    FromJson.fromSome[J](j => Try(j.asInstanceOf[J]))
+  implicit val jsonFromJson: FromJson[JsonValue] =
+    _.fold[Try[JsonValue]](
+      Failure(
+        new JsonException("Absent JSON field could not be made into JSON value")
+      )
+    )(Success(_))
 
   implicit def optionFromJson[A: FromJson]: FromJson[Option[A]] = {
     case Some(JsonNull) => Success(None)

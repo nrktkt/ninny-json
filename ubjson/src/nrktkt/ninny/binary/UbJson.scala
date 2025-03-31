@@ -90,9 +90,8 @@ object UbJson extends LowConflictMarkers {
 
       case JsonObject(values) =>
         values
-          .map {
-            case (name, value) =>
-              renderView(JsonString(name)).drop(1).concat(renderView(value))
+          .map { case (name, value) =>
+            renderView(JsonString(name)).drop(1).concat(renderView(value))
           }
           .fold(ArraySeq.empty[Byte].view)(_.concat(_))
           .prepended(ObjStart)
@@ -180,7 +179,8 @@ object UbJson extends LowConflictMarkers {
         case BigNum +:: bNumber(JsonNumber(value), tail) =>
           val length = value.toInt
           Try(new String(tail.take(length).toArray, UTF_8))
-            .flatMap(Json.parse(_, highPrecision = true).to[JsonNumber])
+            .flatMap(Json.parse(_, highPrecision = true))
+            .collect { case n: JsonNumber => n }
             .map(_ -> tail.drop(length))
             .toOption
 
@@ -220,11 +220,10 @@ object UbJson extends LowConflictMarkers {
             ) =>
           Iterable
             .iterate(Try((Vector.empty[JsonValue], tail)), n.toInt + 1) {
-              _.flatMap {
-                case (values, rest) =>
-                  parse(maybeMarker.map(rest.prepended).getOrElse(rest)).map {
-                    case (field, restrest) => (values :+ field, restrest)
-                  }
+              _.flatMap { case (values, rest) =>
+                parse(maybeMarker.map(rest.prepended).getOrElse(rest)).map {
+                  case (field, restrest) => (values :+ field, restrest)
+                }
               }
             }
             .lastOption
@@ -234,8 +233,8 @@ object UbJson extends LowConflictMarkers {
             }
 
         case ArrStart +:: array =>
-          scan(array).toOption.map {
-            case (arr, rest) => (JsonArray(arr), rest)
+          scan(array).toOption.map { case (arr, rest) =>
+            (JsonArray(arr), rest)
           }
 
         case _ => None
@@ -274,11 +273,10 @@ object UbJson extends LowConflictMarkers {
             ) =>
           Iterable
             .iterate(Try((Map.empty[String, JsonValue], tail)), n.toInt + 1) {
-              _.flatMap {
-                case (fields, rest) =>
-                  field(rest, maybeMarker).map {
-                    case (field, restrest) => (fields + field, restrest)
-                  }
+              _.flatMap { case (fields, rest) =>
+                field(rest, maybeMarker).map { case (field, restrest) =>
+                  (fields + field, restrest)
+                }
               }
             }
             .lastOption
@@ -288,8 +286,8 @@ object UbJson extends LowConflictMarkers {
             }
 
         case ObjStart +:: obj =>
-          scan(obj, Vector.empty).toOption.map {
-            case (fields, rest) => JsonObject(fields.toMap) -> rest
+          scan(obj, Vector.empty).toOption.map { case (fields, rest) =>
+            JsonObject(fields.toMap) -> rest
           }
         case _ => None
       }
