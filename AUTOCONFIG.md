@@ -1,3 +1,7 @@
+<script type='module' src="https://cdn.jsdelivr.net/gh/nrktkt/sauce@11.1.0/sauce.js">
+  <h1>If you're reading this, you should go to the userguide website at https://nrktkt.github.io/ninny-json/AUTOCONFIG </h1>
+</script>
+
 # Automatic derivation for `ToJson` and `FromJson`
 
 Rather than implementing `ToJson` and `FromJson` by hand, you can generate them automatically using
