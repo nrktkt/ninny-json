@@ -67,24 +67,26 @@ class Ninny(val crossScalaVersion: String)
 
   override def generatedSources =
     T {
-      generateSources()
-      Seq(PathRef(T.dest / os.up / os.up / "generateSources" / "dest"))
+      Seq(generateSources())
     }
 
   def generateSources =
     T {
+      val out = T.dest
+      os.makeDir.all(out)
       os.write(
-        T.dest / "ProductToJson.scala",
+        out / "ProductToJson.scala",
         forProductN.generateProductToJson
       )
       os.write(
-        T.dest / "ProductFromJson.scala",
+        out / "ProductFromJson.scala",
         forProductN.generateProductFromJson
       )
       os.write(
-        T.dest / "ProductToAndFromJson.scala",
+        out / "ProductToAndFromJson.scala",
         forProductN.generateProductToAndFromJson
       )
+      PathRef(out)
     }
 
   object test extends Tests with TestModule.ScalaTest {
