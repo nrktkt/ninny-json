@@ -175,8 +175,8 @@ trait CirceCompat
 
   def moduleDeps = List(ninny(crossScalaVersion))
   def ivyDeps = Agg(
-    mvn"io.circe::circe-core:0.14.3",
-    mvn"io.circe::circe-generic:0.14.3",
+    mvn"io.circe::circe-core:0.14.15",
+    mvn"io.circe::circe-generic:0.14.15",
     mvn"io.circe::circe-generic-extras:0.14.3"
   )
 
