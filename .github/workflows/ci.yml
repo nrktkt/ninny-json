@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper versioning
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Compile
+        run: ./mill --disable-ticker __.compile
+
+      - name: Test
+        run: ./mill --disable-ticker __.test
+
+  publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Import GPG key
+        run: |
+          echo "$SIGNING_KEY" | gpg --batch --import
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+
+      - name: Publish to Sonatype Central
+        env:
+          PUBLISH_VERSION: ${{ github.ref_name }}
+          GPG_PW: ${{ secrets.GPG_PW }}
+          SONATYPE_NAME: ${{ env.SONATYPE_NAME }}
+          SONATYPE_PW: ${{ secrets.SONATYPE_PW }}
+        run: |
+          ./mill -i --ticker false \
+            mill.scalalib.SonatypeCentralPublishModule/publishAll \
+            --gpgArgs --passphrase="$GPG_PW",--batch,--yes,-a,-b,--pinentry-mode,loopback \
+          --username "$SONATYPE_NAME" --password "$SONATYPE_PW" \
+          --shouldRelease true
