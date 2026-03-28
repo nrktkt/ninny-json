@@ -11,7 +11,7 @@ val `2.12` = "2.12.20"
 val `2.13` = "2.13.16"
 val `3`    = "3.3.4"
 
-val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
+val scalaTest     = mvn"org.scalatest::scalatest:3.2.10"
 val json4sVersion = Map(4 -> "4.0.6", 3 -> "3.6.12")
 
 trait PublishMod extends PublishModule {
@@ -19,10 +19,7 @@ trait PublishMod extends PublishModule {
   def sonatypeSnapshotUri =
     "https://s01.oss.sonatype.org/content/repositories/snapshots"
 
-  def artifactName =
-    Segments(
-      millModuleSegments.value.filterNot(_.isInstanceOf[Segment.Cross]): _*
-    ).parts.mkString("-")
+  // artifactName defined per-module to avoid Segments API differences
 
   def publishVersion = T.input(T.ctx().env("PUBLISH_VERSION"))
   def pomSettings =
@@ -36,10 +33,14 @@ trait PublishMod extends PublishModule {
     )
 }
 
-object ninny extends mill.Cross[Ninny](`2.12`, `2.13`, `3`)
-class Ninny(val crossScalaVersion: String)
+object ninny extends mill.Cross[Ninny](Seq(`2.12`, `2.13`, `3`))
+trait Ninny
     extends CrossScalaModule
-    with PublishMod { self =>
+    with PublishMod
+    with mill.Cross.Module[String] { self =>
+
+  override def crossScalaVersion: String = crossValue
+  def artifactName                       = "ninny"
 
   def scalacOptions =
     Seq(
@@ -57,44 +58,47 @@ class Ninny(val crossScalaVersion: String)
 
   def ivyDeps =
     Agg(
-      ivy"org.typelevel::jawn-parser:1.3.0",
-      ivy"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
-      ivy"org.scala-lang.modules::scala-collection-compat:2.6.0",
-      ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
+      mvn"org.typelevel::jawn-parser:1.3.0",
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
+      mvn"org.scala-lang.modules::scala-collection-compat:2.6.0",
+      mvn"com.typesafe.scala-logging::scala-logging:3.9.4"
     ) ++ (if (crossScalaVersion != `3`)
-            Agg(ivy"com.chuusai::shapeless:2.3.7")
+            Agg(mvn"com.chuusai::shapeless:2.3.7")
           else None)
 
   override def generatedSources =
     T {
-      generateSources()
-      Seq(PathRef(T.dest / os.up / os.up / "generateSources" / "dest"))
+      Seq(generateSources())
     }
 
   def generateSources =
     T {
+      val out = T.dest
+      os.makeDir.all(out)
       os.write(
-        T.dest / "ProductToJson.scala",
+        out / "ProductToJson.scala",
         forProductN.generateProductToJson
       )
       os.write(
-        T.dest / "ProductFromJson.scala",
+        out / "ProductFromJson.scala",
         forProductN.generateProductFromJson
       )
       os.write(
-        T.dest / "ProductToAndFromJson.scala",
+        out / "ProductToAndFromJson.scala",
         forProductN.generateProductToAndFromJson
       )
+      PathRef(out)
     }
 
-  object test extends Tests with TestModule.ScalaTest {
+  object test extends ScalaTests with TestModule.ScalaTest {
+    def testFrameworks = Seq("org.scalatest.tools.Framework")
     def scalacOptions =
       T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native-core:${json4sVersion(4)}",
-        ivy"org.slf4j:slf4j-simple:1.7.32",
-        ivy"com.google.guava:guava:33.4.0-jre",
+        mvn"org.json4s::json4s-native-core:${json4sVersion(4)}",
+        mvn"org.slf4j:slf4j-simple:1.7.32",
+        mvn"com.google.guava:guava:33.4.0-jre",
         scalaTest
       )
   }
@@ -102,67 +106,81 @@ class Ninny(val crossScalaVersion: String)
   def scoverageVersion = "1.4.1"
 }
 
-object `old-namespace` extends mill.Cross[OldNamespace](`2.12`, `2.13`, `3`)
-class OldNamespace(val crossScalaVersion: String)
+object `old-namespace`
+    extends mill.Cross[OldNamespace](Seq(`2.12`, `2.13`, `3`))
+trait OldNamespace
     extends CrossScalaModule
-    with PublishMod {
-  def artifactName = "ninny-old-namespace"
-  def moduleDeps   = List(ninny(crossScalaVersion))
+    with PublishMod
+    with mill.Cross.Module[String] {
+  override def crossScalaVersion: String = crossValue
+  def artifactName                       = "ninny-old-namespace"
+  def moduleDeps                         = List(ninny(crossScalaVersion))
 }
 
-object `play-compat` extends mill.Cross[PlayCompat](`2.12`, `2.13`)
-class PlayCompat(val crossScalaVersion: String)
+object `play-compat` extends mill.Cross[PlayCompat](Seq(`2.12`, `2.13`))
+trait PlayCompat
     extends CrossScalaModule
-    with PublishMod {
+    with PublishMod
+    with mill.Cross.Module[String] {
+  override def crossScalaVersion: String = crossValue
 
   def artifactName = "ninny-play-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(ivy"com.typesafe.play::play-json:2.9.2")
+  def ivyDeps    = Agg(mvn"com.typesafe.play::play-json:2.9.2")
 
-  object test extends Tests {
+  object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
 }
 
-val json4sCrossMatrix = for {
-  json4sVersion <- Seq(4, 3)
-  scalaVersion <- Seq(`2.12`, `2.13`) ++ (if (json4sVersion >= 4) Seq(`3`)
-                                          else Nil)
-} yield (scalaVersion, json4sVersion)
-object `json4s-compat` extends mill.Cross[Json4sCompat](json4sCrossMatrix: _*)
-class Json4sCompat(val crossScalaVersion: String, val json4sMajor: Int)
-    extends CrossScalaModule
-    with PublishMod {
+object `json4s-compat` extends mill.Module {
+  trait Json4sCompatBase
+      extends CrossScalaModule
+      with PublishMod
+      with mill.Cross.Module[String] {
+    override def crossScalaVersion: String = crossValue
+    protected def json4sMajor: Int
 
-  def millSourcePath = super.millSourcePath / os.up
+    def millSourcePath = super.millSourcePath / os.up
+    def artifactName   = s"ninny-json4s$json4sMajor-compat"
+    def moduleDeps     = List(ninny(crossScalaVersion))
+    def ivyDeps = Agg(mvn"org.json4s::json4s-ast:${json4sVersion(json4sMajor)}")
 
-  def artifactName = s"ninny-json4s$json4sMajor-compat"
+    object test extends ScalaTests with TestModule.ScalaTest {
+      def testFrameworks = Seq("org.scalatest.tools.Framework")
+      def ivyDeps        = Agg(scalaTest)
+    }
+  }
 
-  def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps = Agg(ivy"org.json4s::json4s-ast:${json4sVersion(json4sMajor)}")
+  object v4 extends mill.Cross[Json4sCompatV4](Seq(`2.12`, `2.13`, `3`))
+  trait Json4sCompatV4 extends Json4sCompatBase {
+    override protected def json4sMajor: Int = 4
+  }
 
-  object test extends Tests with TestModule.ScalaTest {
-    def testFrameworks = Seq("org.scalatest.tools.Framework")
-    def ivyDeps        = Agg(scalaTest)
+  object v3 extends mill.Cross[Json4sCompatV3](Seq(`2.12`, `2.13`))
+  trait Json4sCompatV3 extends Json4sCompatBase {
+    override protected def json4sMajor: Int = 3
   }
 }
 
-object `circe-compat` extends mill.Cross[CirceCompat](`2.12`, `2.13`)
-class CirceCompat(val crossScalaVersion: String)
+object `circe-compat` extends mill.Cross[CirceCompat](Seq(`2.12`, `2.13`))
+trait CirceCompat
     extends CrossScalaModule
-    with PublishMod {
-  def artifactName = "ninny-circe-compat"
+    with PublishMod
+    with mill.Cross.Module[String] {
+  override def crossScalaVersion: String = crossValue
+  def artifactName                       = "ninny-circe-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
   def ivyDeps = Agg(
-    ivy"io.circe::circe-core:0.14.3",
-    ivy"io.circe::circe-generic:0.14.3",
-    ivy"io.circe::circe-generic-extras:0.14.3"
+    mvn"io.circe::circe-core:0.14.3",
+    mvn"io.circe::circe-generic:0.14.3",
+    mvn"io.circe::circe-generic-extras:0.14.3"
   )
 
-  object test extends Tests {
+  object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
@@ -173,22 +191,24 @@ object ubjson extends ScalaModule with PublishMod {
   def artifactName = "ninny-ubjson"
   def moduleDeps   = List(ninny(`2.13`))
 
-  object test extends Tests with TestModule.ScalaTest {
+  object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
 }
 
-object `script-kit` extends mill.Cross[ScriptKit](`2.12`, `2.13`)
-class ScriptKit(val crossScalaVersion: String)
+object `script-kit` extends mill.Cross[ScriptKit](Seq(`2.12`, `2.13`))
+trait ScriptKit
     extends CrossScalaModule
-    with PublishMod {
+    with PublishMod
+    with mill.Cross.Module[String] {
+  override def crossScalaVersion: String = crossValue
 
   def artifactName = "ninny-script-kit"
 
   def moduleDeps = List(ninny(crossScalaVersion))
 
-  object test extends Tests with TestModule.ScalaTest {
+  object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
     def ivyDeps        = Agg(scalaTest)
   }
