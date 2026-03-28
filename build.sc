@@ -127,7 +127,7 @@ trait PlayCompat
   def artifactName = "ninny-play-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(mvn"com.typesafe.play::play-json:2.9.2")
+  def ivyDeps    = Agg(mvn"com.typesafe.play::play-json:2.9.4")
 
   object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
