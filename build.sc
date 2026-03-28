@@ -11,7 +11,7 @@ val `2.12` = "2.12.20"
 val `2.13` = "2.13.16"
 val `3`    = "3.3.4"
 
-val scalaTest     = ivy"org.scalatest::scalatest:3.2.10"
+val scalaTest     = mvn"org.scalatest::scalatest:3.2.10"
 val json4sVersion = Map(4 -> "4.0.6", 3 -> "3.6.12")
 
 trait PublishMod extends PublishModule {
@@ -58,12 +58,12 @@ trait Ninny
 
   def ivyDeps =
     Agg(
-      ivy"org.typelevel::jawn-parser:1.3.0",
-      ivy"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
-      ivy"org.scala-lang.modules::scala-collection-compat:2.6.0",
-      ivy"com.typesafe.scala-logging::scala-logging:3.9.4"
+      mvn"org.typelevel::jawn-parser:1.3.0",
+      mvn"com.github.plokhotnyuk.jsoniter-scala::jsoniter-scala-core:2.12.0",
+      mvn"org.scala-lang.modules::scala-collection-compat:2.6.0",
+      mvn"com.typesafe.scala-logging::scala-logging:3.9.4"
     ) ++ (if (crossScalaVersion != `3`)
-            Agg(ivy"com.chuusai::shapeless:2.3.7")
+            Agg(mvn"com.chuusai::shapeless:2.3.7")
           else None)
 
   override def generatedSources =
@@ -96,9 +96,9 @@ trait Ninny
       T(self.scalacOptions().filterNot(_ == "-Xfatal-warnings"))
     def ivyDeps =
       Agg(
-        ivy"org.json4s::json4s-native-core:${json4sVersion(4)}",
-        ivy"org.slf4j:slf4j-simple:1.7.32",
-        ivy"com.google.guava:guava:33.4.0-jre",
+        mvn"org.json4s::json4s-native-core:${json4sVersion(4)}",
+        mvn"org.slf4j:slf4j-simple:1.7.32",
+        mvn"com.google.guava:guava:33.4.0-jre",
         scalaTest
       )
   }
@@ -127,7 +127,7 @@ trait PlayCompat
   def artifactName = "ninny-play-compat"
 
   def moduleDeps = List(ninny(crossScalaVersion))
-  def ivyDeps    = Agg(ivy"com.typesafe.play::play-json:2.9.2")
+  def ivyDeps    = Agg(mvn"com.typesafe.play::play-json:2.9.2")
 
   object test extends ScalaTests with TestModule.ScalaTest {
     def testFrameworks = Seq("org.scalatest.tools.Framework")
@@ -146,7 +146,7 @@ object `json4s-compat` extends mill.Module {
     def millSourcePath = super.millSourcePath / os.up
     def artifactName   = s"ninny-json4s$json4sMajor-compat"
     def moduleDeps     = List(ninny(crossScalaVersion))
-    def ivyDeps = Agg(ivy"org.json4s::json4s-ast:${json4sVersion(json4sMajor)}")
+    def ivyDeps = Agg(mvn"org.json4s::json4s-ast:${json4sVersion(json4sMajor)}")
 
     object test extends ScalaTests with TestModule.ScalaTest {
       def testFrameworks = Seq("org.scalatest.tools.Framework")
@@ -175,9 +175,9 @@ trait CirceCompat
 
   def moduleDeps = List(ninny(crossScalaVersion))
   def ivyDeps = Agg(
-    ivy"io.circe::circe-core:0.14.3",
-    ivy"io.circe::circe-generic:0.14.3",
-    ivy"io.circe::circe-generic-extras:0.14.3"
+    mvn"io.circe::circe-core:0.14.3",
+    mvn"io.circe::circe-generic:0.14.3",
+    mvn"io.circe::circe-generic-extras:0.14.3"
   )
 
   object test extends ScalaTests with TestModule.ScalaTest {
