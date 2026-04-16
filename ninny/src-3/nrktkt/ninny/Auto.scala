@@ -28,7 +28,7 @@ trait AutoFromJson {
 }
 
 object Auto extends AutoToJson with AutoFromJson {
-  private[ninny] type OverrideNames[Names <: Tuple, Overriden <: Tuple] <: Tuple =
+  type OverrideNames[Names <: Tuple, Overriden <: Tuple] <: Tuple =
     (Names, Overriden) match
       case (aHead *: aTail, Null *: bTail) => aHead *: OverrideNames[aTail, bTail]
       case (aHead *: aTail, str *: bTail) => str *: OverrideNames[aTail, bTail]
