@@ -38,6 +38,8 @@ package object ast {
       extends AnyVal
       with JsonValue {
 
+    def isEmpty = values.isEmpty
+
     def mapNames(f: String => String) = JsonObject(values.map { case (k, v) =>
       f(k) -> v
     })
@@ -111,6 +113,8 @@ package object ast {
   }
 
   case class JsonArray(values: Seq[JsonValue]) extends AnyVal with JsonValue {
+
+    def isEmpty = values.isEmpty
 
     def :+[A: ToJson](value: A) =
       value.toJson match {
