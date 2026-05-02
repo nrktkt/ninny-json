@@ -11,7 +11,7 @@ val `2.12` = "2.12.20"
 val `2.13` = "2.13.16"
 val `3`    = "3.3.4"
 
-val scalaTest     = mvn"org.scalatest::scalatest:3.2.10"
+val scalaTest     = mvn"org.scalatest::scalatest:3.2.20"
 val json4sVersion = Map(4 -> "4.0.6", 3 -> "3.6.12")
 
 trait PublishMod extends PublishModule {
