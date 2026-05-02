@@ -63,7 +63,7 @@ trait Ninny
       mvn"org.scala-lang.modules::scala-collection-compat:2.6.0",
       mvn"com.typesafe.scala-logging::scala-logging:3.9.4"
     ) ++ (if (crossScalaVersion != `3`)
-            Agg(mvn"com.chuusai::shapeless:2.3.7")
+            Agg(mvn"com.chuusai::shapeless:2.3.13")
           else None)
 
   override def generatedSources =
