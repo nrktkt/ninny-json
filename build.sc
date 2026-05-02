@@ -177,7 +177,7 @@ trait CirceCompat
   def ivyDeps = Agg(
     mvn"io.circe::circe-core:0.14.3",
     mvn"io.circe::circe-generic:0.14.3",
-    mvn"io.circe::circe-generic-extras:0.14.3"
+    mvn"io.circe::circe-generic-extras:0.14.4"
   )
 
   object test extends ScalaTests with TestModule.ScalaTest {
