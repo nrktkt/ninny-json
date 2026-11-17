@@ -97,7 +97,7 @@ trait Ninny
     def ivyDeps =
       Agg(
         mvn"org.json4s::json4s-native-core:${json4sVersion(4)}",
-        mvn"org.slf4j:slf4j-simple:1.7.32",
+        mvn"org.slf4j:slf4j-simple:1.7.36",
         mvn"com.google.guava:guava:33.4.0-jre",
         scalaTest
       )
